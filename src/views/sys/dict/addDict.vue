@@ -130,7 +130,7 @@ export default defineComponent({
       },
       rules: {
         parent: [{required: true, trigger: 'blur', message: '请选择上级'}],
-        code: [{required: true, trigger: 'blur', message: '请输入编码'}],
+        code: [{required: true, trigger: 'commit', message: '请输入编码'}],
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
       },
       upload: {},
