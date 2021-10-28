@@ -29,9 +29,11 @@
 <script lang='ts'>
 import {defineComponent, reactive, toRefs, ref, computed} from "vue";
 import {ElMessage} from 'element-plus';
+import {ValidationRuleAdapter} from '../../../base/ValidationRuleAdapter.ts'
 
 function useAdd({form}, FORM, cascader, emit) {
   const submit = () => {
+    const origRule = {}
     FORM.value.validate(async valid => {
       if (!valid) return ElMessage.error('验证未通过');
       const params = {
@@ -128,11 +130,32 @@ export default defineComponent({
         seqNo: undefined,
         remark: ""
       },
-      rules: {
-        parent: [{required: true, trigger: 'blur', message: '请选择上级'}],
-        code: [{required: true, trigger: 'commit', message: '请输入编码'}],
-        name: [{required: true, trigger: 'blur', message: "请输入名称"}],
-      },
+      rules: new ValidationRuleAdapter({
+        "name": {
+          "Compare": [{
+            "anotherProperty": "code",
+            "depends": {
+              "andOr": "AND",
+              "logics": ["EQ"],
+              "properties": ["seqNo"],
+              "values": ["1"]
+            },
+            "logic": "EQ",
+            "message": "两次密码不同"
+          },
+            // {
+            //   "anotherProperty": "username",
+            //   "logic": "IN",
+            //   "message": "密码不能包含用户名"
+            // }
+            ]
+        }
+      }, ()=>{return FORM.value.model}).getRules(),
+      //     {
+      //   parent: [{required: true, trigger: 'blur', message: '请选择上级'}],
+      //   code: [{required: true, trigger: 'commit', message: '请输入编码'}],
+      //   name: [{required: true, trigger: 'blur', message: "请输入名称"}],
+      // },
       upload: {},
       closeDialog() {
         Dialog.upload.imageUrl = '';

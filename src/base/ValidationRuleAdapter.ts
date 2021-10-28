@@ -1,185 +1,186 @@
-class ValidationAdapter {
+export class ValidationRuleAdapter {
 
     private origRules: any
-    private model: any
+    private getModel: any
     private destRules: any = {}
 
-    constructor(origRules: any, model: any) {
+    constructor(origRules: any, getModel: () => any) {
         this.origRules = origRules
-        this.model = model
+        this.getModel = getModel
     }
 
     getRules(): any {
         for (let propName in this.origRules) {
             let rules = this.origRules[propName]
             for (let ruleName in rules) {
-                let ruleDetails: Array<any> = rules[ruleName]
-                if (!this.destRules[propName]) {
-                    this.destRules[propName] = []
-                }
-
-                const rule = {}
-
-                switch (ruleName) {
-                    case "Null":
-                        this.null(propName, ruleDetails, rule)
-                        break
-                    case "NotNull":
-                        this.notNull(propName, ruleDetails, rule)
-                        break
-                    case "NotEmpty":
-                        this.notEmpty(propName, ruleDetails, rule)
-                        break
-                    case "NotBlank":
-                        this.notBlank(propName, ruleDetails, rule)
-                        break
-                    case "AssertTrue":
-                        this.assertTrue(propName, ruleDetails, rule)
-                        break
-                    case "AssertFalse":
-                        this.assertFalse(propName, ruleDetails, rule)
-                        break
-                    case "CodePointLength":
-                        this.codePointLength(propName, ruleDetails, rule)
-                        break
-                    case "Remote":
-                        this.remote(propName, ruleDetails, rule)
-                        break
-                    case "Length":
-                        this.length(propName, ruleDetails, rule)
-                        break
-                    case "Compare":
-                        this.compare(propName, ruleDetails)
-                        break
-                    case "Pattern":
-                        this.pattern(propName, ruleDetails, rule)
-                        break
-                    case "Email":
-                        this.email(propName, ruleDetails, rule)
-                        break
-                    case "min":
-                        this.min(propName, ruleDetails, rule)
-                        break
-                    case "max":
-                        this.max(propName, ruleDetails, rule)
-                        break
-                    case "Past":
-                        this.past(propName, ruleDetails, rule)
-                        break
-                    case "Future":
-                        this.future(propName, ruleDetails, rule)
-                        break
-                    case "PastOrPresent":
-                        this.pastOrPresent(propName, ruleDetails, rule)
-                        break
-                    case "FutureOrPresent":
-                        this.futureOrPresent(propName, ruleDetails, rule)
-                        break
-                    case "DurationMin":
-                        //TODO
-                        break
-                    case "DurationMax":
-                        //TODO
-                        break
-                    case "DecimalMin":
-                        this.decimalMin(propName, ruleDetails, rule)
-                        break
-                    case "DecimalMax":
-                        this.decimalMax(propName, ruleDetails, rule)
-                        break
-                    case "Range":
-                        this.range(propName, ruleDetails, rule)
-                        break
-                    case "Digits":
-                        this.digits(propName, ruleDetails, rule)
-                        break
-                    case "Positive":
-                        this.positive(propName, ruleDetails, rule)
-                        break
-                    case "Negative":
-                        this.negative(propName, ruleDetails, rule)
-                        break
-                    case "PositiveOrZero":
-                        this.positiveOrZero(propName, ruleDetails, rule)
-                        break
-                    case "NegativeOrZero":
-                        this.negativeOrZero(propName, ruleDetails, rule)
-                        break
-                    case "CreditCardNumber":
-                        //TODO
-                        break
-                    case "Currency":
-                        //TODO
-                        break
-                    case "EAN":
-                        this.ean(propName, ruleDetails, rule)
-                        break
-                    case "LuhnCheck":
-                        this.luhnCheck(propName, ruleDetails, rule)
-                        break
-                    case "Mod10Check":
-                        this.mod10Check(propName, ruleDetails, rule)
-                        break
-                    case "ParameterScriptAssert":
-                        //TODO
-                        break
-                    case "URL":
-                        this.url(propName, ruleDetails, rule)
-                        break
-                    case "Size":
-                        this.size(propName, ruleDetails, rule)
-                        break
-                    case "DictEnumCode":
-                        this.dictEnumCode(propName, ruleDetails, rule)
-                        break
-                    case "Series":
-                        this.series(propName, ruleDetails, rule)
-                        break
-                    case "NotNullOn":
-                        this.notNullOn(propName, ruleDetails, rule)
-                        break
-                    case "Each":
-                        this.each(propName, ruleDetails, rule)
-                        break
-                    case "Exist":
-                        this.exist(propName, ruleDetails, rule)
-                        break
-                    case "UniqueElements":
-                        this.uniqueElements(propName, ruleDetails, rule)
-                        break
-                    case "Constraints":
-                        this.constraints(propName, ruleDetails, rule)
-                        break
-                    case "Valid":
-                        this.valid(propName, ruleDetails, rule)
-                        break
-
-                }
-
-                if (!rule["message"]) {
-                    rule["message"] = ruleDetails[0]["message"]
-                    this.destRules[propName].push(rule)
-                }
-
+                this.parseRule(ruleName, propName, rules)
             }
-
         }
-        return null
+        return this.destRules
+    }
+
+    private parseRule(ruleName: string, propName: string, rules) {
+        let ruleDetails: Array<any> = rules[ruleName]
+        if (!this.destRules[propName]) {
+            this.destRules[propName] = []
+        }
+        const rule = {trigger: 'blur'}
+        this.doParseRule(ruleName, propName, ruleDetails, rule)
+        if (!rule["message"]) {
+            rule["message"] = ruleDetails[0]["message"]
+            this.destRules[propName].push(rule)
+        }
+    }
+
+    private doParseRule(ruleName: string, propName: string, ruleDetails: Array<any>, rule: any) {
+        switch (ruleName) {
+            case "Null":
+                this.null(propName, ruleDetails, rule)
+                break
+            case "NotNull":
+                this.notNull(propName, ruleDetails, rule)
+                break
+            case "NotEmpty":
+                this.notEmpty(propName, ruleDetails, rule)
+                break
+            case "NotBlank":
+                this.notBlank(propName, ruleDetails, rule)
+                break
+            case "AssertTrue":
+                this.assertTrue(propName, ruleDetails, rule)
+                break
+            case "AssertFalse":
+                this.assertFalse(propName, ruleDetails, rule)
+                break
+            case "CodePointLength":
+                this.codePointLength(propName, ruleDetails, rule)
+                break
+            case "Remote":
+                this.remote(propName, ruleDetails, rule)
+                break
+            case "Length":
+                this.length(propName, ruleDetails, rule)
+                break
+            case "Compare":
+                this.compare(propName, ruleDetails)
+                break
+            case "Pattern":
+                this.pattern(propName, ruleDetails, rule)
+                break
+            case "Email":
+                this.email(propName, ruleDetails, rule)
+                break
+            case "min":
+                this.min(propName, ruleDetails, rule)
+                break
+            case "max":
+                this.max(propName, ruleDetails, rule)
+                break
+            case "Past":
+                this.past(propName, ruleDetails, rule)
+                break
+            case "Future":
+                this.future(propName, ruleDetails, rule)
+                break
+            case "PastOrPresent":
+                this.pastOrPresent(propName, ruleDetails, rule)
+                break
+            case "FutureOrPresent":
+                this.futureOrPresent(propName, ruleDetails, rule)
+                break
+            case "DurationMin":
+                //TODO
+                break
+            case "DurationMax":
+                //TODO
+                break
+            case "DecimalMin":
+                this.decimalMin(propName, ruleDetails, rule)
+                break
+            case "DecimalMax":
+                this.decimalMax(propName, ruleDetails, rule)
+                break
+            case "Range":
+                this.range(propName, ruleDetails, rule)
+                break
+            case "Digits":
+                this.digits(propName, ruleDetails, rule)
+                break
+            case "Positive":
+                this.positive(propName, ruleDetails, rule)
+                break
+            case "Negative":
+                this.negative(propName, ruleDetails, rule)
+                break
+            case "PositiveOrZero":
+                this.positiveOrZero(propName, ruleDetails, rule)
+                break
+            case "NegativeOrZero":
+                this.negativeOrZero(propName, ruleDetails, rule)
+                break
+            case "CreditCardNumber":
+                //TODO
+                break
+            case "Currency":
+                //TODO
+                break
+            case "EAN":
+                this.ean(propName, ruleDetails, rule)
+                break
+            case "LuhnCheck":
+                this.luhnCheck(propName, ruleDetails, rule)
+                break
+            case "Mod10Check":
+                this.mod10Check(propName, ruleDetails, rule)
+                break
+            case "ParameterScriptAssert":
+                //TODO
+                break
+            case "URL":
+                this.url(propName, ruleDetails, rule)
+                break
+            case "Size":
+                this.size(propName, ruleDetails, rule)
+                break
+            case "DictEnumCode":
+                this.dictEnumCode(propName, ruleDetails, rule)
+                break
+            case "Series":
+                this.series(propName, ruleDetails, rule)
+                break
+            case "NotNullOn":
+                this.notNullOn(propName, ruleDetails, rule)
+                break
+            case "Each":
+                this.each(propName, ruleDetails, rule)
+                break
+            case "Exist":
+                this.exist(propName, ruleDetails, rule)
+                break
+            case "UniqueElements":
+                this.uniqueElements(propName, ruleDetails, rule)
+                break
+            case "Constraints":
+                this.constraints(propName, ruleDetails, rule)
+                break
+        }
     }
 
     /** null约束，被校验对象可以是任何类型 */
     private null(propName: string, ruleDetails: Array<any>, rule: any) {
-        rule["validator"] = (rule, value) => value == null
+        rule["validator"] = (rule, value) => value == null || value == ''
     }
 
     /** 非null约束，被校验对象可以是任何类型 */
     private notNull(propName: string, ruleDetails: Array<any>, rule: any) {
-        rule["validator"] = (rule, value) => value != null
+        rule["validator"] = (rule, value) => value != null && value != ''
     }
 
-    /** 非空约束, 被校验对象类型必须为以下之一：字符串、数组、列表、集合、Map */
+    /** 非空约束, 被校验对象类型必须为以下之一：字符串、数组、集合、Map */
     private notEmpty(propName: string, ruleDetails: Array<any>, rule: any) {
-        rule["validator"] = (rule, value) => value != null && !value.isEmpty()
+        rule["validator"] = (rule, value) => {
+            return !this.isEmpty(value)
+        }
     }
 
     /** 非空白约束，被校验对象类型必须为字符串 */
@@ -190,27 +191,42 @@ class ValidationAdapter {
 
     /** 逻辑真约束，被校验对象类型必须为Boolean，且值为true，或者值为"true"的字符串 */
     private assertTrue(propName: string, ruleDetails: Array<any>, rule: any) {
-        rule["validator"] = (rule, value) => value == null || value == true || value == "true"
+        rule["validator"] = (rule, value) => value == null || value == '' || value == true || value == "true"
     }
 
     /** 逻辑假约束，被校验对象类型必须为Boolean，且值为false，或者值为"false"的字符串 */
     private assertFalse(propName: string, ruleDetails: Array<any>, rule: any) {
-        rule["validator"] = (rule, value) => value == null || value == false || value == "false"
+        rule["validator"] = (rule, value) => value == null || value == '' || value == false || value == "false"
     }
 
     /** 字符串代码点长度(实际字符数)约束，被校验对象类型必须为字符串 */
     private codePointLength(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "string"
         rule["validator"] = (rule, value) => {
-            return value == null || value.length >= ruleDetails[0].min && value.length <= ruleDetails[0].max
+            return value == null || value == '' || value.length >= ruleDetails[0].min && value.length <= ruleDetails[0].max
         }
     }
 
     /** 远程校验 */
     private remote(propName: string, ruleDetails: Array<any>, rule: any) {
-        rule["validator"] = (rule, value) => {
-            // @ts-ignore
-            return value == null || ajax({url: ruleDetails[0].requestUrl, params: {propName: ""}}).data
+        rule["asyncValidator"] = (rule, value) => {
+            return  new Promise(async (resolve, reject) => {
+                if (value == null || value == '') {
+                    // @ts-ignore
+                    resolve()
+                }
+                const params = {}
+                params[propName] = value
+
+                // @ts-ignore
+                const result = await ajax({url: ruleDetails[0].requestUrl, params})
+                if (result.data) {
+                    // @ts-ignore
+                    resolve()
+                } else {
+                    reject(ruleDetails[0]["message"])
+                }
+            });
         }
     }
 
@@ -233,28 +249,14 @@ class ValidationAdapter {
                     // 先计算依赖条件
                     const depends = ruleDetail["depends"]
                     if (depends) {
-                        const andOr = depends["andOr"]
-                        const properties = <Array<string>>depends["properties"]
-                        const logics = <Array<string>>depends["logics"]
-                        const values = <Array<string>>depends["values"]
-                        for (let i = 0; i < properties.length; i++) {
-                            const property = properties[i]
-                            const result = this.compareTwoValue(logics[i], this.model[property], values[i])
-                            if (andOr == "AND") {
-                                if (!result) {
-                                    return true // 与逻辑时，只要一个条件不成立，depends就为false，就不需要进行外层的compare比较
-                                }
-                            } else {
-                                if (result) {
-                                    break // 或逻辑时，只要一个条件成立，depends就为true，就需要外层的compare比较
-                                }
-                            }
+                        if (this.isDependsNotPass(depends)) {
+                            return true
                         }
                     }
 
                     // 依赖条件不存在，或其表达式成立，再进行Compare比较逻辑
                     const anotherProperty = ruleDetail["anotherProperty"]
-                    const anotherValue = this.model[anotherProperty]
+                    const anotherValue = this.getModel()[anotherProperty]
                     const logic = ruleDetail["logic"]
                     const result = this.compareTwoValue(logic, value, anotherValue)
                     if (!result) {
@@ -280,6 +282,11 @@ class ValidationAdapter {
     /** 邮箱约束，被校验对象类型必须为字符串 */
     private email(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "email"
+        // 为了Each或Exists约束能取到rule["validator"]
+        const pattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+\.)+[a-zA-Z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]{2,}))$/
+        rule["validator"] = (rule, value) => {
+            return typeof value === 'string' && value.length <= 320 && !!value.match(pattern)
+        }
     }
 
     /** 最小值约束，被校验对象类型必须为数值 */
@@ -543,16 +550,113 @@ class ValidationAdapter {
                 if (size != 0 && value.length != size) {
                     return false
                 }
-                return this.validateSeries(rule["type"], rule["step"], value)
+                return this.validateSeries(ruleDetails[0]["type"], ruleDetails[0]["step"], value)
             }
         }
     }
 
     /** 非null依赖约束，当前属性的值是否可以为null，取决于定义的表达式。 */
     private notNullOn(propName: string, ruleDetails: Array<any>, rule: any) {
+        rule["validator"] = (rule, value) => {
+            const depends = ruleDetails[0]["depends"]
+            if (this.isDependsNotPass(depends)) {
+                return true
+            }
 
+            // 依赖条件不存在，或其表达式成立，再进行NotNull逻辑
+            return value != null
+        }
     }
 
+    /** 对数组的每一个元素应用Constraints约束，每一个元素都校验通过才算最终通过 */
+    private each(propName: string, ruleDetails: Array<any>, rule: any) {
+        rule["type"] = "array"
+        rule["validator"] = (rule, value: Array<any>) => {
+            ruleDetails.forEach((r) => {
+                for (let ruleName in r) {
+                    for (let v in value) {
+                        const rule = {}
+                        this.doParseRule(ruleName, propName, r[ruleName], rule)
+                        if (!rule["validator"](rule, v)) {
+                            return false
+                        }
+                    }
+                }
+            })
+            return true
+        }
+    }
+
+    /** 对数组的每一个元素应用Constraints约束，只要一个元素Constraints约束校验通过就算通过 */
+    private exist(propName: string, ruleDetails: Array<any>, rule: any) {
+        rule["type"] = "array"
+        rule["validator"] = (rule, value: Array<any>) => {
+            ruleDetails.forEach((r) => {
+                for (let ruleName in r) {
+                    for (let v in value) {
+                        const rule = {}
+                        this.doParseRule(ruleName, propName, r[ruleName], rule)
+                        if (rule["validator"](rule, v)) {
+                            return true
+                        }
+                    }
+                }
+            })
+            return false
+        }
+    }
+
+    /** 惟一约束，被校验对象类型必须为数组 */
+    private uniqueElements(propName: string, ruleDetails: Array<any>, rule: any) {
+        rule["type"] = "array"
+        rule["validator"] = (rule, value) => new Set(value).size == value.length
+    }
+
+    /** 组合约束 */
+    private constraints(propName: string, ruleDetails: Array<any>, rule: any) {
+        ruleDetails.forEach((r) => {
+            for (let ruleName in r) {
+                this.parseRule(ruleName, propName, r)
+            }
+        })
+    }
+
+    private isEmpty(value: any): Boolean {
+        if (value == null) {
+            return true
+        }
+        if (typeof value == 'string' || value instanceof String) {
+            return value == ''
+        }
+        if (value instanceof Array) {
+            return value.length == 0
+        }
+        if (value instanceof Set || value instanceof Map) {
+            return value.size == 0
+        }
+        return false
+    }
+
+    private isDependsNotPass(depends: any): Boolean {
+        const andOr = depends["andOr"]
+        const properties = <Array<string>>depends["properties"]
+        const logics = <Array<string>>depends["logics"]
+        const values = <Array<string>>depends["values"]
+        for (let i = 0; i < properties.length; i++) {
+            const property = properties[i]
+            const result = this.compareTwoValue(logics[i], this.getModel()[property], values[i])
+            if (andOr == "AND") {
+                if (!result) {
+                    return true // 与逻辑时，只要一个条件不成立，depends就为false，就不需要进行外层的compare比较
+                }
+            } else {
+                if (result) {
+                    return false // 或逻辑时，只要一个条件成立，depends就为true，就需要外层的compare比较
+                }
+            }
+        }
+        return false
+    }
 
     private compareTwoValue(logic: string, v1: any, v2: any): Boolean {
         switch (logic) {
@@ -882,166 +986,3 @@ class ValidationAdapter {
     }
 
 }
-
-
-// new ValidationAdapter({
-//         "mobile": {
-//             "Pattern": [{"flags": [], "message": "手机号码格式错误", "regexp": "^[0-9]*$"}],
-//             "AtLeast": [{"count": 1, "logic": "IS_NOT_NULL", "message": "必须至少提供一种联系方式", "properties": ["mobile", "email"]}]
-//         },
-//         "email": {
-//             "Email": [{"flags": [], "message": "{javax.validation.constraints.Email.message}", "regexp": ".*"}],
-//             "AtLeast": [{"count": 1, "logic": "IS_NOT_NULL", "message": "必须至少提供一种联系方式", "properties": ["mobile", "email"]}]
-//         },
-//         "abilities": {
-//             "Each": [{
-//                 "NotBlank": {"message": "{javax.validation.constraints.NotBlank.message}"},
-//                 "Pattern": {"flags": [], "message": "特长必须为英文字母", "regexp": "[a-zA-Z]+"}
-//             }]
-//         },
-//         "'address.country'": {"NotNull": [{"message": "{javax.validation.constraints.NotNull.message}"}]},
-//         "'address.province'": {"NotNull": [{"message": "{javax.validation.constraints.NotNull.message}"}]},
-//         "age": {"Min": [{"value": 18, "message": "未满18周岁不能注册"}], "Max": [{"value": 60, "message": "超过60周岁不能注册"}]},
-//         "barcode": {"EAN": [{"type": "EAN13", "message": "{org.hibernate.validator.constraints.EAN.message}"}]},
-//         "bookIsbn": {"ISBN": [{"type": "ISBN_13", "message": "{org.hibernate.validator.constraints.ISBN.message}"}]},
-//         "confirmPassword": {
-//             "Compare": [{
-//                 "anotherProperty": "password",
-//                 "depends": {"andOr": "AND", "logics": ["EQ"], "properties": ["validate"], "values": ["true"]},
-//                 "logic": "EQ",
-//                 "message": "两次密码不同"
-//             }, {"anotherProperty": "username", "logic": "IN", "message": "密码不能包含用户名"}]
-//         },
-//         "creditCardNumber": {
-//             "CreditCardNumber": [{
-//                 "message": "{org.hibernate.validator.constraints.CreditCardNumber.message}",
-//                 "ignoreNonDigitCharacters": false
-//             }]
-//         },
-//         "currency": {"Currency": [{"value": [], "message": "{org.hibernate.validator.constraints.Currency.message}"}]},
-//         "date1": {"PastOrPresent": [{"message": "{javax.validation.constraints.PastOrPresent.message}"}]},
-//         "date2": {"FutureOrPresent": [{"message": "{javax.validation.constraints.FutureOrPresent.message}"}]},
-//         "error": {"Null": [{"message": "{javax.validation.constraints.Null.message}"}]},
-//         "expireDate": {"Future": [{"message": "{javax.validation.constraints.Future.message}"}]},
-//         "eyesight": {
-//             "Positive": [{"message": "视力必须为正数"}],
-//             "Digits": [{"message": "视力值必须是1位整数和1位小数组成", "fraction": 1, "integer": 1}]
-//         },
-//         "greduateDate": {"Past": [{"message": "{javax.validation.constraints.Past.message}"}]},
-//         "guest": {"AssertFalse": [{"message": "{javax.validation.constraints.AssertFalse.message}"}]},
-//         "height": {"Range": [{"min": 30, "max": 270, "message": "身高值必须在30cm到270cm之间"}]},
-//         "hobbies": {"Size": [{"min": 3, "max": 6, "message": "业余爱好必须选3到6项"}]},
-//         "job": {
-//             "NotNullOn": [{
-//                 "depends": {"andOr": "AND", "logics": ["GE"], "properties": ["age"], "values": ["18"]},
-//                 "message": "{io.kuark.base.bean.validation.constraint.annotaions.NotNullOn.message}"
-//             }]
-//         },
-//         "password": {
-//             "NotNull": [{"message": "{javax.validation.constraints.NotNull.message}"}],
-//             "Length": [{"min": 8, "max": 32, "message": "密码长度必须在8到32之间"}]
-//         },
-//         "photo": {
-//             "URL": [{
-//                 "flags": [],
-//                 "host": "",
-//                 "message": "{org.hibernate.validator.constraints.URL.message}",
-//                 "port": -1,
-//                 "protocol": "",
-//                 "regexp": ".*"
-//             }]
-//         },
-//         "question": {
-//             "NotEmpty": [{"message": "{javax.validation.constraints.NotEmpty.message}"}],
-//             "Series": [{"message": "机器人识别问题回答错误", "size": 0, "step": 2.0, "type": "INC_DIFF"}]
-//         },
-//         "remark": {
-//             "Constraints": [{
-//                 "NotBlank": {"message": "备注不能为空"},
-//                 "Pattern": {"flags": [], "message": "备注不能包含特殊字符", "regexp": "[a-zA-Z0-9]+"}
-//             }]
-//         },
-//         "richText": {
-//             "ParameterScriptAssert": [{
-//                 "message": "{org.hibernate.validator.constraints.ParametersScriptAssert.message}",
-//                 "lang": "javascript",
-//                 "script": "1==1"
-//             }]
-//         },
-//         "safeQuestions": {
-//             "Exist": [{"NotBlank": {}, "message": "安全问题至少要填写一个"}],
-//             "UniqueElements": [{"message": "{org.hibernate.validator.constraints.UniqueElements.message}"}]
-//         },
-//         "sex": {"DictEnumCode": [{"message": "性别错误", "values": ["0", "1", "9"]}]},
-//         "string1": {
-//             "LuhnCheck": [{
-//                 "endIndex": 2147483647,
-//                 "message": "{org.hibernate.validator.constraints.LuhnCheck.message}",
-//                 "startIndex": 0,
-//                 "ignoreNonDigitCharacters": true,
-//                 "checkDigitIndex": -1
-//             }]
-//         },
-//         "string2": {
-//             "Mod10Check": [{
-//                 "endIndex": 2147483647,
-//                 "message": "{org.hibernate.validator.constraints.Mod10Check.message}",
-//                 "startIndex": 0,
-//                 "multiplier": 3,
-//                 "ignoreNonDigitCharacters": true,
-//                 "checkDigitIndex": -1,
-//                 "weight": 1
-//             }]
-//         },
-//         "string3": {
-//             "Mod11Check": [{
-//                 "endIndex": 2147483647,
-//                 "message": "{org.hibernate.validator.constraints.Mod11Check.message}",
-//                 "threshold": 2147483647,
-//                 "startIndex": 0,
-//                 "ignoreNonDigitCharacters": false,
-//                 "processingDirection": "RIGHT_TO_LEFT",
-//                 "treatCheck11As": "0",
-//                 "treatCheck10As": "X",
-//                 "checkDigitIndex": -1
-//             }]
-//         },
-//         "time1": {
-//             "DurationMax": [{
-//                 "nanos": 0,
-//                 "message": "{org.hibernate.validator.constraints.time.DurationMax.message}",
-//                 "millis": 0,
-//                 "days": 0,
-//                 "hours": 0,
-//                 "minutes": 0,
-//                 "inclusive": true,
-//                 "seconds": 0
-//             }]
-//         },
-//         "time2": {
-//             "DurationMin": [{
-//                 "nanos": 0,
-//                 "message": "{org.hibernate.validator.constraints.time.DurationMin.message}",
-//                 "millis": 0,
-//                 "days": 0,
-//                 "hours": 0,
-//                 "minutes": 0,
-//                 "inclusive": true,
-//                 "seconds": 0
-//             }]
-//         },
-//         "username": {
-//             "NotBlank": [{"message": "{javax.validation.constraints.NotBlank.message}"}],
-//             "CodePointLength": [{"min": 6, "max": 32, "message": "用户名字符数必须在6-32之间", "normalizationStrategy": "NONE"}],
-//             "Remote": [{"message": "用户名已存在", "requestUrl": "/isUserAvailable"}]
-//         },
-//         "validate": {"AssertTrue": [{"message": "{javax.validation.constraints.AssertTrue.message}"}]},
-//         "value1": {"Negative": [{"message": "{javax.validation.constraints.Negative.message}"}]},
-//         "value2": {"NegativeOrZero": [{"message": "{javax.validation.constraints.NegativeOrZero.message}"}]},
-//         "value3": {"PositiveOrZero": [{"message": "{javax.validation.constraints.PositiveOrZero.message}"}]},
-//         "weigth": {
-//             "DecimalMin": [{"value": "50.0", "message": "体重必须大于50.0KG", "inclusive": true}],
-//             "DecimalMax": [{"value": "100.0", "message": "体重必须小于100.0KG", "inclusive": true}]
-//         }
-//     }
-// ).getRules()

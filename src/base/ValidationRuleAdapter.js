@@ -1,10 +1,49 @@
-var ValidationAdapter = /** @class */ (function () {
-    function ValidationAdapter(origRules, model) {
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+exports.__esModule = true;
+exports.ValidationRuleAdapter = void 0;
+var ValidationRuleAdapter = /** @class */ (function () {
+    function ValidationRuleAdapter(origRules, getModel) {
         this.destRules = {};
         this.origRules = origRules;
-        this.model = model;
+        this.getModel = getModel;
     }
-    ValidationAdapter.prototype.getRules = function () {
+    ValidationRuleAdapter.prototype.getRules = function () {
         for (var propName in this.origRules) {
             var rules = this.origRules[propName];
             for (var ruleName in rules) {
@@ -13,22 +52,22 @@ var ValidationAdapter = /** @class */ (function () {
         }
         return this.destRules;
     };
-    ValidationAdapter.prototype.parseRule = function (ruleName, propName, rules) {
+    ValidationRuleAdapter.prototype.parseRule = function (ruleName, propName, rules) {
         var ruleDetails = rules[ruleName];
         if (!this.destRules[propName]) {
             this.destRules[propName] = [];
         }
-        var rule = {};
+        var rule = { trigger: 'blur' };
         this.doParseRule(ruleName, propName, ruleDetails, rule);
         if (!rule["message"]) {
             rule["message"] = ruleDetails[0]["message"];
             this.destRules[propName].push(rule);
         }
     };
-    ValidationAdapter.prototype.doParseRule = function (ruleName, propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.doParseRule = function (ruleName, propName, ruleDetails, rule) {
         switch (ruleName) {
             case "Null":
-                this.null(propName, ruleDetails, rule);
+                this["null"](propName, ruleDetails, rule);
                 break;
             case "NotNull":
                 this.notNull(propName, ruleDetails, rule);
@@ -159,50 +198,77 @@ var ValidationAdapter = /** @class */ (function () {
         }
     };
     /** null约束，被校验对象可以是任何类型 */
-    ValidationAdapter.prototype.null = function (propName, ruleDetails, rule) {
-        rule["validator"] = function (rule, value) { return value == null; };
+    ValidationRuleAdapter.prototype["null"] = function (propName, ruleDetails, rule) {
+        rule["validator"] = function (rule, value) { return value == null || value == ''; };
     };
     /** 非null约束，被校验对象可以是任何类型 */
-    ValidationAdapter.prototype.notNull = function (propName, ruleDetails, rule) {
-        rule["validator"] = function (rule, value) { return value != null; };
+    ValidationRuleAdapter.prototype.notNull = function (propName, ruleDetails, rule) {
+        rule["validator"] = function (rule, value) { return value != null && value != ''; };
     };
-    /** 非空约束, 被校验对象类型必须为以下之一：字符串、数组、列表、集合、Map */
-    ValidationAdapter.prototype.notEmpty = function (propName, ruleDetails, rule) {
-        rule["validator"] = function (rule, value) { return value != null && !value.isEmpty(); };
+    /** 非空约束, 被校验对象类型必须为以下之一：字符串、数组、集合、Map */
+    ValidationRuleAdapter.prototype.notEmpty = function (propName, ruleDetails, rule) {
+        var _this = this;
+        rule["validator"] = function (rule, value) {
+            return !_this.isEmpty(value);
+        };
     };
     /** 非空白约束，被校验对象类型必须为字符串 */
-    ValidationAdapter.prototype.notBlank = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.notBlank = function (propName, ruleDetails, rule) {
         rule["type"] = "string";
         rule["validator"] = function (rule, value) { return value != null && value.trim() != ""; };
     };
     /** 逻辑真约束，被校验对象类型必须为Boolean，且值为true，或者值为"true"的字符串 */
-    ValidationAdapter.prototype.assertTrue = function (propName, ruleDetails, rule) {
-        rule["validator"] = function (rule, value) { return value == null || value == true || value == "true"; };
+    ValidationRuleAdapter.prototype.assertTrue = function (propName, ruleDetails, rule) {
+        rule["validator"] = function (rule, value) { return value == null || value == '' || value == true || value == "true"; };
     };
     /** 逻辑假约束，被校验对象类型必须为Boolean，且值为false，或者值为"false"的字符串 */
-    ValidationAdapter.prototype.assertFalse = function (propName, ruleDetails, rule) {
-        rule["validator"] = function (rule, value) { return value == null || value == false || value == "false"; };
+    ValidationRuleAdapter.prototype.assertFalse = function (propName, ruleDetails, rule) {
+        rule["validator"] = function (rule, value) { return value == null || value == '' || value == false || value == "false"; };
     };
     /** 字符串代码点长度(实际字符数)约束，被校验对象类型必须为字符串 */
-    ValidationAdapter.prototype.codePointLength = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.codePointLength = function (propName, ruleDetails, rule) {
         rule["type"] = "string";
         rule["validator"] = function (rule, value) {
-            return value == null || value.length >= ruleDetails[0].min && value.length <= ruleDetails[0].max;
+            return value == null || value == '' || value.length >= ruleDetails[0].min && value.length <= ruleDetails[0].max;
         };
     };
     /** 远程校验 */
-    ValidationAdapter.prototype.remote = function (propName, ruleDetails, rule) {
-        rule["validator"] = function (rule, value) {
-            // @ts-ignore
-            return value == null || ajax({ url: ruleDetails[0].requestUrl, params: { propName: "" } }).data;
+    ValidationRuleAdapter.prototype.remote = function (propName, ruleDetails, rule) {
+        var _this = this;
+        rule["asyncValidator"] = function (rule, value) {
+            return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                var params, result;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (value == null || value == '') {
+                                // @ts-ignore
+                                resolve();
+                            }
+                            params = {};
+                            params[propName] = value;
+                            return [4 /*yield*/, ajax({ url: ruleDetails[0].requestUrl, params: params })];
+                        case 1:
+                            result = _a.sent();
+                            if (result.data) {
+                                // @ts-ignore
+                                resolve();
+                            }
+                            else {
+                                reject(ruleDetails[0]["message"]);
+                            }
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
         };
     };
     /** 字符串长度约束，被校验对象类型必须为字符串 */
-    ValidationAdapter.prototype.length = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.length = function (propName, ruleDetails, rule) {
         this.codePointLength(propName, ruleDetails, rule);
     };
     /** 比较约束，支持数组类型，但是两个数组的大小必须一致 */
-    ValidationAdapter.prototype.compare = function (propName, ruleDetails) {
+    ValidationRuleAdapter.prototype.compare = function (propName, ruleDetails) {
         var _this = this;
         ruleDetails.forEach(function (ruleDetail) {
             var rule = {};
@@ -221,7 +287,7 @@ var ValidationAdapter = /** @class */ (function () {
                     }
                     // 依赖条件不存在，或其表达式成立，再进行Compare比较逻辑
                     var anotherProperty = ruleDetail["anotherProperty"];
-                    var anotherValue = _this.model[anotherProperty];
+                    var anotherValue = _this.getModel()[anotherProperty];
                     var logic = ruleDetail["logic"];
                     var result = _this.compareTwoValue(logic, value, anotherValue);
                     if (!result) {
@@ -237,14 +303,14 @@ var ValidationAdapter = /** @class */ (function () {
         });
     };
     /** 正则约束，被校验对象类型必须为字符串 */
-    ValidationAdapter.prototype.pattern = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.pattern = function (propName, ruleDetails, rule) {
         rule["type"] = "string";
         rule["validator"] = function (rule, value) {
             return value == null || RegExp(ruleDetails[0]["regexp"]).test(value);
         };
     };
     /** 邮箱约束，被校验对象类型必须为字符串 */
-    ValidationAdapter.prototype.email = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.email = function (propName, ruleDetails, rule) {
         rule["type"] = "email";
         // 为了Each或Exists约束能取到rule["validator"]
         var pattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+\.)+[a-zA-Z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]{2,}))$/;
@@ -253,37 +319,37 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** 最小值约束，被校验对象类型必须为数值 */
-    ValidationAdapter.prototype.min = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.min = function (propName, ruleDetails, rule) {
         rule["type"] = "number";
         rule["validator"] = function (rule, value) { return value == null || value >= ruleDetails[0]["value"]; };
     };
     /** 最大值约束，被校验对象类型必须为数值 */
-    ValidationAdapter.prototype.max = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.max = function (propName, ruleDetails, rule) {
         rule["type"] = "number";
         rule["validator"] = function (rule, value) { return value == null || value <= ruleDetails[0]["value"]; };
     };
     /** 过去时间约束，被校验对象类型必须为Date */
-    ValidationAdapter.prototype.past = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.past = function (propName, ruleDetails, rule) {
         rule["type"] = "date";
         rule["validator"] = function (rule, value) { return value == null || value < new Date(); };
     };
     /** 未来时间约束，被校验对象类型必须为Date */
-    ValidationAdapter.prototype.future = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.future = function (propName, ruleDetails, rule) {
         rule["type"] = "date";
         rule["validator"] = function (rule, value) { return value == null || value > new Date(); };
     };
     /** 过去或现在时间约束，被校验对象类型必须为Date */
-    ValidationAdapter.prototype.pastOrPresent = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.pastOrPresent = function (propName, ruleDetails, rule) {
         rule["type"] = "date";
         rule["validator"] = function (rule, value) { return value == null || value <= new Date(); };
     };
     /** 未来或现在时间约束，被校验对象类型必须为Date */
-    ValidationAdapter.prototype.futureOrPresent = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.futureOrPresent = function (propName, ruleDetails, rule) {
         rule["type"] = "date";
         rule["validator"] = function (rule, value) { return value == null || value >= new Date(); };
     };
     /** 最小值约束，被校验对象类型必须为number */
-    ValidationAdapter.prototype.decimalMin = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.decimalMin = function (propName, ruleDetails, rule) {
         rule["type"] = "number";
         rule["validator"] = function (rule, value) {
             if (value == null) {
@@ -297,7 +363,7 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** 最大值约束，被校验对象类型必须为number */
-    ValidationAdapter.prototype.decimalMax = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.decimalMax = function (propName, ruleDetails, rule) {
         rule["type"] = "number";
         rule["validator"] = function (rule, value) {
             if (value == null) {
@@ -311,7 +377,7 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** 范围约束，被校验对象类型必须为number */
-    ValidationAdapter.prototype.range = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.range = function (propName, ruleDetails, rule) {
         rule["type"] = "number";
         rule["validator"] = function (rule, value) {
             if (value == null) {
@@ -323,7 +389,7 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** 数值位数约束，被校验对象类型必须为number */
-    ValidationAdapter.prototype.digits = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.digits = function (propName, ruleDetails, rule) {
         rule["type"] = "number";
         rule["validator"] = function (rule, value) {
             if (value == null) {
@@ -336,27 +402,27 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** 正数约束，被校验对象类型必须为number */
-    ValidationAdapter.prototype.positive = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.positive = function (propName, ruleDetails, rule) {
         rule["type"] = "number";
         rule["validator"] = function (rule, value) { return value == null || value > 0; };
     };
     /** 负数约束，被校验对象类型必须为number */
-    ValidationAdapter.prototype.negative = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.negative = function (propName, ruleDetails, rule) {
         rule["type"] = "number";
         rule["validator"] = function (rule, value) { return value == null || value < 0; };
     };
     /** 非负数约束，被校验对象类型必须为number */
-    ValidationAdapter.prototype.positiveOrZero = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.positiveOrZero = function (propName, ruleDetails, rule) {
         rule["type"] = "number";
         rule["validator"] = function (rule, value) { return value == null || value >= 0; };
     };
     /** 非正数约束，被校验对象类型必须为number */
-    ValidationAdapter.prototype.negativeOrZero = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.negativeOrZero = function (propName, ruleDetails, rule) {
         rule["type"] = "number";
         rule["validator"] = function (rule, value) { return value == null || value <= 0; };
     };
     /** ean13条形码约束，被校验对象类型必须为number或字符串 */
-    ValidationAdapter.prototype.ean = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.ean = function (propName, ruleDetails, rule) {
         rule["validator"] = function (rule, value) {
             if (value == null) {
                 return true;
@@ -382,7 +448,7 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** luhn约束 */
-    ValidationAdapter.prototype.luhnCheck = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.luhnCheck = function (propName, ruleDetails, rule) {
         rule["validator"] = function (rule, value) {
             if (value == null) {
                 return true;
@@ -406,12 +472,12 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** mod10约束 */
-    ValidationAdapter.prototype.mod10Check = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.mod10Check = function (propName, ruleDetails, rule) {
         var _this = this;
         rule["validator"] = function (rule, value) { return value == null || _this.checkMod10(value); };
     };
     /** isbn约束 */
-    ValidationAdapter.prototype.isbn = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.isbn = function (propName, ruleDetails, rule) {
         var _this = this;
         rule["validator"] = function (rule, value) {
             if (value == null) {
@@ -431,7 +497,7 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** url约束 */
-    ValidationAdapter.prototype.url = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.url = function (propName, ruleDetails, rule) {
         rule["type"] = "url";
         rule["validator"] = function (rule, value) {
             if (value == null) {
@@ -468,7 +534,7 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** 尺寸约束，被校验对象类型必须为string、数组、集合、Map */
-    ValidationAdapter.prototype.size = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.size = function (propName, ruleDetails, rule) {
         rule["validator"] = function (rule, value) {
             if (value == null) {
                 return true;
@@ -487,11 +553,11 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** 枚举约束 */
-    ValidationAdapter.prototype.dictEnumCode = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.dictEnumCode = function (propName, ruleDetails, rule) {
         rule["validator"] = function (rule, value) { return value == null || value in ruleDetails[0]["values"]; };
     };
     /** 数列约束，数组 */
-    ValidationAdapter.prototype.series = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.series = function (propName, ruleDetails, rule) {
         var _this = this;
         rule["validator"] = function (rule, value) {
             if (value == null) {
@@ -507,7 +573,7 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** 非null依赖约束，当前属性的值是否可以为null，取决于定义的表达式。 */
-    ValidationAdapter.prototype.notNullOn = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.notNullOn = function (propName, ruleDetails, rule) {
         var _this = this;
         rule["validator"] = function (rule, value) {
             var depends = ruleDetails[0]["depends"];
@@ -519,7 +585,7 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** 对数组的每一个元素应用Constraints约束，每一个元素都校验通过才算最终通过 */
-    ValidationAdapter.prototype.each = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.each = function (propName, ruleDetails, rule) {
         var _this = this;
         rule["type"] = "array";
         rule["validator"] = function (rule, value) {
@@ -538,7 +604,7 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** 对数组的每一个元素应用Constraints约束，只要一个元素Constraints约束校验通过就算通过 */
-    ValidationAdapter.prototype.exist = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.exist = function (propName, ruleDetails, rule) {
         var _this = this;
         rule["type"] = "array";
         rule["validator"] = function (rule, value) {
@@ -557,12 +623,12 @@ var ValidationAdapter = /** @class */ (function () {
         };
     };
     /** 惟一约束，被校验对象类型必须为数组 */
-    ValidationAdapter.prototype.uniqueElements = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.uniqueElements = function (propName, ruleDetails, rule) {
         rule["type"] = "array";
         rule["validator"] = function (rule, value) { return new Set(value).size == value.length; };
     };
     /** 组合约束 */
-    ValidationAdapter.prototype.constraints = function (propName, ruleDetails, rule) {
+    ValidationRuleAdapter.prototype.constraints = function (propName, ruleDetails, rule) {
         var _this = this;
         ruleDetails.forEach(function (r) {
             for (var ruleName in r) {
@@ -570,14 +636,29 @@ var ValidationAdapter = /** @class */ (function () {
             }
         });
     };
-    ValidationAdapter.prototype.isDependsNotPass = function (depends) {
+    ValidationRuleAdapter.prototype.isEmpty = function (value) {
+        if (value == null) {
+            return true;
+        }
+        if (typeof value == 'string' || value instanceof String) {
+            return value == '';
+        }
+        if (value instanceof Array) {
+            return value.length == 0;
+        }
+        if (value instanceof Set || value instanceof Map) {
+            return value.size == 0;
+        }
+        return false;
+    };
+    ValidationRuleAdapter.prototype.isDependsNotPass = function (depends) {
         var andOr = depends["andOr"];
         var properties = depends["properties"];
         var logics = depends["logics"];
         var values = depends["values"];
         for (var i = 0; i < properties.length; i++) {
             var property = properties[i];
-            var result = this.compareTwoValue(logics[i], this.model[property], values[i]);
+            var result = this.compareTwoValue(logics[i], this.getModel()[property], values[i]);
             if (andOr == "AND") {
                 if (!result) {
                     return true; // 与逻辑时，只要一个条件不成立，depends就为false，就不需要进行外层的compare比较
@@ -591,7 +672,7 @@ var ValidationAdapter = /** @class */ (function () {
         }
         return false;
     };
-    ValidationAdapter.prototype.compareTwoValue = function (logic, v1, v2) {
+    ValidationRuleAdapter.prototype.compareTwoValue = function (logic, v1, v2) {
         switch (logic) {
             case "EQ":
                 return v1 == v2;
@@ -694,7 +775,7 @@ var ValidationAdapter = /** @class */ (function () {
                 return v1 != "";
         }
     };
-    ValidationAdapter.prototype.checkMod10 = function (nums) {
+    ValidationRuleAdapter.prototype.checkMod10 = function (nums) {
         var is_valid = false;
         var check_sum = 0;
         var string_nums = nums.toString();
@@ -727,7 +808,7 @@ var ValidationAdapter = /** @class */ (function () {
         }
         return is_valid;
     };
-    ValidationAdapter.prototype.checkISBN10 = function (code) {
+    ValidationRuleAdapter.prototype.checkISBN10 = function (code) {
         code = (code + '').replace(/[-\s]/g, '');
         if (!/^\d{9}[\dxX]?$/.test(code))
             return;
@@ -740,7 +821,7 @@ var ValidationAdapter = /** @class */ (function () {
             ch = 'X';
         return c == (i = code.charAt(9)) || ch == 'X' && i + '' == 'x';
     };
-    ValidationAdapter.prototype.checkISBN13 = function (code) {
+    ValidationRuleAdapter.prototype.checkISBN13 = function (code) {
         code = (code + '').replace(/[-\s]/g, '');
         if (!/^\d{12,13}$/.test(code))
             return;
@@ -754,7 +835,7 @@ var ValidationAdapter = /** @class */ (function () {
             return code + c;
         return c == code.charAt(12);
     };
-    ValidationAdapter.prototype.validateSeries = function (type, step, values) {
+    ValidationRuleAdapter.prototype.validateSeries = function (type, step, values) {
         switch (type) {
             case "INC_DIFF": // 递增且互不相等
                 var preValue_1 = null;
@@ -891,7 +972,7 @@ var ValidationAdapter = /** @class */ (function () {
                 return new Set(values).size == 1;
         }
     };
-    ValidationAdapter.prototype.maxValueIndex = function (values) {
+    ValidationRuleAdapter.prototype.maxValueIndex = function (values) {
         var maxValueIndex = 0;
         var maxValue = null;
         values.forEach(function (value, index) {
@@ -907,7 +988,7 @@ var ValidationAdapter = /** @class */ (function () {
         });
         return maxValueIndex;
     };
-    ValidationAdapter.prototype.minValueIndex = function (values) {
+    ValidationRuleAdapter.prototype.minValueIndex = function (values) {
         var minValueIndex = 0;
         var minValue = null;
         values.forEach(function (value, index) {
@@ -923,5 +1004,6 @@ var ValidationAdapter = /** @class */ (function () {
         });
         return minValueIndex;
     };
-    return ValidationAdapter;
+    return ValidationRuleAdapter;
 }());
+exports.ValidationRuleAdapter = ValidationRuleAdapter;
