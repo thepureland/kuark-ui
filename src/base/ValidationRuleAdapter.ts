@@ -1,14 +1,34 @@
+import Barcoder from 'barcoder'
+
+/**
+ * 校验规则适配器，用于将服务端返回的校验规则适配为async-validator的校验规则
+ *
+ * @author K
+ * @since 1.0.0
+ */
 export class ValidationRuleAdapter {
 
     private origRules: any
     private getModel: any
     private destRules: any = {}
+    private trigger: string
 
-    constructor(origRules: any, getModel: () => any) {
+    /**
+     * 校验规则适配器的构造器
+     *
+     * @param origRules 服务端返回的校验规则的对象
+     * @param getModel 用于获取待校验对象的函数
+     * @param trigger 校验规则触发器
+     */
+    constructor(origRules: any, getModel: () => any, trigger = 'blur') {
         this.origRules = origRules
         this.getModel = getModel
+        this.trigger = trigger
     }
 
+    /**
+     * 返回async-validator校验规则对象
+     */
     getRules(): any {
         for (let propName in this.origRules) {
             let rules = this.origRules[propName]
@@ -24,7 +44,7 @@ export class ValidationRuleAdapter {
         if (!this.destRules[propName]) {
             this.destRules[propName] = []
         }
-        const rule = {trigger: 'blur'}
+        const rule = {trigger: this.trigger}
         this.doParseRule(ruleName, propName, ruleDetails, rule)
         if (!rule["message"]) {
             rule["message"] = ruleDetails[0]["message"]
@@ -70,10 +90,10 @@ export class ValidationRuleAdapter {
             case "Email":
                 this.email(propName, ruleDetails, rule)
                 break
-            case "min":
+            case "Min":
                 this.min(propName, ruleDetails, rule)
                 break
-            case "max":
+            case "Max":
                 this.max(propName, ruleDetails, rule)
                 break
             case "Past":
@@ -133,6 +153,12 @@ export class ValidationRuleAdapter {
             case "Mod10Check":
                 this.mod10Check(propName, ruleDetails, rule)
                 break
+            case "Mod11Check":
+                this.mod11Check(propName, ruleDetails, rule)
+                break
+            case "ISBN":
+                this.isbn(propName, ruleDetails, rule)
+                break
             case "ParameterScriptAssert":
                 //TODO
                 break
@@ -159,9 +185,6 @@ export class ValidationRuleAdapter {
                 break
             case "UniqueElements":
                 this.uniqueElements(propName, ruleDetails, rule)
-                break
-            case "Constraints":
-                this.constraints(propName, ruleDetails, rule)
                 break
         }
     }
@@ -210,7 +233,7 @@ export class ValidationRuleAdapter {
     /** 远程校验 */
     private remote(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["asyncValidator"] = (rule, value) => {
-            return  new Promise(async (resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 if (value == null || value == '') {
                     // @ts-ignore
                     resolve()
@@ -275,7 +298,7 @@ export class ValidationRuleAdapter {
     private pattern(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "string"
         rule["validator"] = (rule, value) => {
-            return value == null || RegExp(ruleDetails[0]["regexp"]).test(value)
+            return this.isEmpty(value) || RegExp(ruleDetails[0]["regexp"]).test(value)
         }
     }
 
@@ -285,20 +308,20 @@ export class ValidationRuleAdapter {
         // 为了Each或Exists约束能取到rule["validator"]
         const pattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+\.)+[a-zA-Z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]{2,}))$/
         rule["validator"] = (rule, value) => {
-            return typeof value === 'string' && value.length <= 320 && !!value.match(pattern)
+            return this.isEmpty(value) || value.length <= 320 && !!value.match(pattern)
         }
     }
 
     /** 最小值约束，被校验对象类型必须为数值 */
     private min(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "number"
-        rule["validator"] = (rule, value) => value == null || value >= ruleDetails[0]["value"]
+        rule["validator"] = (rule, value) => this.isEmpty(value) || value >= ruleDetails[0]["value"]
     }
 
     /** 最大值约束，被校验对象类型必须为数值 */
     private max(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "number"
-        rule["validator"] = (rule, value) => value == null || value <= ruleDetails[0]["value"]
+        rule["validator"] = (rule, value) => this.isEmpty(value) || value <= ruleDetails[0]["value"]
     }
 
     /** 过去时间约束，被校验对象类型必须为Date */
@@ -329,12 +352,12 @@ export class ValidationRuleAdapter {
     private decimalMin(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "number"
         rule["validator"] = (rule, value) => {
-            if (value == null) {
+            if (this.isEmpty(value)) {
                 return true
             } else {
                 const inclusive = <Boolean>ruleDetails[0]["inclusive"]
-                const minValueStr = <String>ruleDetails[0]["value"]
-                return inclusive ? value >= minValueStr : value > minValueStr
+                const minValue = Number(ruleDetails[0]["value"])
+                return inclusive ? value >= minValue : value > minValue
             }
         }
     }
@@ -343,12 +366,12 @@ export class ValidationRuleAdapter {
     private decimalMax(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "number"
         rule["validator"] = (rule, value) => {
-            if (value == null) {
+            if (this.isEmpty(value)) {
                 return true
             } else {
                 const inclusive = <Boolean>ruleDetails[0]["inclusive"]
-                const maxValueStr = <String>ruleDetails[0]["value"]
-                return inclusive ? value >= maxValueStr : value > maxValueStr
+                const maxValue = Number(ruleDetails[0]["value"])
+                return inclusive ? value <= maxValue : value < maxValue
             }
         }
     }
@@ -357,10 +380,12 @@ export class ValidationRuleAdapter {
     private range(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "number"
         rule["validator"] = (rule, value) => {
-            if (value == null) {
+            if (this.isEmpty(value)) {
                 return true
             } else {
-                return value >= ruleDetails[0]["min"] && value <= ruleDetails[0]["max"]
+                const minValue = Number(ruleDetails[0]["min"])
+                const maxValue = Number(ruleDetails[0]["max"])
+                return value >= minValue && value <= maxValue
             }
         }
     }
@@ -369,11 +394,15 @@ export class ValidationRuleAdapter {
     private digits(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "number"
         rule["validator"] = (rule, value) => {
-            if (value == null) {
+            if (this.isEmpty(value)) {
                 return true
             } else {
                 const parts = value.toString().split(".")
-                return parts[0] == ruleDetails[0]["integer"] && parts[1] == ruleDetails[0]["fraction"]
+                const integerLen = Number(ruleDetails[0]["integer"])
+                const fractionLen = Number(ruleDetails[0]["fraction"])
+                const integerDigits = value <= 0 ? parts[0].length - 1 : parts[0].length
+                const fractionDigits = !parts[1] ? 0 : parts[1].length
+                return integerDigits == integerLen && fractionDigits == fractionLen
             }
         }
     }
@@ -381,85 +410,59 @@ export class ValidationRuleAdapter {
     /** 正数约束，被校验对象类型必须为number */
     private positive(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "number"
-        rule["validator"] = (rule, value) => value == null || value > 0
+        rule["validator"] = (rule, value) => this.isEmpty(value) || value > 0
     }
 
     /** 负数约束，被校验对象类型必须为number */
     private negative(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "number"
-        rule["validator"] = (rule, value) => value == null || value < 0
+        rule["validator"] = (rule, value) => this.isEmpty(value) || value < 0
     }
 
     /** 非负数约束，被校验对象类型必须为number */
     private positiveOrZero(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "number"
-        rule["validator"] = (rule, value) => value == null || value >= 0
+        rule["validator"] = (rule, value) => this.isEmpty(value) || value >= 0
     }
 
     /** 非正数约束，被校验对象类型必须为number */
     private negativeOrZero(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "number"
-        rule["validator"] = (rule, value) => value == null || value <= 0
+        rule["validator"] = (rule, value) => this.isEmpty(value) || value <= 0
     }
 
     /** ean13条形码约束，被校验对象类型必须为number或字符串 */
     private ean(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["validator"] = (rule, value) => {
-            if (value == null) {
+            if (this.isEmpty(value)) {
                 return true
             } else {
-                if (!/^[0-9]{13}$/.test(value)) {
-                    return false
-                } else {
-                    let c1 = 0
-                    let c2 = 0
-                    for (let i = 0; i < value.length; i += 2) {
-                        c1 += value.charAt(i) - 0
-                        c2 += value.charAt(i + 1) - 0
-                    }
-                    let cc = 10 - (c1 + c2 * 3) % 10
-                    if (cc == 10) {
-                        cc = 0
-                    }
-                    return value.charAt(12) == cc
-                }
+                // const barcoder = require('barcoder');
+                const type = ruleDetails[0]["type"]
+                return new Barcoder.constructor(type.toLowerCase()).validate(value)
             }
         }
     }
 
-    /** luhn约束 */
+    /** luhn约束，可检测银行卡、信用卡 */
     private luhnCheck(propName: string, ruleDetails: Array<any>, rule: any) {
-        rule["validator"] = (rule, value) => {
-            if (value == null) {
-                return true
-            } else {
-                let num = value
-                num = (num + '').replace(/\D+/g, '').split('').reverse();
-                if (!num.length) {
-                    return false;
-                }
-                let total = 0, i;
-                for (i = 0; i < num.length; i++) {
-                    num[i] = parseInt(num[i]);
-                    total += i % 2 ? 2 * num[i] - (num[i] > 4 ? 9 : 0) : num[i];
-                }
-                if (total === 0) {
-                    return false;
-                }
-                return (total % 10) == 0;
-            }
-        }
+        rule["validator"] = (rule, value) => this.isEmpty(value) || this.checkMod10(value)
     }
 
-    /** mod10约束 */
+    /** mod10约束，可检测银行卡、信用卡 */
     private mod10Check(propName: string, ruleDetails: Array<any>, rule: any) {
-        rule["validator"] = (rule, value) => value == null || this.checkMod10(value)
+        rule["validator"] = (rule, value) => this.isEmpty(value) || this.checkMod10(value)
+    }
+
+    /** mod11约束，可检测银行卡、信用卡 */
+    private mod11Check(propName: string, ruleDetails: Array<any>, rule: any) {
+        rule["validator"] = (rule, value) => this.isEmpty(value) || this.checkMod11(value)
     }
 
     /** isbn约束 */
     private isbn(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["validator"] = (rule, value) => {
-            if (value == null) {
+            if (this.isEmpty(value)) {
                 return true
             } else {
                 const type = ruleDetails[0]["type"]
@@ -479,26 +482,26 @@ export class ValidationRuleAdapter {
     private url(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["type"] = "url"
         rule["validator"] = (rule, value) => {
-            if (value == null) {
+            if (this.isEmpty(value)) {
                 return true
             } else {
                 const protocol = ruleDetails[0]["protocol"]
                 if (protocol && protocol != "") {
-                    if (!value.trim().startsWith(protocol)) {
+                    if (!value.trim().startsWith(protocol + "://")) {
                         return false
                     }
                 }
 
                 const host = ruleDetails[0]["host"]
                 if (host && host != "") {
-                    if (!value.contains(host)) {
+                    if (value.indexOf(host) == -1) {
                         return false
                     }
                 }
 
                 const port = ruleDetails[0]["port"]
-                if (port && port != "") {
-                    if (!value.contains(":" + port)) {
+                if (port && port != "" && port > 0) {
+                    if (!value.endsWith(":" + port) && value.indexOf(":" + port + "/") == -1) {
                         return false
                     }
                 }
@@ -519,12 +522,12 @@ export class ValidationRuleAdapter {
     /** 尺寸约束，被校验对象类型必须为string、数组、集合、Map */
     private size(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["validator"] = (rule, value) => {
-            if (value == null) {
+            if (this.isEmpty(value)) {
                 return true
             } else {
                 const min = ruleDetails[0]["min"]
                 const max = ruleDetails[0]["max"]
-                if (value instanceof String || value instanceof Array) {
+                if (this.isString(value) || value instanceof Array) {
                     return value.length >= min && value.length <= max
                 }
                 if (value instanceof Set || value instanceof Map) {
@@ -537,18 +540,30 @@ export class ValidationRuleAdapter {
 
     /** 枚举约束 */
     private dictEnumCode(propName: string, ruleDetails: Array<any>, rule: any) {
-        rule["validator"] = (rule, value) => value == null || value in ruleDetails[0]["values"]
+        rule["validator"] = (rule, value) => this.isEmpty(value) || ruleDetails[0]["values"].indexOf(value) != -1
     }
 
-    /** 数列约束，数组 */
+    /** 数列约束，被检测的对象必须为数组或以半角逗号/空格/分号分隔的字符串 */
     private series(propName: string, ruleDetails: Array<any>, rule: any) {
         rule["validator"] = (rule, value) => {
-            if (value == null) {
+            if (this.isEmpty(value)) {
                 return true
             } else {
-                const size = rule["size"]
+                if (this.isString(value)) {
+                    if (value.indexOf(",") != -1) {
+                        value = value.split(",")
+                    } else if(value.indexOf(";") != -1) {
+                        value = value.split(";")
+                    } else {
+                        value = value.split(" ")
+                    }
+                }
+                const size = ruleDetails[0]["size"]
                 if (size != 0 && value.length != size) {
                     return false
+                }
+                if (value.length == 0 || value.length == 1) {
+                    return true
                 }
                 return this.validateSeries(ruleDetails[0]["type"], ruleDetails[0]["step"], value)
             }
@@ -564,7 +579,7 @@ export class ValidationRuleAdapter {
             }
 
             // 依赖条件不存在，或其表达式成立，再进行NotNull逻辑
-            return value != null
+            return !this.isEmpty(value)
         }
     }
 
@@ -612,13 +627,9 @@ export class ValidationRuleAdapter {
         rule["validator"] = (rule, value) => new Set(value).size == value.length
     }
 
-    /** 组合约束 */
-    private constraints(propName: string, ruleDetails: Array<any>, rule: any) {
-        ruleDetails.forEach((r) => {
-            for (let ruleName in r) {
-                this.parseRule(ruleName, propName, r)
-            }
-        })
+
+    private isString(value: any): Boolean {
+        return typeof value == 'string' || value instanceof String
     }
 
     private isEmpty(value: any): Boolean {
@@ -644,15 +655,27 @@ export class ValidationRuleAdapter {
         const values = <Array<string>>depends["values"]
         for (let i = 0; i < properties.length; i++) {
             const property = properties[i]
-            const result = this.compareTwoValue(logics[i], this.getModel()[property], values[i])
-            if (andOr == "AND") {
-                if (!result) {
-                    return true // 与逻辑时，只要一个条件不成立，depends就为false，就不需要进行外层的compare比较
+            const v1 = this.getModel()[property]
+            if (v1 == undefined) {
+                throw new Error("指定的校验模型中不存在属性：" + property)
+            }
+            let v2 = null
+            if (values && values.length > i) {
+                v2 = values[i]
+            }
+            const result = this.compareTwoValue(logics[i], v1, v2)
+            if (andOr) {
+                if (andOr == "AND") {
+                    if (!result) {
+                        return true // 与逻辑时，只要一个条件不成立，depends就为false，就不需要进行外层的compare比较
+                    }
+                } else {
+                    if (result) {
+                        return false // 或逻辑时，只要一个条件成立，depends就为true，就需要外层的compare比较
+                    }
                 }
             } else {
-                if (result) {
-                    return false // 或逻辑时，只要一个条件成立，depends就为true，就需要外层的compare比较
-                }
+                return !result
             }
         }
         return false
@@ -676,43 +699,43 @@ export class ValidationRuleAdapter {
             case "LT":
                 return v1 < v2
             case "LIKE":
-                if (v1 instanceof String && v2 instanceof String) {
+                if (this.isString(v1)) {
                     return v1.indexOf(v2.toString()) != -1
                 } else {
                     return false
                 }
             case "LIKE_S":
-                if (v1 instanceof String && v2 instanceof String) {
+                if (this.isString(v1)) {
                     return v1.startsWith(v2.toString())
                 } else {
                     return false
                 }
             case "LIKE_E":
-                if (v1 instanceof String && v2 instanceof String) {
+                if (this.isString(v1)) {
                     return v1.endsWith(v2.toString())
                 } else {
                     return false
                 }
             case "ILIKE":
-                if (v1 instanceof String && v2 instanceof String) {
+                if (this.isString(v1)) {
                     return v1.toLowerCase().indexOf(v2.toLowerCase()) != -1
                 } else {
                     return false
                 }
             case "ILIKE_S":
-                if (v1 instanceof String && v2 instanceof String) {
+                if (this.isString(v1)) {
                     return v1.toLowerCase().startsWith(v2.toLowerCase())
                 } else {
                     return false
                 }
             case "ILIKE_E":
-                if (v1 instanceof String && v2 instanceof String) {
+                if (this.isString(v1)) {
                     return v1.toLowerCase().endsWith(v2.toLowerCase())
                 } else {
                     return false
                 }
             case "IN":
-                if (v1 instanceof String && v2 instanceof String) {
+                if (this.isString(v1)) {
                     return this.compareTwoValue("LIKE", v2, v1)
                 }
                 if (v2 instanceof Array) {
@@ -720,7 +743,7 @@ export class ValidationRuleAdapter {
                         return (<Array<any>>v2).indexOf(v1) != -1
                     } else {
                         for (let elem in v1) {
-                            if (!(<Array<any>>v2).indexOf(v1)) {
+                            if ((<Array<any>>v2).indexOf(v1) != -1) {
                                 return false
                             }
                         }
@@ -744,62 +767,52 @@ export class ValidationRuleAdapter {
             case "NOT_IN":
                 return !this.compareTwoValue("IN", v1, v2)
             case "IS_NULL":
-                return v1 == null
-            case "IS_NOT_NULL":
-                return v1 != null
             case "IS_EMPTY":
-                return v1 == ""
+                return v1 == null || v1 == ''
+            case "IS_NOT_NULL":
             case "IS_NOT_EMPTY":
-                return v1 != ""
+                return v1 != null && v1 != ''
         }
     }
 
     private checkMod10(nums): Boolean {
-        let is_valid = false;
-        let check_sum = 0;
-
-        const string_nums = nums.toString();
-
-        // 获取校验位
-        const check_digit = Number(string_nums[string_nums.length - 1]);
-
-        /**
-         * 1. 移除校验位
-         * 2. 逆序排序数字
-         */
-        const reverse_nums = string_nums
-            .slice(0, string_nums.length - 1)
+        let arr = (nums + '')
             .split('')
-            .map((item) => Number(item))
-            .reverse();
+            .reverse()
+            .map(x => parseInt(x));
+        let lastDigit = arr.splice(0, 1)[0];
+        let sum = arr.reduce(
+            (acc, val, i) => (i % 2 !== 0 ? acc + val : acc + ((val *= 2) > 9 ? val - 9 : val)),
+            0
+        );
+        sum += lastDigit;
+        return sum % 10 === 0;
+    }
 
-        // 为了演示算法，增加中间变量，计数数字奇偶
-        let check_offset = 2;
-        for (let i = 0; i < reverse_nums.length; i++) {
-            let value = reverse_nums[i];
-
-            if (check_offset % 2 === 0) {
-                value = value * 2;
-                value = value > 9 ? value - 9 : value;
-            }
-
-            check_sum += value;
-            ++check_offset;
+    private checkMod11(nums): Boolean {
+        let arr = (nums + '')
+            .split('')
+            .reverse()
+            .map(x => parseInt(x));
+        let lastDigit = arr.splice(0, 1)[0];
+        let sum = arr.reduce(
+            (acc, val, i) => (acc + (i % 6 + 2) * val), 0
+        );
+        const mod = sum % 11
+        let checkDigit
+        if (mod == 0) {
+            checkDigit = 0
+        } else if (mod == 1) {
+            checkDigit = 'X'
+        } else {
+            checkDigit = 11 - mod
         }
-
-        const got_check_digit = 10 - (check_sum % 10);
-        // console.log("got check digit", got_check_digit);
-
-        if (got_check_digit === check_digit) {
-            is_valid = true;
-        }
-
-        return is_valid;
+        return checkDigit === lastDigit;
     }
 
     private checkISBN10(code): Boolean {
         code = (code + '').replace(/[-\s]/g, '');
-        if (!/^\d{9}[\dxX]?$/.test(code)) return;
+        if (!/^\d{9}[\dxX]?$/.test(code)) return false;
         let i = 0, c = 0; // c:checksum
         for (; i < 9;)
             c += code.charAt(i++) * i;
@@ -811,7 +824,7 @@ export class ValidationRuleAdapter {
 
     private checkISBN13(code): Boolean {
         code = (code + '').replace(/[-\s]/g, '');
-        if (!/^\d{12,13}$/.test(code)) return;
+        if (!/^\d{12,13}$/.test(code)) return false;
         let i = 1, c = 0; // c:checksum
         for (; i < 12; i += 2)
             c += Math.floor(code.charAt(i));
@@ -826,10 +839,13 @@ export class ValidationRuleAdapter {
         switch (type) {
             case "INC_DIFF": // 递增且互不相等
                 let preValue: number = null
-                values.forEach((value) => {
-                    if (step == 0.0) { // 不应用步进
-                        if (preValue >= value) {
-                            return false
+                for (let i = 0; i < values.length; i++) {
+                    const value = Number(values[i])
+                    if (preValue != null) {
+                        if (step == 0.0) { // 不应用步进
+                            if (preValue >= value) {
+                                return false
+                            }
                         } else {
                             if (preValue + step != value) {
                                 return false
@@ -837,7 +853,7 @@ export class ValidationRuleAdapter {
                         }
                     }
                     preValue = value
-                })
+                }
                 return true
             case "DESC_DIFF": // 递减且互不相等
                 return this.validateSeries("INC_DIFF", step, values.reverse())
@@ -873,39 +889,41 @@ export class ValidationRuleAdapter {
                     return false
                 } else if (step != 0.0) {
                     let preValue: number = null
-                    values.forEach((value, index) => {
+                    for (let i = 0; i < values.length; i++) {
+                        const value = Number(values[i])
                         if (preValue != null) {
                             if (Math.abs(preValue - value) != step) {
                                 return false
                             }
                         }
                         preValue = value
-                    })
+                    }
                 }
                 return true
             case "INC_EQ": // 递增或相等
-                preValue = null
-                values.forEach((value, index) => {
-                    if (preValue != null) {
+                let preV: number = null
+                for (let i = 0; i < values.length; i++) {
+                    const value = Number(values[i])
+                    if (preV != null) {
                         if (step == 0.0) { // 不应用步进
-                            if (preValue > value) {
+                            if (preV > value) {
                                 return false
                             }
                         } else {
-                            if (preValue != value && preValue + step != value) {
+                            if (preV != value && preV + step != value) {
                                 return false
                             }
                         }
                     }
-                    preValue = value
-                })
+                    preV = value
+                }
                 return true
             case "DESC_EQ": // 递减或相等
                 return this.validateSeries("INC_EQ", step, values.reverse())
             case "INC_EQ_DESC_EQ": // 先递增或相等，再递减或相等
                 const maxValueStartIndex = this.maxValueIndex(values)
                 const maxValue = values[maxValueStartIndex]
-                if (maxValueStartIndex == values.length - 1) {
+                if (maxValueStartIndex == 0 || maxValueStartIndex == values.length - 1) {
                     return false
                 }
                 let maxValueEndIndex = maxValueStartIndex
@@ -927,7 +945,7 @@ export class ValidationRuleAdapter {
             case "DESC_EQ_INC_EQ": // 先递减或相等，再递增或相等
                 const minValueStartIndex = this.minValueIndex(values)
                 const minValue = values[minValueStartIndex]
-                if (minValueStartIndex == values.length - 1) {
+                if (minValueStartIndex == 0 || minValueStartIndex == values.length - 1) {
                     return false
                 }
                 let minValueEndIndex = minValueStartIndex

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "axios": "^0.23.0",
+    "barcoder": "^2.0.1",
     "element-plus": "^1.0.2-beta.71",
     "element-ui": "^2.15.6",
     "nprogress": "^0.2.0",

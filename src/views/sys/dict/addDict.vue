@@ -132,23 +132,15 @@ export default defineComponent({
       },
       rules: new ValidationRuleAdapter({
         "name": {
-          "Compare": [{
-            "anotherProperty": "code",
+          "NotNullOn": [{
             "depends": {
               "andOr": "AND",
               "logics": ["EQ"],
               "properties": ["seqNo"],
               "values": ["1"]
             },
-            "logic": "EQ",
-            "message": "两次密码不同"
-          },
-            // {
-            //   "anotherProperty": "username",
-            //   "logic": "IN",
-            //   "message": "密码不能包含用户名"
-            // }
-            ]
+            "message": "{io.kuark.base.bean.validation.constraint.annotaions.NotNullOn.message}"
+          }]
         }
       }, ()=>{return FORM.value.model}).getRules(),
       //     {
