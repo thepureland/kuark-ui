@@ -48,20 +48,23 @@ var ValidationRuleAdapter = /** @class */ (function () {
     /**
      * 校验规则适配器的构造器
      *
-     * @param origRules 服务端返回的校验规则的对象
+     * @param remoteRules 服务端返回的校验规则的对象
      * @param getModel 用于获取待校验对象的函数
      * @param trigger 校验规则触发器
      */
-    function ValidationRuleAdapter(origRules, getModel, trigger) {
+    function ValidationRuleAdapter(remoteRules, getModel, trigger) {
         if (trigger === void 0) { trigger = 'blur'; }
         this.destRules = {};
-        this.origRules = origRules;
+        this.remoteRules = remoteRules;
         this.getModel = getModel;
         this.trigger = trigger;
     }
+    /**
+     * 返回async-validator校验规则对象
+     */
     ValidationRuleAdapter.prototype.getRules = function () {
-        for (var propName in this.origRules) {
-            var rules = this.origRules[propName];
+        for (var propName in this.remoteRules) {
+            var rules = this.remoteRules[propName];
             for (var ruleName in rules) {
                 this.parseRule(ruleName, propName, rules);
             }
@@ -167,7 +170,7 @@ var ValidationRuleAdapter = /** @class */ (function () {
                 this.negativeOrZero(propName, ruleDetails, rule);
                 break;
             case "CreditCardNumber":
-                //TODO
+                this.luhnCheck(propName, ruleDetails, rule);
                 break;
             case "Currency":
                 //TODO
@@ -426,11 +429,11 @@ var ValidationRuleAdapter = /** @class */ (function () {
             }
             else {
                 var parts = value.toString().split(".");
-                var integerLen = Number(ruleDetails[0]["integer"]);
-                var fractionLen = Number(ruleDetails[0]["fraction"]);
+                var maxIntegerDigits = Number(ruleDetails[0]["integer"]);
+                var minFractionDigits = Number(ruleDetails[0]["fraction"]);
                 var integerDigits = value <= 0 ? parts[0].length - 1 : parts[0].length;
                 var fractionDigits = !parts[1] ? 0 : parts[1].length;
-                return integerDigits == integerLen && fractionDigits == fractionLen;
+                return integerDigits <= maxIntegerDigits && fractionDigits <= minFractionDigits;
             }
         };
     };

@@ -49,9 +49,9 @@ function useAdd({form}, FORM, cascader, emit) {
       };
       // @ts-ignore
       const result = await ajax({url: "sysDict/add", method: "post", params})
-      FORM.value.resetFields();
+      FORM.value.resetFields()
 
-      emit('response');
+      emit('response')
       emit('update:modelValue', false);
     });
 
@@ -142,7 +142,7 @@ export default defineComponent({
       upload: {},
 
       closeDialog() {
-        Dialog.upload.imageUrl = '';
+        FORM.value.resetFields()
         emit('update:modelValue', !bool);
       }
     });

@@ -78,22 +78,24 @@
             </el-table-column>
             <el-table-column label="操作">
               <template #default="scope">
-                <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit" v-if="scope.row.itemCode">编辑</el-button>
-                <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete" v-if="scope.row.itemCode">删除
+                <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit"
+                           v-if="scope.row.itemCode">编辑
+                </el-button>
+                <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete"
+                           v-if="scope.row.itemCode">删除
                 </el-button>
               </template>
             </el-table-column>
           </el-table>
 
-          <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+          <el-pagination @size-change="listPage.handleSizeChange" @current-change="listPage.handleCurrentChange"
                          :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                          layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
         </el-col>
       </el-row>
 
-
       <add-dict v-model="DialogVisible" @response="response"></add-dict>
-      <!--      <edit-user v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"></edit-user>-->
+      <!--      <edit-dict v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"></edit-dict>-->
     </el-card>
   </div>
 </template>
@@ -102,30 +104,52 @@
 import {defineComponent, reactive, toRefs, unref, onMounted} from "vue";
 import {ElMessageBox, ElMessage} from 'element-plus'
 import addDict from './addDict.vue';
-// import editUser from './editUser.vue';
+// import editDict from './editDict.vue';
 
-async function loadData(state: any) {
-  const params = {
-    module: state.searchParams.module,
-    dictType: state.searchParams.dictType,
-    dictName: state.searchParams.dictName,
-    itemCode: state.searchParams.itemCode,
-    itemName: state.searchParams.itemName,
-    pageNo: state.pagination.pageNo,
-    pageSize: state.pagination.pageSize,
-    active: state.searchParams.active ? true : null
+import {BaseListPage} from "../../../base/BaseListPage.ts";
+
+class ListPage extends BaseListPage {
+
+  constructor() {
+    super();
+    this.handleSizeChange = (newSize: number) => { // 为了解决恶心的this问题
+      this.state.pagination.pageSize = newSize
+      if (this.state.searchMode == "button") {
+        this.loadData()
+      } else {
+        listByTree(this.state)
+      }
+    }
+    this.handleCurrentChange = (newCurrent: number) => { // 为了解决恶心的this问题
+      if (newCurrent) {
+        this.state.pagination.pageNo = newCurrent
+        if (this.state.searchMode == "button") {
+          this.loadData()
+        } else {
+          listByTree(this.state)
+        }
+      }
+    }
+
   }
-  if (state.sort.orderProperty) {
-    params["orders"] = [{
-      property: state.sort.orderProperty,
-      direction: state.sort.orderDirection,
-    }]
+
+  protected getSearchParams() {
+    return {
+      module: this.state.searchParams.module,
+      dictType: this.state.searchParams.dictType,
+      dictName: this.state.searchParams.dictName,
+      itemCode: this.state.searchParams.itemCode,
+      itemName: this.state.searchParams.itemName,
+      pageNo: this.state.pagination.pageNo,
+      pageSize: this.state.pagination.pageSize,
+      active: this.state.searchParams.active ? true : null
+    }
   }
-  // @ts-ignore
-  const result = await ajax({url: "sysDict/list", method: "post", params});
-  state.tableData = result.data.first
-  state.pagination.total = result.data.second
+
 }
+
+const listPage = new ListPage()
+
 
 async function laodTreeNodes(state: any, node, resolve) {
   const params = {
@@ -207,43 +231,31 @@ function treeOperation(state: any) {
 
 }
 
-function paginationChange(state: any) {
-
-  const handleSizeChange = (newSize: number) => {
-    state.pagination.pageSize = newSize
-    if (state.searchMode == "button") {
-      loadData(state)
-    } else {
-      listByTree(state)
-    }
-  }
-  const handleCurrentChange = (newCurrent: number) => {
-    if (newCurrent) {
-      state.pagination.pageNo = newCurrent
-      if (state.searchMode == "button") {
-        loadData(state)
-      } else {
-        listByTree(state)
-      }
-    }
-  }
-
-  return {
-    handleSizeChange,
-    handleCurrentChange,
-  }
-}
+// function paginationChange() { //TODO 怎么用Typescript直接暴露handleSizeChange和handleCurrentChange给vue组件
+//
+//   const handleSizeChange = (newSize: number) => {
+//     listPage.handleSizeChange(newSize)
+//   }
+//   const handleCurrentChange = (newCurrent: number) => {
+//     listPage.handleSizeChange(newCurrent)
+//   }
+//
+//   return {
+//     handleSizeChange,
+//     handleCurrentChange,
+//   }
+// }
 
 function useSearch(state: any) {
   const handleSearch = async () => {
     state.searchMode = "button"
-    loadData(state)
+    listPage.loadData()
   }
   const handleSortChange = async (column) => {
     state.sort.orderProperty = column.prop
     state.sort.orderDirection = column.order == "ascending" ? "ASC" : "DESC"
     if (state.searchMode == "button") {
-      loadData(state)
+      listPage.loadData()
     } else {
       listByTree(state)
     }
@@ -326,18 +338,20 @@ function persistence(state: any) {
 
 }
 
+
+
 export default defineComponent({
   name: "~index",
   components: {addDict},
   setup(props, {emit, slots}) {
-    const state = reactive({
+    let state = reactive(Object.assign(listPage.state, {
       searchMode: "",
       dictTreeProps: {
         label: 'code'
       },
       searchParams: {
         parentId: '',
-        // firstLevel: '',
+        firstLevel: '',
         module: '',
         dictType: '',
         dictName: '',
@@ -345,24 +359,14 @@ export default defineComponent({
         itemName: '',
         active: true
       },
-      sort: {
-        orderProperty: '',
-        orderDirection: ''
-      },
-      pagination: {
-        total: 0,
-        pageNo: 1,
-        pageSize: 10
-      },
       modules: [],
       dictTypes: [],
       dictItemCodes: [],
-      tableData: [],
       DialogVisible: false,
       editDialogVisible: false,
       rid: '',
       response() {
-        useSearch(state);
+        // useSearch(state);
       },
       handleEdit(row: any) {
         state.editDialogVisible = true;
@@ -380,7 +384,7 @@ export default defineComponent({
         if (code === "ok") ElMessage.success('删除成功！');
         useSearch(state);
       }
-    });
+    }));
 
     onMounted(() => {
       loadModules(state)
@@ -388,9 +392,13 @@ export default defineComponent({
       loadDictItemCodes(state)
     });
 
+    // state = state + listPage.getState()
+
+
     return {
+      listPage,
       ...toRefs(state),
-      ...paginationChange(state),
+      // ...paginationChange(),
       ...useSearch(state),
       ...filterSuggestions(state),
       ...persistence(state),
@@ -398,7 +406,8 @@ export default defineComponent({
     };
 
   }
-});
+})
+;
 </script>
 
 <style lang='css' scoped>
