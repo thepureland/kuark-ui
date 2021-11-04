@@ -11,7 +11,7 @@
         <el-input v-model="form.name"/>
       </el-form-item>
       <el-form-item label="排序" prop="seqNo">
-        <el-input-number v-model="form.seqNo" :min="1" :max="2147483647"/>
+        <el-input-number v-model="form.seqNo" :min="1" :max="999999999"/>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="form.remark"/>
@@ -27,18 +27,21 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, toRefs, ref, computed} from "vue";
+import {defineComponent, reactive, toRefs, ref, computed, onMounted} from "vue";
 import {ElMessage} from 'element-plus';
 import {ValidationRuleAdapter} from '../../../base/ValidationRuleAdapter.ts'
 
 function useAdd({form}, FORM, cascader, emit) {
   const submit = () => {
-    const origRule = {}
+    if (!form.parent || form.parent.length == 0) {
+      return ElMessage.error('上级必须指定')
+    }
     FORM.value.validate(async valid => {
-      if (!valid) return ElMessage.error('验证未通过');
+      if (!valid) return ElMessage.error('验证未通过')
       const params = {
         module: form.parent[0],
-        parent: form.parent.length === 1 ? null : form.parent[form.parent.length - 1],
+        parentId: form.parent.length === 1 ? null : form.parent[form.parent.length - 1],
+        dictId: form.parent.length === 1 ? null : form.parent[1],
         code: form.code,
         name: form.name,
         seqNo: form.seqNo,
@@ -57,7 +60,7 @@ function useAdd({form}, FORM, cascader, emit) {
   return {submit}
 }
 
-async function laodTreeNodes(state: any, node, resolve) {
+async function loadTreeNodes(state: any, node, resolve) {
   const params = {
     parentId: node.level === 0 ? null : (node.level === 1 ? node.data.code : node.data.id),
     firstLevel: node.level === 1,
@@ -65,18 +68,23 @@ async function laodTreeNodes(state: any, node, resolve) {
   }
   // @ts-ignore
   const result = await ajax({url: "sysDict/laodTreeNodes", method: "post", params});
-  // if (node.level === 2) {
-  //   result.data.forEach((val) => {
-  //     val.leaf = false
-  //   })
-  // }
   resolve(result.data)
 }
+
+
+async function initValidationRule(Dialog: any, FORM: any): Promise<any> {
+  // @ts-ignore
+  const result = await ajax({url: "sysDict/getValidationRule"});
+  Dialog.rules = new ValidationRuleAdapter(result.data, () => {
+    return FORM.value.model
+  }).getRules()
+}
+
 
 function treeOperation(state: any) {
 
   const loadTree = (node, resolve) => {
-    laodTreeNodes(state, node, resolve)
+    loadTreeNodes(state, node, resolve)
   }
 
   const expandTreeNode = (nodeData, node) => {
@@ -115,7 +123,7 @@ export default defineComponent({
         checkStrictly: true,
         expandTrigger: "hover",
         lazyLoad(node, resolve) {
-          laodTreeNodes(state, node, resolve)
+          loadTreeNodes(state, node, resolve)
         },
       }
     })
@@ -130,30 +138,17 @@ export default defineComponent({
         seqNo: undefined,
         remark: ""
       },
-      rules: new ValidationRuleAdapter({
-        "name": {
-          "NotNullOn": [{
-            "depends": {
-              "andOr": "AND",
-              "logics": ["EQ"],
-              "properties": ["seqNo"],
-              "values": ["1"]
-            },
-            "message": "{io.kuark.base.bean.validation.constraint.annotaions.NotNullOn.message}"
-          }]
-        }
-      }, ()=>{return FORM.value.model}).getRules(),
-      //     {
-      //   parent: [{required: true, trigger: 'blur', message: '请选择上级'}],
-      //   code: [{required: true, trigger: 'commit', message: '请输入编码'}],
-      //   name: [{required: true, trigger: 'blur', message: "请输入名称"}],
-      // },
+      rules: null,
       upload: {},
+
       closeDialog() {
         Dialog.upload.imageUrl = '';
         emit('update:modelValue', !bool);
       }
     });
+    onMounted(() => {
+      initValidationRule(Dialog, FORM)
+    })
     return {
       FORM,
       cascader,

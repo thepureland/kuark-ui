@@ -147,14 +147,10 @@ function doResetSearch(state: any) {
   state.pagination.pageNo = 1
 }
 
-async function listByTree(state: any, node) {
-  if (!node.data) {
-    return
-  }
-  doResetSearch(state)
+async function listByTree(state: any) {
   const params = {
-    parentId: node.level === 1 ? node.data.code : node.data.id,
-    firstLevel: node.level === 1,
+    parentId: state.searchParams.parentId,
+    firstLevel: state.searchParams.firstLevel,
     pageNo: state.pagination.pageNo,
     pageSize: state.pagination.pageSize,
     active: state.searchParams.active ? true : null
@@ -178,13 +174,20 @@ function treeOperation(state: any) {
   }
 
   const expandTreeNode = (nodeData, node) => {
-    listByTree(state, node)
+    if (node.data) {
+      doResetSearch(state)
+      state.searchMode = "tree"
+      state.searchParams.parentId = node.level === 1 ? node.data.code : node.data.id
+      state.searchParams.firstLevel = node.level === 1
+      listByTree(state)
+    }
   }
 
   const clickTreeNode = async (nodeData, node) => {
     if (node.level === 1) {
       return
     }
+    state.searchMode = "tree"
     doResetSearch(state)
     const params = {
       id: nodeData.id,
@@ -208,12 +211,20 @@ function paginationChange(state: any) {
 
   const handleSizeChange = (newSize: number) => {
     state.pagination.pageSize = newSize
-    loadData(state)
+    if (state.searchMode == "button") {
+      loadData(state)
+    } else {
+      listByTree(state)
+    }
   }
   const handleCurrentChange = (newCurrent: number) => {
     if (newCurrent) {
       state.pagination.pageNo = newCurrent
-      loadData(state)
+      if (state.searchMode == "button") {
+        loadData(state)
+      } else {
+        listByTree(state)
+      }
     }
   }
 
@@ -225,12 +236,17 @@ function paginationChange(state: any) {
 
 function useSearch(state: any) {
   const handleSearch = async () => {
+    state.searchMode = "button"
     loadData(state)
   }
   const handleSortChange = async (column) => {
     state.sort.orderProperty = column.prop
     state.sort.orderDirection = column.order == "ascending" ? "ASC" : "DESC"
-    loadData(state)
+    if (state.searchMode == "button") {
+      loadData(state)
+    } else {
+      listByTree(state)
+    }
   }
   const handleFilter = async (value, row, column) => {
     const property = column['property']
@@ -315,10 +331,13 @@ export default defineComponent({
   components: {addDict},
   setup(props, {emit, slots}) {
     const state = reactive({
+      searchMode: "",
       dictTreeProps: {
         label: 'code'
       },
       searchParams: {
+        parentId: '',
+        // firstLevel: '',
         module: '',
         dictType: '',
         dictName: '',

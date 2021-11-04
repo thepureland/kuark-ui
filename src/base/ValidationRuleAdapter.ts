@@ -8,7 +8,7 @@ import Barcoder from 'barcoder'
  */
 export class ValidationRuleAdapter {
 
-    private origRules: any
+    private remoteRules: any
     private getModel: any
     private destRules: any = {}
     private trigger: string
@@ -16,12 +16,12 @@ export class ValidationRuleAdapter {
     /**
      * 校验规则适配器的构造器
      *
-     * @param origRules 服务端返回的校验规则的对象
+     * @param remoteRules 服务端返回的校验规则的对象
      * @param getModel 用于获取待校验对象的函数
      * @param trigger 校验规则触发器
      */
-    constructor(origRules: any, getModel: () => any, trigger = 'blur') {
-        this.origRules = origRules
+    constructor(remoteRules: any, getModel: () => any, trigger = 'blur') {
+        this.remoteRules = remoteRules
         this.getModel = getModel
         this.trigger = trigger
     }
@@ -30,8 +30,8 @@ export class ValidationRuleAdapter {
      * 返回async-validator校验规则对象
      */
     getRules(): any {
-        for (let propName in this.origRules) {
-            let rules = this.origRules[propName]
+        for (let propName in this.remoteRules) {
+            let rules = this.remoteRules[propName]
             for (let ruleName in rules) {
                 this.parseRule(ruleName, propName, rules)
             }
@@ -139,7 +139,7 @@ export class ValidationRuleAdapter {
                 this.negativeOrZero(propName, ruleDetails, rule)
                 break
             case "CreditCardNumber":
-                //TODO
+                this.luhnCheck(propName, ruleDetails, rule)
                 break
             case "Currency":
                 //TODO
@@ -398,11 +398,11 @@ export class ValidationRuleAdapter {
                 return true
             } else {
                 const parts = value.toString().split(".")
-                const integerLen = Number(ruleDetails[0]["integer"])
-                const fractionLen = Number(ruleDetails[0]["fraction"])
+                const maxIntegerDigits = Number(ruleDetails[0]["integer"])
+                const minFractionDigits = Number(ruleDetails[0]["fraction"])
                 const integerDigits = value <= 0 ? parts[0].length - 1 : parts[0].length
                 const fractionDigits = !parts[1] ? 0 : parts[1].length
-                return integerDigits == integerLen && fractionDigits == fractionLen
+                return integerDigits <= maxIntegerDigits && fractionDigits <= minFractionDigits
             }
         }
     }
