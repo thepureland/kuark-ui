@@ -38,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.BaseListPage = void 0;
 var vue_1 = require("vue");
+var element_plus_1 = require("element-plus");
 var BaseListPage = /** @class */ (function () {
     function BaseListPage() {
         var _this = this;
@@ -51,20 +52,41 @@ var BaseListPage = /** @class */ (function () {
                 total: 0,
                 pageNo: 1,
                 pageSize: 10
-            }
+            },
+            DialogVisible: false,
+            editDialogVisible: false,
+            rid: '',
         });
+        // 为了解决恶心的this问题
         this.handleSizeChange = function (newSize) {
-            _this.state.pagination.pageSize = newSize;
-            _this.loadData();
+            _this.doHandleSizeChange(newSize);
         };
         this.handleCurrentChange = function (newCurrent) {
-            if (newCurrent) {
-                _this.state.pagination.pageNo = newCurrent;
-                _this.loadData();
-            }
+            _this.doHandleCurrentChange(newCurrent);
+        };
+        this.loadData = function () {
+            _this.doLoadData();
+        };
+        this.resetSearchFields = function () {
+            _this.doResetSearchFields();
+        };
+        this.handleSortChange = function (column) {
+            _this.doHandleSortChange(column);
+        };
+        this.handleFilter = function (value, row, column) {
+            _this.doHandleFilter(value, row, column);
+        };
+        this.handleDelete = function (row) {
+            _this.doHandleDelete(row);
+        };
+        this.handleEdit = function (row) {
+            _this.doHandleEdit(row);
+        };
+        this.response = function () {
+            _this.doResponse();
         };
     }
-    BaseListPage.prototype.loadData = function () {
+    BaseListPage.prototype.doLoadData = function () {
         return __awaiter(this, void 0, void 0, function () {
             var params, result;
             return __generator(this, function (_a) {
@@ -86,6 +108,61 @@ var BaseListPage = /** @class */ (function () {
                 }
             });
         });
+    };
+    BaseListPage.prototype.doHandleSizeChange = function (newSize) {
+        this.state.pagination.pageSize = newSize;
+        this.loadData();
+    };
+    BaseListPage.prototype.doHandleCurrentChange = function (newCurrent) {
+        if (newCurrent) {
+            this.state.pagination.pageNo = newCurrent;
+            this.loadData();
+        }
+    };
+    BaseListPage.prototype.doResetSearchFields = function () {
+    };
+    BaseListPage.prototype.doHandleSortChange = function (column) {
+        this.state.sort.orderProperty = column.prop;
+        this.state.sort.orderDirection = column.order == "ascending" ? "ASC" : "DESC";
+        this.doLoadData();
+    };
+    BaseListPage.prototype.doHandleFilter = function (value, row, column) {
+        var property = column['property'];
+        return row[property] === value;
+    };
+    BaseListPage.prototype.doHandleDelete = function (row) {
+        return __awaiter(this, void 0, void 0, function () {
+            var confirmResult, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, element_plus_1.ElMessageBox.confirm('确定要删除该数据?', '提示', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        })["catch"](function (err) { return err; })];
+                    case 1:
+                        confirmResult = _a.sent();
+                        if (confirmResult !== 'confirm')
+                            return [2 /*return*/, element_plus_1.ElMessage.info('取消删除！')
+                                //@ts-ignore
+                            ];
+                        return [4 /*yield*/, ajax({ url: "sysDict/delete", method: "delete", params: { id: row.id } })
+                            // if (code === "ok") ElMessage.success('删除成功！');
+                            // useSearch(state);
+                        ];
+                    case 2:
+                        result = _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    BaseListPage.prototype.doHandleEdit = function (row) {
+        this.state.editDialogVisible = true;
+        this.state.rid = row.id;
+    };
+    BaseListPage.prototype.doResponse = function () {
+        this.loadData();
     };
     return BaseListPage;
 }());
