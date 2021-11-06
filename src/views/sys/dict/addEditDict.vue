@@ -67,11 +67,17 @@ class Page extends BaseAddEditPage {
   }
 
   protected getSubmitUrl(): String {
-    return "sysDict/add";
+    return "sysDict/saveOrUpdate";
+  }
+
+  protected getRowObjectLoadUrl(): String {
+    return "sysDict/get";
   }
 
   protected getSubmitParams(): any {
     return {
+      id: this.props.rid,
+      isDict: this.props["isDict"],
       module: this.state.formModel.parent[0],
       parentId: this.state.formModel.parent.length === 1 ? null : this.state.formModel.parent[this.state.formModel.parent.length - 1],
       dictId: this.state.formModel.parent.length === 1 ? null : this.state.formModel.parent[1],
@@ -87,6 +93,34 @@ class Page extends BaseAddEditPage {
       return ElMessage.error('上级必须指定')
     }
     return super.doSubmit()
+  }
+
+  protected getRowObjectLoadParams(): any {
+    const params = super.getRowObjectLoadParams()
+    params["isDict"] = this.props["isDict"]
+    params["fetchAllParentIds"] = true
+    return params
+  }
+
+  protected fillForm(rowObject: any) {
+    const isDict = this.props["isDict"]
+    this.state.formModel.module = rowObject.module
+    this.state.formModel.parentId = rowObject.parentId
+    this.state.formModel.dictId = rowObject.dictId
+    this.state.formModel.code = isDict ? rowObject.dictType : rowObject.itemCode
+    this.state.formModel.name = isDict ? rowObject.dictName : rowObject.itemName
+    this.state.formModel.seqNo = rowObject.seqNo
+    this.state.formModel.remark = rowObject.remark
+    const parents = [rowObject.module]
+    if (!isDict) {
+      const parentIds = rowObject.parentIds
+      if (parentIds) {
+        for(let parentId of parentIds) {
+          parents.push(parentId)
+        }
+      }
+    }
+    this.state.formModel.parent = parents
   }
 
   public loadTreeNodes: (node, resolve) => void
@@ -123,10 +157,12 @@ class Page extends BaseAddEditPage {
 }
 
 export default defineComponent({
-  name: "~addDict",
+  name: "~addEditDict",
   // components: { QuillEditor, },
   props: {
     modelValue: Boolean,
+    rid: String,
+    isDict: Boolean
   },
   emits: ['update:modelValue', "response"],
   setup(props, context) {

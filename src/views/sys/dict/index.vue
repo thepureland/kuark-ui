@@ -84,9 +84,7 @@
             </el-table-column>
             <el-table-column label="操作">
               <template #default="scope">
-                <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit"
-                           v-if="scope.row.itemCode">编辑
-                </el-button>
+                <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
                 <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete"
                            v-if="scope.row.itemCode">删除
                 </el-button>
@@ -100,16 +98,15 @@
         </el-col>
       </el-row>
 
-      <add-dict v-model="addDialogVisible" @response="response"></add-dict>
-      <!--      <edit-dict v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"></edit-dict>-->
+      <add-edit-dict v-model="addDialogVisible" @response="response"/>
+      <add-edit-dict v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid" :isDict="isDict"/>
     </el-card>
   </div>
 </template>
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue";
-import addDict from './addDict.vue';
-// import editDict from './editDict.vue';
+import addEditDict from './addEditDict.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts";
 
 class ListPage extends BaseListPage {
@@ -142,7 +139,8 @@ class ListPage extends BaseListPage {
       modules: [],
       dictTypes: [],
       dictItemCodes: [],
-      searchSource: null
+      searchSource: null,
+      isDict: null
     }
   }
 
@@ -191,6 +189,12 @@ class ListPage extends BaseListPage {
     this.state.searchParams.itemCode = null
     this.state.searchParams.itemName = null
     this.state.pagination.pageNo = 1
+  }
+
+  protected doHandleEdit(row: any) {
+    super.doHandleEdit(row);
+    this.state.isDict = row.itemId == null
+    this.state.rid = this.state.isDict ? row.dictId : row.itemId
   }
 
   public filterModule: (queryString: string, cb) => void
@@ -347,7 +351,7 @@ class ListPage extends BaseListPage {
 
 export default defineComponent({
   name: "~index",
-  components: {addDict},
+  components: {addEditDict},
   setup(props, context) {
     const listPage = reactive(new ListPage())
     return {

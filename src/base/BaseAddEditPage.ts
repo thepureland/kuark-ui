@@ -17,16 +17,21 @@ export abstract class BaseAddEditPage {
         this.props = props
         this.context = context
         this.form = ref()
-        this.visible = computed( {
+        this.visible = computed({
             get: () => this.props.modelValue,
-            set: () => {}
+            set: () => {
+            }
         })
 
         this.state = reactive(this.initBaseState())
         const additionalState = reactive(this.initState())
         Object.assign(this.state, additionalState)
 
-        this.initValidationRule()
+        if (this.props.rid) {
+            this.loadRowObject().then(() => this.initValidationRule())
+        } else {
+            this.initValidationRule()
+        }
 
         this._convertThis() // 为了解决恶心的this问题，无任何业务逻辑代码
     }
@@ -43,7 +48,24 @@ export abstract class BaseAddEditPage {
 
     protected abstract getSubmitUrl(): String
 
+    protected abstract getRowObjectLoadUrl(): String
+
     protected abstract getSubmitParams(): any
+
+    protected abstract fillForm(rowObject: any)
+
+    protected getRowObjectLoadParams(): any {
+        return {
+            id: this.props.rid
+        }
+    }
+
+    protected async loadRowObject() {
+        const params = this.getRowObjectLoadParams()
+        // @ts-ignore
+        const result = await ajax({url: this.getRowObjectLoadUrl(), params});
+        this.fillForm(result.data)
+    }
 
     protected async initValidationRule(): Promise<any> {
         // @ts-ignore

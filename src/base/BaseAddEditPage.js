@@ -50,18 +50,45 @@ var BaseAddEditPage = /** @class */ (function () {
         this.form = vue_1.ref();
         this.visible = vue_1.computed({
             get: function () { return _this.props.modelValue; },
-            set: function () { }
+            set: function () {
+            }
         });
         this.state = vue_1.reactive(this.initBaseState());
         var additionalState = vue_1.reactive(this.initState());
         Object.assign(this.state, additionalState);
-        this.initValidationRule();
+        if (this.props.rid) {
+            this.loadRowObject().then(function () { return _this.initValidationRule(); });
+        }
+        else {
+            this.initValidationRule();
+        }
         this._convertThis(); // 为了解决恶心的this问题，无任何业务逻辑代码
     }
     BaseAddEditPage.prototype.initBaseState = function () {
         return {
             rules: null,
         };
+    };
+    BaseAddEditPage.prototype.getRowObjectLoadParams = function () {
+        return {
+            id: this.props.rid
+        };
+    };
+    BaseAddEditPage.prototype.loadRowObject = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var params, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = this.getRowObjectLoadParams();
+                        return [4 /*yield*/, ajax({ url: this.getRowObjectLoadUrl(), params: params })];
+                    case 1:
+                        result = _a.sent();
+                        this.fillForm(result.data);
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     BaseAddEditPage.prototype.initValidationRule = function () {
         return __awaiter(this, void 0, void 0, function () {
