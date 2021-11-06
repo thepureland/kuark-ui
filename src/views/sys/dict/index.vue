@@ -17,35 +17,35 @@
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
-          <el-tree :props="dictTreeProps" :load="listPage.loadTree" :expand-on-click-node="false"
-                   @node-expand="listPage.expandTreeNode"
-                   @node-click="(nodeData,node)=>listPage.clickTreeNode(nodeData,node)" accordion lazy/>
+          <el-tree :props="dictTreeProps" :load="loadTree" :expand-on-click-node="false"
+                   @node-expand="expandTreeNode"
+                   @node-click="(nodeData,node)=>clickTreeNode(nodeData,node)" accordion lazy/>
         </el-col>
         <el-col :span="22">
           <el-row :gutter="20" class="toolbar">
             <el-col :span="2">
-              <el-autocomplete v-model="searchParams.module" placeholder="所属模块" @change="listPage.loadData"
-                               @select="listPage.loadData" :fetch-suggestions="listPage.filterModule"
+              <el-autocomplete v-model="searchParams.module" placeholder="所属模块" @change="loadData"
+                               @select="loadData" :fetch-suggestions="filterModule"
                                clearable></el-autocomplete>
             </el-col>
             <el-col :span="2">
-              <el-autocomplete v-model="searchParams.dictType" placeholder="字典类型" @change="listPage.loadData"
-                               @select="listPage.loadData" :fetch-suggestions="listPage.filterDictType"
+              <el-autocomplete v-model="searchParams.dictType" placeholder="字典类型" @change="loadData"
+                               @select="loadData" :fetch-suggestions="filterDictType"
                                :trigger-on-focus="false"
                                clearable></el-autocomplete>
             </el-col>
             <el-col :span="2">
-              <el-input v-model="searchParams.dictName" placeholder="字典名称" @change="listPage.loadData"
+              <el-input v-model="searchParams.dictName" placeholder="字典名称" @change="loadData"
                         clearable></el-input>
             </el-col>
             <el-col :span="2">
-              <el-autocomplete v-model="searchParams.itemCode" placeholder="字典项编码" @change="listPage.loadData"
-                               @select="listPage.loadData" :fetch-suggestions="listPage.filterDictItemCode"
+              <el-autocomplete v-model="searchParams.itemCode" placeholder="字典项编码" @change="loadData"
+                               @select="loadData" :fetch-suggestions="filterDictItemCode"
                                :trigger-on-focus="false"
                                clearable></el-autocomplete>
             </el-col>
             <el-col :span="2">
-              <el-input v-model="searchParams.itemName" placeholder="字典项名称" @change="listPage.loadData"
+              <el-input v-model="searchParams.itemName" placeholder="字典项名称" @change="loadData"
                         clearable></el-input>
             </el-col>
 
@@ -54,19 +54,19 @@
             </el-col>
 
             <el-col :span="1">
-              <el-button type="primary" round @click="listPage.loadData">搜索</el-button>
+              <el-button type="primary" round @click="loadData">搜索</el-button>
             </el-col>
             <el-col :span="1">
-              <el-button type="primary" round @click="listPage.resetSearchFields">重置</el-button>
+              <el-button type="primary" round @click="resetSearchFields">重置</el-button>
             </el-col>
             <el-col :span="8">
-              <el-button type="success" @click="DialogVisible = true">添加</el-button>
+              <el-button type="success" @click="openAddDialog">添加</el-button>
               <el-button type="danger" @click="">删除</el-button>
             </el-col>
           </el-row>
 
           <el-table border stripe :data="tableData" height="650" :header-cell-style="{textAlign: 'center'}"
-                    @sort-change="listPage.handleSortChange">
+                    @sort-change="handleSortChange">
             <el-table-column type="selection" width="39"/>
             <el-table-column type="index" width="50"/>
             <el-table-column label="字典类型" prop="dictType" sortable="custom"/>
@@ -79,35 +79,35 @@
             <el-table-column label="启用">
               <template #default="scope">
                 <el-switch v-model="scope.row.active" :active-value=true :inactive-value=false
-                           @change="listPage.updateActive(scope.row)" v-if="scope.row.itemCode"/>
+                           @change="updateActive(scope.row)" v-if="scope.row.itemCode"/>
               </template>
             </el-table-column>
             <el-table-column label="操作">
               <template #default="scope">
-                <el-button @click="listPage.handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit"
+                <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit"
                            v-if="scope.row.itemCode">编辑
                 </el-button>
-                <el-button @click="listPage.handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete"
+                <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete"
                            v-if="scope.row.itemCode">删除
                 </el-button>
               </template>
             </el-table-column>
           </el-table>
 
-          <el-pagination @size-change="listPage.handleSizeChange" @current-change="listPage.handleCurrentChange"
+          <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
                          :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                          layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
         </el-col>
       </el-row>
 
-      <add-dict v-model="DialogVisible" @response="listPage.response"></add-dict>
+      <add-dict v-model="addDialogVisible" @response="response"></add-dict>
       <!--      <edit-dict v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"></edit-dict>-->
     </el-card>
   </div>
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, toRefs, onMounted} from "vue";
+import {defineComponent, reactive, toRefs} from "vue";
 import addDict from './addDict.vue';
 // import editDict from './editDict.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts";
@@ -115,46 +115,38 @@ import {BaseListPage} from "../../../base/BaseListPage.ts";
 class ListPage extends BaseListPage {
 
   constructor() {
-    super();
+    super()
 
-    // 为了解决恶心的this问题
-    this.filterModule = (queryString: string, cb) => {
-      cb(queryString ? this.state.modules.filter(this.createFilter(queryString)) : this.state.modules)
-    }
-    this.filterDictType = (queryString: string, cb) => {
-      cb(queryString ? this.state.dictTypes.filter(this.createFilter(queryString)) : this.state.dictTypes)
-    }
-    this.filterDictItemCode = (queryString: string, cb) => {
-      cb(queryString ? this.state.dictItemCodes.filter(this.createFilter(queryString)) : this.state.dictItemCodes)
-    }
-    this.loadTree = (node, resolve) => {
-      this.laodTreeNodes(this.state, node, resolve)
-    }
-    this.expandTreeNode = (nodeData, node) => {
-      if (node.data) {
-        listPage.resetSearchFields()
-        this.state.searchParams.parentId = node.level === 1 ? node.data.code : node.data.id
-        this.state.searchParams.firstLevel = node.level === 1
-        this.listByTree(this.state)
-      }
-    }
-    this.clickTreeNode = async (nodeData, node) => {
-      if (node.level === 1) {
-        return
-      }
-      listPage.resetSearchFields()
-      const params = {
-        id: nodeData.id,
-        isDict: node.level === 2
-      }
-      // @ts-ignore
-      const result = await ajax({url: "sysDict/get", params});
-      this.state.tableData = [result.data]
-      this.state.pagination.total = 1
+    this.loadModules(this.state)
+    this.loadDictTypes(this.state)
+    this.loadDictItemCodes(this.state)
+
+    this.convertThis() // 为了解决恶心的this问题
+  }
+
+  protected initState(): any {
+    return {
+      dictTreeProps: {
+        label: 'code'
+      },
+      searchParams: {
+        parentId: '',
+        firstLevel: '',
+        module: '',
+        dictType: '',
+        dictName: '',
+        itemCode: '',
+        itemName: '',
+        active: true
+      },
+      modules: [],
+      dictTypes: [],
+      dictItemCodes: [],
+      searchSource: null
     }
   }
 
-  protected getSearchParams() {
+  protected initSearchParams() {
     return {
       module: this.state.searchParams.module,
       dictType: this.state.searchParams.dictType,
@@ -168,16 +160,13 @@ class ListPage extends BaseListPage {
   }
 
   protected async doLoadData(): Promise<void> {
-    if (event.srcElement["type"] == "button") {
-      super.doLoadData();
-    } else {
-      this.listByTree(this.state)
-    }
+    this.state.searchSource = "button"
+    super.doLoadData();
   }
 
   protected doHandleSizeChange(newSize: number) {
     this.state.pagination.pageSize = newSize
-    if (event.srcElement["type"] == "button") {
+    if (this.state.searchSource == "button") {
       this.loadData()
     } else {
       this.listByTree(this.state)
@@ -187,7 +176,7 @@ class ListPage extends BaseListPage {
   protected doHandleCurrentChange(newCurrent: number) {
     if (newCurrent) {
       this.state.pagination.pageNo = newCurrent
-      if (event.srcElement["type"] == "button") {
+      if (this.state.searchSource == "button") {
         this.loadData()
       } else {
         this.listByTree(this.state)
@@ -206,15 +195,56 @@ class ListPage extends BaseListPage {
 
   public filterModule: (queryString: string, cb) => void
 
+  private doFilterModule(queryString: string, cb) {
+    cb(queryString ? this.state.modules.filter(this.createFilter(queryString)) : this.state.modules)
+  }
+
   public filterDictType: (queryString: string, cb) => void
+
+  private doFilterDictType(queryString: string, cb) {
+    cb(queryString ? this.state.dictTypes.filter(this.createFilter(queryString)) : this.state.dictTypes)
+  }
 
   public filterDictItemCode: (queryString: string, cb) => void
 
+  private doFilterDictItemCode(queryString: string, cb) {
+    cb(queryString ? this.state.dictItemCodes.filter(this.createFilter(queryString)) : this.state.dictItemCodes)
+  }
+
   public loadTree: (node, resolve) => void
+
+  private doLoadTree(node, resolve) {
+    this.laodTreeNodes(this.state, node, resolve)
+  }
 
   public expandTreeNode: (nodeData, node) => void
 
+  private doExpandTreeNode(nodeData, node) {
+    if (node.data) {
+      this.resetSearchFields()
+      this.state.searchParams.parentId = node.level === 1 ? node.data.code : node.data.id
+      this.state.searchParams.firstLevel = node.level === 1
+      this.listByTree(this.state)
+    }
+  }
+
   public clickTreeNode: (nodeData, node) => void
+
+  private async doClickTreeNode(nodeData, node) {
+    if (node.level === 1) {
+      return
+    }
+    this.state.searchSource = "tree"
+    this.resetSearchFields()
+    const params = {
+      id: nodeData.id,
+      isDict: node.level === 2
+    }
+    // @ts-ignore
+    const result = await ajax({url: "sysDict/get", params});
+    this.state.tableData = [result.data]
+    this.state.pagination.total = 1
+  }
 
   public async updateActive(row) {
     const params = {
@@ -245,6 +275,7 @@ class ListPage extends BaseListPage {
   }
 
   public async listByTree(state: any) {
+    this.state.searchSource = "tree"
     const params = {
       parentId: state.searchParams.parentId,
       firstLevel: state.searchParams.firstLevel,
@@ -288,46 +319,43 @@ class ListPage extends BaseListPage {
     })
   }
 
-}
+  /**
+   * 为了解决恶心的this问题，不要写任何业务逻辑代码
+   */
+  private convertThis() {
+    this.filterModule = (queryString: string, cb) => {
+      this.doFilterModule(queryString, cb)
+    }
+    this.filterDictType = (queryString: string, cb) => {
+      this.doFilterDictType(queryString, cb)
+    }
+    this.filterDictItemCode = (queryString: string, cb) => {
+      this.doFilterDictItemCode(queryString, cb)
+    }
+    this.loadTree = (node, resolve) => {
+      this.doLoadTree(node, resolve)
+    }
+    this.expandTreeNode = (nodeData, node) => {
+      this.doExpandTreeNode(nodeData, node)
+    }
+    this.clickTreeNode = (nodeData, node) => {
+      this.doClickTreeNode(nodeData, node)
+    }
+  }
 
-const listPage = new ListPage()
+}
 
 export default defineComponent({
   name: "~index",
   components: {addDict},
-  setup(props, {emit, slots}) {
-    let state = reactive(Object.assign(listPage.state, {
-      dictTreeProps: {
-        label: 'code'
-      },
-      searchParams: {
-        parentId: '',
-        firstLevel: '',
-        module: '',
-        dictType: '',
-        dictName: '',
-        itemCode: '',
-        itemName: '',
-        active: true
-      },
-      modules: [],
-      dictTypes: [],
-      dictItemCodes: [],
-    }));
-
-    onMounted(() => {
-      listPage.loadModules(state)
-      listPage.loadDictTypes(state)
-      listPage.loadDictItemCodes(state)
-    });
-
+  setup(props, context) {
+    const listPage = reactive(new ListPage())
     return {
-      listPage,
-      ...toRefs(state)
-    };
-
+      ...toRefs(listPage.state),
+      ...toRefs(listPage)
+    }
   }
-});
+})
 </script>
 
 <style lang='css' scoped>

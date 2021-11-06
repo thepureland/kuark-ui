@@ -1,4 +1,4 @@
-import {reactive} from "vue";
+import {reactive, toRefs} from "vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 
 
@@ -6,8 +6,15 @@ export abstract class BaseListPage {
 
     public state: any
 
-    constructor() {
-        this.state = reactive({
+    protected constructor() {
+        this.state = reactive(this.initBaseState())
+        const additionalState = reactive(this.initState())
+        Object.assign(this.state, additionalState)
+        this._convertThis() // 为了解决恶心的this问题，无任何业务逻辑代码
+    }
+
+    protected initBaseState(): any {
+        return {
             tableData: [],
             sort: {
                 orderProperty: '',
@@ -18,47 +25,20 @@ export abstract class BaseListPage {
                 pageNo: 1,
                 pageSize: 10
             },
-            DialogVisible: false,
+            addDialogVisible: false,
             editDialogVisible: false,
             rid: '',
-        })
-
-        // 为了解决恶心的this问题
-        this.handleSizeChange = (newSize: number) => {
-            this.doHandleSizeChange(newSize)
-        }
-        this.handleCurrentChange = (newCurrent: number) => {
-            this.doHandleCurrentChange(newCurrent)
-        }
-        this.loadData = () => {
-            this.doLoadData()
-        }
-        this.resetSearchFields = () => {
-            this.doResetSearchFields()
-        }
-        this.handleSortChange = (column) => {
-            this.doHandleSortChange(column)
-        }
-        this.handleFilter = (value, row, column) => {
-            this.doHandleFilter(value, row, column)
-        }
-        this.handleDelete = (row: any) => {
-            this.doHandleDelete(row)
-        }
-        this.handleEdit = (row: any) => {
-            this.doHandleEdit(row)
-        }
-        this.response = () => {
-            this.doResponse()
         }
     }
 
-    protected abstract getSearchParams()
+    protected abstract initState(): any
+
+    protected abstract initSearchParams(): any
 
     public loadData: () => void
 
     protected async doLoadData() {
-        const params = this.getSearchParams()
+        const params = this.initSearchParams()
         if (this.state.sort.orderProperty) {
             params["orders"] = [{
                 property: this.state.sort.orderProperty,
@@ -129,10 +109,52 @@ export abstract class BaseListPage {
         this.state.rid = row.id
     }
 
+    public openAddDialog: () => void
+
+    protected doOpenAddDialog() {
+        this.state.addDialogVisible = true
+    }
+
     public response: () => void
 
     protected doResponse() {
         this.loadData()
+    }
+
+    /**
+     * 为了解决恶心的this问题，无任何业务逻辑代码
+     */
+    private _convertThis() {
+        this.handleSizeChange = (newSize: number) => {
+            this.doHandleSizeChange(newSize)
+        }
+        this.handleCurrentChange = (newCurrent: number) => {
+            this.doHandleCurrentChange(newCurrent)
+        }
+        this.loadData = () => {
+            this.doLoadData()
+        }
+        this.resetSearchFields = () => {
+            this.doResetSearchFields()
+        }
+        this.handleSortChange = (column) => {
+            this.doHandleSortChange(column)
+        }
+        this.handleFilter = (value, row, column) => {
+            this.doHandleFilter(value, row, column)
+        }
+        this.handleDelete = (row: any) => {
+            this.doHandleDelete(row)
+        }
+        this.handleEdit = (row: any) => {
+            this.doHandleEdit(row)
+        }
+        this.response = () => {
+            this.doResponse()
+        }
+        this.openAddDialog = () => {
+            this.doOpenAddDialog()
+        }
     }
 
 }

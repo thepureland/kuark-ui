@@ -1,120 +1,53 @@
 <template>
-  <el-dialog title="添加字典信息" v-model="bool" width="30%" center @close="closeDialog">
-    <el-form ref="FORM" :model="form" label-width="80px" :rules="rules">
+  <el-dialog title="添加字典信息" v-model="visible" width="30%" center @close="close">
+    <el-form ref="form" :model="formModel" label-width="80px" :rules="rules">
       <el-form-item label="上级" prop="parent">
-        <el-cascader ref="cascader" v-model="form.parent" :props="cascaderProps" @change="clickTreeNode"/>
+        <el-cascader ref="cascader" v-model="formModel.parent" :props="cascaderProps"/>
       </el-form-item>
       <el-form-item label="编码" prop="code">
-        <el-input v-model="form.code"/>
+        <el-input v-model="formModel.code"/>
       </el-form-item>
       <el-form-item label="名称" prop="name">
-        <el-input v-model="form.name"/>
+        <el-input v-model="formModel.name"/>
       </el-form-item>
       <el-form-item label="排序" prop="seqNo">
-        <el-input-number v-model="form.seqNo" :min="1" :max="999999999"/>
+        <el-input-number v-model="formModel.seqNo" :min="1" :max="999999999"/>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
-        <el-input v-model="form.remark"/>
+        <el-input v-model="formModel.remark"/>
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
         <el-button type="primary" @click="submit">确 定</el-button>
-        <el-button @click="closeDialog">取 消</el-button>
+        <el-button @click="close">取 消</el-button>
       </span>
     </template>
   </el-dialog>
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, toRefs, ref, computed, onMounted} from "vue";
+import {defineComponent, reactive, toRefs, ref} from "vue";
 import {ElMessage} from 'element-plus';
-import {ValidationRuleAdapter} from '../../../base/ValidationRuleAdapter.ts'
+import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
 
-function useAdd({form}, FORM, cascader, emit) {
-  const submit = () => {
-    if (!form.parent || form.parent.length == 0) {
-      return ElMessage.error('上级必须指定')
-    }
-    FORM.value.validate(async valid => {
-      if (!valid) return ElMessage.error('验证未通过')
-      const params = {
-        module: form.parent[0],
-        parentId: form.parent.length === 1 ? null : form.parent[form.parent.length - 1],
-        dictId: form.parent.length === 1 ? null : form.parent[1],
-        code: form.code,
-        name: form.name,
-        seqNo: form.seqNo,
-        remark: form.remark
-      };
-      // @ts-ignore
-      const result = await ajax({url: "sysDict/add", method: "post", params})
-      FORM.value.resetFields()
+class Page extends BaseAddEditPage {
 
-      emit('response')
-      emit('update:modelValue', false);
-    });
-
-  };
-
-  return {submit}
-}
-
-async function loadTreeNodes(state: any, node, resolve) {
-  const params = {
-    parentId: node.level === 0 ? null : (node.level === 1 ? node.data.code : node.data.id),
-    firstLevel: node.level === 1,
-    active: true
-  }
-  // @ts-ignore
-  const result = await ajax({url: "sysDict/laodTreeNodes", method: "post", params});
-  resolve(result.data)
-}
-
-
-async function initValidationRule(Dialog: any, FORM: any): Promise<any> {
-  // @ts-ignore
-  const result = await ajax({url: "sysDict/getValidationRule"});
-  Dialog.rules = new ValidationRuleAdapter(result.data, () => {
-    return FORM.value.model
-  }).getRules()
-}
-
-
-function treeOperation(state: any) {
-
-  const loadTree = (node, resolve) => {
-    loadTreeNodes(state, node, resolve)
+  constructor(props, context) {
+    super(props, context)
+    this.convertThis() // 为了解决恶心的this问题
   }
 
-  const expandTreeNode = (nodeData, node) => {
-    console.info(nodeData)
-  }
-
-  const clickTreeNode = async (nodeData, node) => {
-    ++state.isResouceShow
-    // node.cascader.computePresentText()
-  }
-
-  return {
-    loadTree,
-    clickTreeNode,
-    expandTreeNode
-  }
-
-}
-
-
-export default defineComponent({
-  name: "~addDict",
-  // components: { QuillEditor, },
-  props: {
-    modelValue: Boolean,
-  },
-  emits: ['update:modelValue', "response"],
-  setup(props, {emit, slots, attr}) {
-    const state = reactive({
-      isResouceShow: 1,
+  protected initState(): any {
+    const that = this
+    return {
+      formModel: {
+        parent: "",
+        code: "",
+        name: "",
+        seqNo: undefined,
+        remark: ""
+      },
       cascaderProps: {
         lazy: true,
         label: "code",
@@ -123,43 +56,89 @@ export default defineComponent({
         checkStrictly: true,
         expandTrigger: "hover",
         lazyLoad(node, resolve) {
-          loadTreeNodes(state, node, resolve)
+          that.loadTreeNodes(node, resolve)
         },
       }
-    })
-    const FORM = ref();
-    const cascader = ref()
-    const bool = computed(() => props.modelValue);
-    const Dialog = reactive({
-      form: {
-        parent: "",
-        code: "",
-        name: "",
-        seqNo: undefined,
-        remark: ""
-      },
-      rules: null,
-      upload: {},
-
-      closeDialog() {
-        FORM.value.resetFields()
-        emit('update:modelValue', !bool);
-      }
-    });
-    onMounted(() => {
-      initValidationRule(Dialog, FORM)
-    })
-    return {
-      FORM,
-      cascader,
-      bool,
-      ...toRefs(state),
-      ...toRefs(Dialog),
-      ...useAdd(Dialog, FORM, cascader, emit),
-      ...treeOperation(state),
-    };
+    }
   }
-});
+
+  protected getValidationRuleUrl(): String {
+    return "sysDict/getValidationRule"
+  }
+
+  protected getSubmitUrl(): String {
+    return "sysDict/add";
+  }
+
+  protected getSubmitParams(): any {
+    return {
+      module: this.state.formModel.parent[0],
+      parentId: this.state.formModel.parent.length === 1 ? null : this.state.formModel.parent[this.state.formModel.parent.length - 1],
+      dictId: this.state.formModel.parent.length === 1 ? null : this.state.formModel.parent[1],
+      code: this.state.formModel.code,
+      name: this.state.formModel.name,
+      seqNo: this.state.formModel.seqNo,
+      remark: this.state.formModel.remark
+    }
+  }
+
+  protected doSubmit() {
+    if (!this.state.formModel.parent || this.state.formModel.parent.length == 0) {
+      return ElMessage.error('上级必须指定')
+    }
+    return super.doSubmit()
+  }
+
+  public loadTreeNodes: (node, resolve) => void
+
+  private async doLoadTreeNodes(node, resolve) {
+    const params = {
+      parentId: node.level === 0 ? null : (node.level === 1 ? node.data.code : node.data.id),
+      firstLevel: node.level === 1,
+      active: true
+    }
+    // @ts-ignore
+    const result = await ajax({url: "sysDict/laodTreeNodes", method: "post", params});
+    resolve(result.data)
+  }
+
+  public loadTree: (node, resolve) => void
+
+  private doLoadTree(node, resolve) {
+    this.loadTreeNodes(node, resolve)
+  }
+
+  /**
+   * 为了解决恶心的this问题，不要写任何业务逻辑代码
+   */
+  private convertThis() {
+    this.loadTreeNodes = (node, resolve) => {
+      this.doLoadTreeNodes(node, resolve)
+    }
+    this.loadTree = (node, resolve) => {
+      this.doLoadTree(node, resolve)
+    }
+  }
+
+}
+
+export default defineComponent({
+  name: "~addDict",
+  // components: { QuillEditor, },
+  props: {
+    modelValue: Boolean,
+  },
+  emits: ['update:modelValue', "response"],
+  setup(props, context) {
+    const page = reactive(new Page(props, context))
+    const cascader = ref()
+    return {
+      ...toRefs(page),
+      ...toRefs(page.state),
+      cascader,
+    }
+  }
+})
 </script>
 
 <style lang='css' scoped>

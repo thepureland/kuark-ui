@@ -41,8 +41,13 @@ var vue_1 = require("vue");
 var element_plus_1 = require("element-plus");
 var BaseListPage = /** @class */ (function () {
     function BaseListPage() {
-        var _this = this;
-        this.state = vue_1.reactive({
+        this.state = vue_1.reactive(this.initBaseState());
+        var additionalState = vue_1.reactive(this.initState());
+        Object.assign(this.state, additionalState);
+        this._convertThis(); // 为了解决恶心的this问题，无任何业务逻辑代码
+    }
+    BaseListPage.prototype.initBaseState = function () {
+        return {
             tableData: [],
             sort: {
                 orderProperty: '',
@@ -53,46 +58,18 @@ var BaseListPage = /** @class */ (function () {
                 pageNo: 1,
                 pageSize: 10
             },
-            DialogVisible: false,
+            addDialogVisible: false,
             editDialogVisible: false,
             rid: '',
-        });
-        // 为了解决恶心的this问题
-        this.handleSizeChange = function (newSize) {
-            _this.doHandleSizeChange(newSize);
         };
-        this.handleCurrentChange = function (newCurrent) {
-            _this.doHandleCurrentChange(newCurrent);
-        };
-        this.loadData = function () {
-            _this.doLoadData();
-        };
-        this.resetSearchFields = function () {
-            _this.doResetSearchFields();
-        };
-        this.handleSortChange = function (column) {
-            _this.doHandleSortChange(column);
-        };
-        this.handleFilter = function (value, row, column) {
-            _this.doHandleFilter(value, row, column);
-        };
-        this.handleDelete = function (row) {
-            _this.doHandleDelete(row);
-        };
-        this.handleEdit = function (row) {
-            _this.doHandleEdit(row);
-        };
-        this.response = function () {
-            _this.doResponse();
-        };
-    }
+    };
     BaseListPage.prototype.doLoadData = function () {
         return __awaiter(this, void 0, void 0, function () {
             var params, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = this.getSearchParams();
+                        params = this.initSearchParams();
                         if (this.state.sort.orderProperty) {
                             params["orders"] = [{
                                     property: this.state.sort.orderProperty,
@@ -161,8 +138,47 @@ var BaseListPage = /** @class */ (function () {
         this.state.editDialogVisible = true;
         this.state.rid = row.id;
     };
+    BaseListPage.prototype.doOpenAddDialog = function () {
+        this.state.addDialogVisible = true;
+    };
     BaseListPage.prototype.doResponse = function () {
         this.loadData();
+    };
+    /**
+     * 为了解决恶心的this问题，无任何业务逻辑代码
+     */
+    BaseListPage.prototype._convertThis = function () {
+        var _this = this;
+        this.handleSizeChange = function (newSize) {
+            _this.doHandleSizeChange(newSize);
+        };
+        this.handleCurrentChange = function (newCurrent) {
+            _this.doHandleCurrentChange(newCurrent);
+        };
+        this.loadData = function () {
+            _this.doLoadData();
+        };
+        this.resetSearchFields = function () {
+            _this.doResetSearchFields();
+        };
+        this.handleSortChange = function (column) {
+            _this.doHandleSortChange(column);
+        };
+        this.handleFilter = function (value, row, column) {
+            _this.doHandleFilter(value, row, column);
+        };
+        this.handleDelete = function (row) {
+            _this.doHandleDelete(row);
+        };
+        this.handleEdit = function (row) {
+            _this.doHandleEdit(row);
+        };
+        this.response = function () {
+            _this.doResponse();
+        };
+        this.openAddDialog = function () {
+            _this.doOpenAddDialog();
+        };
     };
     return BaseListPage;
 }());
