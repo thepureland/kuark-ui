@@ -41,10 +41,15 @@ var element_plus_1 = require("element-plus");
 var vue_1 = require("vue");
 // @ts-ignore
 var ValidationRuleAdapter_ts_1 = require("./ValidationRuleAdapter.ts");
+/**
+ * 添加/编辑页面处理抽象父类
+ *
+ * @author K
+ * @since 1.0.0
+ */
 var BaseAddEditPage = /** @class */ (function () {
     function BaseAddEditPage(props, context) {
         var _this = this;
-        this.form = null;
         this.props = props;
         this.context = context;
         this.form = vue_1.ref();
@@ -69,7 +74,7 @@ var BaseAddEditPage = /** @class */ (function () {
             rules: null,
         };
     };
-    BaseAddEditPage.prototype.getRowObjectLoadParams = function () {
+    BaseAddEditPage.prototype.createRowObjectLoadParams = function () {
         return {
             id: this.props.rid
         };
@@ -80,11 +85,16 @@ var BaseAddEditPage = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = this.getRowObjectLoadParams();
+                        params = this.createRowObjectLoadParams();
                         return [4 /*yield*/, ajax({ url: this.getRowObjectLoadUrl(), params: params })];
                     case 1:
                         result = _a.sent();
-                        this.fillForm(result.data);
+                        if (result.data) {
+                            this.fillForm(result.data);
+                        }
+                        else {
+                            element_plus_1.ElMessage.error('数据加载失败！');
+                        }
                         return [2 /*return*/];
                 }
             });
@@ -99,9 +109,14 @@ var BaseAddEditPage = /** @class */ (function () {
                     case 0: return [4 /*yield*/, ajax({ url: this.getValidationRuleUrl() })];
                     case 1:
                         result = _a.sent();
-                        this.state.rules = new ValidationRuleAdapter_ts_1.ValidationRuleAdapter(result.data, function () {
-                            return _this.form.value.model;
-                        }).getRules();
+                        if (result.data) {
+                            this.state.rules = new ValidationRuleAdapter_ts_1.ValidationRuleAdapter(result.data, function () {
+                                return _this.form.value.model;
+                            }).getRules();
+                        }
+                        else {
+                            element_plus_1.ElMessage.error('数据加载失败！');
+                        }
                         return [2 /*return*/];
                 }
             });
@@ -116,13 +131,19 @@ var BaseAddEditPage = /** @class */ (function () {
                     case 0:
                         if (!valid)
                             return [2 /*return*/, element_plus_1.ElMessage.error('验证未通过')];
-                        params = this.getSubmitParams();
+                        params = this.createSubmitParams();
                         return [4 /*yield*/, ajax({ url: this.getSubmitUrl(), method: "post", params: params })];
                     case 1:
                         result = _a.sent();
-                        this.form.value.resetFields();
-                        this.context.emit('response');
-                        this.context.emit('update:modelValue', false);
+                        if (result.data) {
+                            element_plus_1.ElMessage.success('保存成功！');
+                            this.form.value.resetFields();
+                            this.context.emit('response');
+                            this.context.emit('update:modelValue', false);
+                        }
+                        else {
+                            element_plus_1.ElMessage.error('保存失败！');
+                        }
                         return [2 /*return*/];
                 }
             });

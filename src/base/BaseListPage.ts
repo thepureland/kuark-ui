@@ -1,7 +1,12 @@
-import {reactive, toRefs} from "vue";
+import {reactive} from "vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 
-
+/**
+ * 列表页面处理抽象父类
+ *
+ * @author K
+ * @since 1.0.0
+ */
 export abstract class BaseListPage {
 
     public state: any
@@ -33,12 +38,26 @@ export abstract class BaseListPage {
 
     protected abstract initState(): any
 
-    protected abstract initSearchParams(): any
+    protected abstract createSearchParams(): any
 
-    public loadData: () => void
+    protected abstract getSearchUrl(): String
 
-    protected async doLoadData() {
-        const params = this.initSearchParams()
+    protected abstract getDeleteUrl(): String
+
+    protected createDeleteParams(row: any): any {
+        return {
+            id: row.id
+        }
+    }
+
+    protected getDeleteMessage(): string {
+        return '确定要删除该数据？'
+    }
+
+    public search: () => void
+
+    protected async doSearch() {
+        const params = this.createSearchParams()
         if (this.state.sort.orderProperty) {
             params["orders"] = [{
                 property: this.state.sort.orderProperty,
@@ -46,16 +65,20 @@ export abstract class BaseListPage {
             }]
         }
         // @ts-ignore
-        const result = await ajax({url: "sysDict/list", method: "post", params});
-        this.state.tableData = result.data.first
-        this.state.pagination.total = result.data.second
+        const result = await ajax({url: this.getSearchUrl(), method: "post", params});
+        if (result.data) {
+            this.state.tableData = result.data.first
+            this.state.pagination.total = result.data.second
+        } else {
+            ElMessage.error('查询失败！')
+        }
     }
 
     public handleSizeChange: (newSize: number) => void
 
     protected doHandleSizeChange(newSize: number) {
         this.state.pagination.pageSize = newSize
-        this.loadData()
+        this.search()
     }
 
     public handleCurrentChange: (newCurrent: number) => void
@@ -63,7 +86,7 @@ export abstract class BaseListPage {
     protected doHandleCurrentChange(newCurrent: number) {
         if (newCurrent) {
             this.state.pagination.pageNo = newCurrent
-            this.loadData()
+            this.search()
         }
     }
 
@@ -77,7 +100,7 @@ export abstract class BaseListPage {
     protected doHandleSortChange(column) {
         this.state.sort.orderProperty = column.prop
         this.state.sort.orderDirection = column.order == "ascending" ? "ASC" : "DESC"
-        this.doLoadData()
+        this.doSearch()
     }
 
     public handleFilter: (value, row, column) => void
@@ -90,16 +113,23 @@ export abstract class BaseListPage {
     public handleDelete: (row: any) => void
 
     protected async doHandleDelete(row: any) {
-        const confirmResult = await ElMessageBox.confirm('确定要删除该数据?', '提示', {
+        const confirmResult = await ElMessageBox.confirm(this.getDeleteMessage(), '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
         }).catch(err => err)
-        if (confirmResult !== 'confirm') return ElMessage.info('取消删除！')
+        if (confirmResult !== 'confirm') {
+            return
+        }
+        const params = this.createDeleteParams(row)
         //@ts-ignore
-        const result = await ajax({url: "sysDict/delete", method: "delete", params: {id: row.id}})
-        // if (code === "ok") ElMessage.success('删除成功！');
-        // useSearch(state);
+        const result = await ajax({url: this.getDeleteUrl(), method: "delete", params: params})
+        if (result.data === true) {
+            ElMessage.success('删除成功！')
+            this.search()
+        } else {
+            ElMessage.error('删除失败！')
+        }
     }
 
     public handleEdit: (row: any) => void
@@ -118,7 +148,7 @@ export abstract class BaseListPage {
     public response: () => void
 
     protected doResponse() {
-        this.loadData()
+        this.search()
     }
 
     /**
@@ -131,8 +161,8 @@ export abstract class BaseListPage {
         this.handleCurrentChange = (newCurrent: number) => {
             this.doHandleCurrentChange(newCurrent)
         }
-        this.loadData = () => {
-            this.doLoadData()
+        this.search = () => {
+            this.doSearch()
         }
         this.resetSearchFields = () => {
             this.doResetSearchFields()

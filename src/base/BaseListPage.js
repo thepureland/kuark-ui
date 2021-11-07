@@ -39,6 +39,12 @@ exports.__esModule = true;
 exports.BaseListPage = void 0;
 var vue_1 = require("vue");
 var element_plus_1 = require("element-plus");
+/**
+ * 列表页面处理抽象父类
+ *
+ * @author K
+ * @since 1.0.0
+ */
 var BaseListPage = /** @class */ (function () {
     function BaseListPage() {
         this.state = vue_1.reactive(this.initBaseState());
@@ -63,24 +69,37 @@ var BaseListPage = /** @class */ (function () {
             rid: '',
         };
     };
-    BaseListPage.prototype.doLoadData = function () {
+    BaseListPage.prototype.createDeleteParams = function (row) {
+        return {
+            id: row.id
+        };
+    };
+    BaseListPage.prototype.getDeleteMessage = function () {
+        return '确定要删除该数据？';
+    };
+    BaseListPage.prototype.doSearch = function () {
         return __awaiter(this, void 0, void 0, function () {
             var params, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = this.initSearchParams();
+                        params = this.createSearchParams();
                         if (this.state.sort.orderProperty) {
                             params["orders"] = [{
                                     property: this.state.sort.orderProperty,
                                     direction: this.state.sort.orderDirection,
                                 }];
                         }
-                        return [4 /*yield*/, ajax({ url: "sysDict/list", method: "post", params: params })];
+                        return [4 /*yield*/, ajax({ url: this.getSearchUrl(), method: "post", params: params })];
                     case 1:
                         result = _a.sent();
-                        this.state.tableData = result.data.first;
-                        this.state.pagination.total = result.data.second;
+                        if (result.data) {
+                            this.state.tableData = result.data.first;
+                            this.state.pagination.total = result.data.second;
+                        }
+                        else {
+                            element_plus_1.ElMessage.error('查询失败！');
+                        }
                         return [2 /*return*/];
                 }
             });
@@ -88,12 +107,12 @@ var BaseListPage = /** @class */ (function () {
     };
     BaseListPage.prototype.doHandleSizeChange = function (newSize) {
         this.state.pagination.pageSize = newSize;
-        this.loadData();
+        this.search();
     };
     BaseListPage.prototype.doHandleCurrentChange = function (newCurrent) {
         if (newCurrent) {
             this.state.pagination.pageNo = newCurrent;
-            this.loadData();
+            this.search();
         }
     };
     BaseListPage.prototype.doResetSearchFields = function () {
@@ -101,7 +120,7 @@ var BaseListPage = /** @class */ (function () {
     BaseListPage.prototype.doHandleSortChange = function (column) {
         this.state.sort.orderProperty = column.prop;
         this.state.sort.orderDirection = column.order == "ascending" ? "ASC" : "DESC";
-        this.doLoadData();
+        this.doSearch();
     };
     BaseListPage.prototype.doHandleFilter = function (value, row, column) {
         var property = column['property'];
@@ -109,26 +128,30 @@ var BaseListPage = /** @class */ (function () {
     };
     BaseListPage.prototype.doHandleDelete = function (row) {
         return __awaiter(this, void 0, void 0, function () {
-            var confirmResult, result;
+            var confirmResult, params, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, element_plus_1.ElMessageBox.confirm('确定要删除该数据?', '提示', {
+                    case 0: return [4 /*yield*/, element_plus_1.ElMessageBox.confirm(this.getDeleteMessage(), '提示', {
                             confirmButtonText: '确定',
                             cancelButtonText: '取消',
                             type: 'warning'
                         })["catch"](function (err) { return err; })];
                     case 1:
                         confirmResult = _a.sent();
-                        if (confirmResult !== 'confirm')
-                            return [2 /*return*/, element_plus_1.ElMessage.info('取消删除！')
-                                //@ts-ignore
-                            ];
-                        return [4 /*yield*/, ajax({ url: "sysDict/delete", method: "delete", params: { id: row.id } })
-                            // if (code === "ok") ElMessage.success('删除成功！');
-                            // useSearch(state);
-                        ];
+                        if (confirmResult !== 'confirm') {
+                            return [2 /*return*/];
+                        }
+                        params = this.createDeleteParams(row);
+                        return [4 /*yield*/, ajax({ url: this.getDeleteUrl(), method: "delete", params: params })];
                     case 2:
                         result = _a.sent();
+                        if (result.data === true) {
+                            element_plus_1.ElMessage.success('删除成功！');
+                            this.search();
+                        }
+                        else {
+                            element_plus_1.ElMessage.error('删除失败！');
+                        }
                         return [2 /*return*/];
                 }
             });
@@ -142,7 +165,7 @@ var BaseListPage = /** @class */ (function () {
         this.state.addDialogVisible = true;
     };
     BaseListPage.prototype.doResponse = function () {
-        this.loadData();
+        this.search();
     };
     /**
      * 为了解决恶心的this问题，无任何业务逻辑代码
@@ -155,8 +178,8 @@ var BaseListPage = /** @class */ (function () {
         this.handleCurrentChange = function (newCurrent) {
             _this.doHandleCurrentChange(newCurrent);
         };
-        this.loadData = function () {
-            _this.doLoadData();
+        this.search = function () {
+            _this.doSearch();
         };
         this.resetSearchFields = function () {
             _this.doResetSearchFields();

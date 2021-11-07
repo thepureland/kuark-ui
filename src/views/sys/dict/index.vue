@@ -24,28 +24,28 @@
         <el-col :span="22">
           <el-row :gutter="20" class="toolbar">
             <el-col :span="2">
-              <el-autocomplete v-model="searchParams.module" placeholder="所属模块" @change="loadData"
-                               @select="loadData" :fetch-suggestions="filterModule"
+              <el-autocomplete v-model="searchParams.module" placeholder="所属模块" @change="search"
+                               @select="search" :fetch-suggestions="filterModule"
                                clearable></el-autocomplete>
             </el-col>
             <el-col :span="2">
-              <el-autocomplete v-model="searchParams.dictType" placeholder="字典类型" @change="loadData"
-                               @select="loadData" :fetch-suggestions="filterDictType"
+              <el-autocomplete v-model="searchParams.dictType" placeholder="字典类型" @change="search"
+                               @select="search" :fetch-suggestions="filterDictType"
                                :trigger-on-focus="false"
                                clearable></el-autocomplete>
             </el-col>
             <el-col :span="2">
-              <el-input v-model="searchParams.dictName" placeholder="字典名称" @change="loadData"
+              <el-input v-model="searchParams.dictName" placeholder="字典名称" @change="search"
                         clearable></el-input>
             </el-col>
             <el-col :span="2">
-              <el-autocomplete v-model="searchParams.itemCode" placeholder="字典项编码" @change="loadData"
-                               @select="loadData" :fetch-suggestions="filterDictItemCode"
+              <el-autocomplete v-model="searchParams.itemCode" placeholder="字典项编码" @change="search"
+                               @select="search" :fetch-suggestions="filterDictItemCode"
                                :trigger-on-focus="false"
                                clearable></el-autocomplete>
             </el-col>
             <el-col :span="2">
-              <el-input v-model="searchParams.itemName" placeholder="字典项名称" @change="loadData"
+              <el-input v-model="searchParams.itemName" placeholder="字典项名称" @change="search"
                         clearable></el-input>
             </el-col>
 
@@ -54,7 +54,7 @@
             </el-col>
 
             <el-col :span="1">
-              <el-button type="primary" round @click="loadData">搜索</el-button>
+              <el-button type="primary" round @click="search">搜索</el-button>
             </el-col>
             <el-col :span="1">
               <el-button type="primary" round @click="resetSearchFields">重置</el-button>
@@ -144,7 +144,15 @@ class ListPage extends BaseListPage {
     }
   }
 
-  protected initSearchParams() {
+  protected getSearchUrl(): String {
+    return "sysDict/list";
+  }
+
+  protected getDeleteUrl(): String {
+    return "sysDict/delete";
+  }
+
+  protected createSearchParams() {
     return {
       module: this.state.searchParams.module,
       dictType: this.state.searchParams.dictType,
@@ -157,15 +165,22 @@ class ListPage extends BaseListPage {
     }
   }
 
-  protected async doLoadData(): Promise<void> {
+  protected createDeleteParams(row: any): any {
+    return {
+      id: row.itemId == null ? row.dictId : row.itemId,
+      isDict: row.itemId == null
+    }
+  }
+
+  protected async doSearch(): Promise<void> {
     this.state.searchSource = "button"
-    super.doLoadData();
+    super.doSearch()
   }
 
   protected doHandleSizeChange(newSize: number) {
     this.state.pagination.pageSize = newSize
     if (this.state.searchSource == "button") {
-      this.loadData()
+      this.search()
     } else {
       this.listByTree(this.state)
     }
@@ -175,7 +190,7 @@ class ListPage extends BaseListPage {
     if (newCurrent) {
       this.state.pagination.pageNo = newCurrent
       if (this.state.searchSource == "button") {
-        this.loadData()
+        this.search()
       } else {
         this.listByTree(this.state)
       }
@@ -189,6 +204,10 @@ class ListPage extends BaseListPage {
     this.state.searchParams.itemCode = null
     this.state.searchParams.itemName = null
     this.state.pagination.pageNo = 1
+  }
+
+  protected getDeleteMessage(): string {
+    return '将级联删除所有孩子结点（如果有的话），依然进行删除操作吗？'
   }
 
   protected doHandleEdit(row: any) {

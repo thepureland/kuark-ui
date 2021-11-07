@@ -74,7 +74,7 @@ class Page extends BaseAddEditPage {
     return "sysDict/get";
   }
 
-  protected getSubmitParams(): any {
+  protected createSubmitParams(): any {
     return {
       id: this.props.rid,
       isDict: this.props["isDict"],
@@ -95,8 +95,8 @@ class Page extends BaseAddEditPage {
     return super.doSubmit()
   }
 
-  protected getRowObjectLoadParams(): any {
-    const params = super.getRowObjectLoadParams()
+  protected createRowObjectLoadParams(): any {
+    const params = super.createRowObjectLoadParams()
     params["isDict"] = this.props["isDict"]
     params["fetchAllParentIds"] = true
     return params
@@ -133,7 +133,11 @@ class Page extends BaseAddEditPage {
     }
     // @ts-ignore
     const result = await ajax({url: "sysDict/laodTreeNodes", method: "post", params});
-    resolve(result.data)
+    if (result.data) {
+      resolve(result.data)
+    } else {
+      ElMessage.error('数据加载失败！')
+    }
   }
 
   public loadTree: (node, resolve) => void
