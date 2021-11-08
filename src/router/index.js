@@ -107,7 +107,7 @@ const routes = [
                 meta: {
                     title: '参数管理'
                 },
-                // component: () => import ( /* webpackChunkName: "dashboard" */ "../views/Dashboard.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/param/index.vue")
             }, {
                 path: "/geo/country",
                 name: "country",

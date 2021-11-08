@@ -1,4 +1,4 @@
-import {reactive} from "vue";
+import {reactive, ref} from "vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 
 /**
@@ -10,11 +10,13 @@ import {ElMessage, ElMessageBox} from "element-plus";
 export abstract class BaseListPage {
 
     public state: any
+    public dataTable: any
 
     protected constructor() {
         this.state = reactive(this.initBaseState())
         const additionalState = reactive(this.initState())
         Object.assign(this.state, additionalState)
+        this.dataTable = ref()
         this._convertThis() // 为了解决恶心的this问题，无任何业务逻辑代码
     }
 
@@ -33,25 +35,57 @@ export abstract class BaseListPage {
             addDialogVisible: false,
             editDialogVisible: false,
             rid: '',
+            selectedRows: []
         }
     }
+
+    protected abstract getRootActionPath(): String
 
     protected abstract initState(): any
 
     protected abstract createSearchParams(): any
 
-    protected abstract getSearchUrl(): String
+    protected getSearchUrl(): String {
+        return this.getRootActionPath() + "/search"
+    }
 
-    protected abstract getDeleteUrl(): String
+    protected getDeleteUrl(): String {
+        return this.getRootActionPath() + "/delete"
+    }
+
+    protected getBatchDeleteUrl(): String {
+        return this.getRootActionPath() + "/batchDelete"
+    }
+
+    protected getUpdateActiveUrl(): String {
+        return this.getRootActionPath() + "/updateActive"
+    }
 
     protected createDeleteParams(row: any): any {
         return {
-            id: row.id
+            id: this.getRowId(row)
         }
+    }
+
+    protected createBatchDeleteParams(): any {
+        const ids = []
+        for (let row of this.state.selectedItems) {
+            ids.push(this.getRowId(row))
+        }
+        return ids
     }
 
     protected getDeleteMessage(): string {
         return '确定要删除该数据？'
+    }
+
+    protected getBatchDeleteMessage(): string {
+        const count = this.state.selectedItems.length
+        return "确定要删除这" + count + "行数据吗？"
+    }
+
+    protected getRowId(row: any): String | Number {
+        return row.id
     }
 
     public search: () => void
@@ -90,9 +124,16 @@ export abstract class BaseListPage {
         }
     }
 
+    public handleSelectionChange: (selection) => void
+
+    protected doHandleSelectionChange(selection) {
+        this.state.selectedItems = selection
+    }
+
     public resetSearchFields: () => void
 
     protected doResetSearchFields() {
+        this.state.pagination.pageNo = 1
     }
 
     public handleSortChange: (column) => void
@@ -132,11 +173,51 @@ export abstract class BaseListPage {
         }
     }
 
+    public multiDelete: () => void
+
+    protected async doMultiDelete() {
+        if (this.state.selectedItems.length == 0) {
+            ElMessage.info('请先选择要删除的数据！')
+        } else {
+            const confirmResult = await ElMessageBox.confirm(this.getBatchDeleteMessage(), '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).catch(err => err)
+            if (confirmResult !== 'confirm') {
+                return
+            }
+            const params = this.createBatchDeleteParams()
+            //@ts-ignore
+            const result = await ajax({url: this.getBatchDeleteUrl(), method: "post", params: params})
+            if (result.data === true) {
+                ElMessage.success('删除成功！')
+                this.search()
+            } else {
+                ElMessage.error('删除失败！')
+            }
+        }
+    }
+
+    public updateActive: (row: any) => void
+
+    protected async doUpdateActive(row: any) {
+        const params = {
+            id: this.getRowId(row),
+            active: row.active
+        }
+        // @ts-ignore
+        const result = await ajax({url: this.getUpdateActiveUrl(), params})
+        if (!result.data) {
+            ElMessage.error('启用状态更新失败！')
+        }
+    }
+
     public handleEdit: (row: any) => void
 
     protected doHandleEdit(row: any) {
         this.state.editDialogVisible = true;
-        this.state.rid = row.id
+        this.state.rid = this.getRowId(row)
     }
 
     public openAddDialog: () => void
@@ -184,6 +265,15 @@ export abstract class BaseListPage {
         }
         this.openAddDialog = () => {
             this.doOpenAddDialog()
+        }
+        this.multiDelete = () => {
+            this.doMultiDelete()
+        }
+        this.updateActive = (row: any) => {
+            this.doUpdateActive(row)
+        }
+        this.handleSelectionChange = (selection) => {
+            this.doHandleSelectionChange(selection)
         }
     }
 

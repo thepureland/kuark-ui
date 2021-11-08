@@ -49,11 +49,19 @@ export abstract class BaseAddEditPage {
 
     protected abstract initState(): any
 
-    protected abstract getValidationRuleUrl(): String
+    protected abstract getRootActionPath(): String
 
-    protected abstract getSubmitUrl(): String
+    protected getValidationRuleUrl(): String {
+        return this.getRootActionPath() + "/getValidationRule"
+    }
 
-    protected abstract getRowObjectLoadUrl(): String
+    protected getSubmitUrl(): String {
+        return this.getRootActionPath() + "/saveOrUpdate"
+    }
+
+    protected getRowObjectLoadUrl(): String {
+        return this.getRootActionPath() + "/get"
+    }
 
     protected abstract createSubmitParams(): any
 

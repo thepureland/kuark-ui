@@ -25,32 +25,27 @@
           <el-row :gutter="20" class="toolbar">
             <el-col :span="2">
               <el-autocomplete v-model="searchParams.module" placeholder="所属模块" @change="search"
-                               @select="search" :fetch-suggestions="filterModule"
-                               clearable></el-autocomplete>
+                               @select="search" :fetch-suggestions="filterModule" clearable/>
             </el-col>
             <el-col :span="2">
               <el-autocomplete v-model="searchParams.dictType" placeholder="字典类型" @change="search"
-                               @select="search" :fetch-suggestions="filterDictType"
-                               :trigger-on-focus="false"
-                               clearable></el-autocomplete>
+                               @select="search" :fetch-suggestions="filterDictType" :trigger-on-focus="false"
+                               clearable/>
             </el-col>
             <el-col :span="2">
-              <el-input v-model="searchParams.dictName" placeholder="字典名称" @change="search"
-                        clearable></el-input>
+              <el-input v-model="searchParams.dictName" placeholder="字典名称" @change="search" clearable/>
             </el-col>
             <el-col :span="2">
               <el-autocomplete v-model="searchParams.itemCode" placeholder="字典项编码" @change="search"
                                @select="search" :fetch-suggestions="filterDictItemCode"
-                               :trigger-on-focus="false"
-                               clearable></el-autocomplete>
+                               :trigger-on-focus="false" clearable/>
             </el-col>
             <el-col :span="2">
-              <el-input v-model="searchParams.itemName" placeholder="字典项名称" @change="search"
-                        clearable></el-input>
+              <el-input v-model="searchParams.itemName" placeholder="字典项名称" @change="search" clearable/>
             </el-col>
 
             <el-col :span="1">
-              <el-checkbox v-model="searchParams.active" label="仅启用" class="el-input" checked></el-checkbox>
+              <el-checkbox v-model="searchParams.active" label="仅启用" class="el-input" checked/>
             </el-col>
 
             <el-col :span="1">
@@ -61,12 +56,12 @@
             </el-col>
             <el-col :span="8">
               <el-button type="success" @click="openAddDialog">添加</el-button>
-              <el-button type="danger" @click="">删除</el-button>
+              <el-button type="danger" @click="multiDelete">删除</el-button>
             </el-col>
           </el-row>
 
-          <el-table border stripe :data="tableData" height="650" :header-cell-style="{textAlign: 'center'}"
-                    @sort-change="handleSortChange">
+          <el-table border stripe :data="tableData" height="650" @selection-change="handleSelectionChange"
+                    :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange">
             <el-table-column type="selection" width="39"/>
             <el-table-column type="index" width="50"/>
             <el-table-column label="字典类型" prop="dictType" sortable="custom"/>
@@ -99,7 +94,8 @@
       </el-row>
 
       <add-edit-dict v-model="addDialogVisible" @response="response"/>
-      <add-edit-dict v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid" :isDict="isDict"/>
+      <add-edit-dict v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"
+                     :isDict="isDict"/>
     </el-card>
   </div>
 </template>
@@ -108,15 +104,16 @@
 import {defineComponent, reactive, toRefs} from "vue";
 import addEditDict from './addEditDict.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts";
+import {ElMessage} from "element-plus";
 
 class ListPage extends BaseListPage {
 
   constructor() {
     super()
 
-    this.loadModules(this.state)
-    this.loadDictTypes(this.state)
-    this.loadDictItemCodes(this.state)
+    this.loadModules()
+    this.loadDictTypes()
+    this.loadDictItemCodes()
 
     this.convertThis() // 为了解决恶心的this问题
   }
@@ -144,12 +141,12 @@ class ListPage extends BaseListPage {
     }
   }
 
-  protected getSearchUrl(): String {
-    return "sysDict/list";
+  protected getRootActionPath(): String {
+    return "sysDict";
   }
 
-  protected getDeleteUrl(): String {
-    return "sysDict/delete";
+  protected getUpdateActiveUrl(): String {
+    return "sysDictItem/updateActive";
   }
 
   protected createSearchParams() {
@@ -172,6 +169,14 @@ class ListPage extends BaseListPage {
     }
   }
 
+  protected createBatchDeleteParams(): any {
+    const params = {}
+    for (let row of this.state.selectedItems) {
+      params[this.getRowId(row)] = row.itemId == null
+    }
+    return params
+  }
+
   protected async doSearch(): Promise<void> {
     this.state.searchSource = "button"
     super.doSearch()
@@ -182,7 +187,7 @@ class ListPage extends BaseListPage {
     if (this.state.searchSource == "button") {
       this.search()
     } else {
-      this.listByTree(this.state)
+      this.listByTree()
     }
   }
 
@@ -192,28 +197,35 @@ class ListPage extends BaseListPage {
       if (this.state.searchSource == "button") {
         this.search()
       } else {
-        this.listByTree(this.state)
+        this.listByTree()
       }
     }
   }
 
   protected doResetSearchFields() {
+    super.doResetSearchFields()
     this.state.searchParams.module = null
     this.state.searchParams.dictType = null
     this.state.searchParams.dictName = null
     this.state.searchParams.itemCode = null
     this.state.searchParams.itemName = null
-    this.state.pagination.pageNo = 1
   }
 
   protected getDeleteMessage(): string {
     return '将级联删除所有孩子结点（如果有的话），依然进行删除操作吗？'
   }
 
+  protected getBatchDeleteMessage(): string {
+    return "将级联删除所有孩子结点（如果有的话），"+ super.getBatchDeleteMessage();
+  }
+
+  protected getRowId(row: any): String | Number {
+    return row.itemId == null ? row.dictId : row.itemId
+  }
+
   protected doHandleEdit(row: any) {
     super.doHandleEdit(row);
     this.state.isDict = row.itemId == null
-    this.state.rid = this.state.isDict ? row.dictId : row.itemId
   }
 
   public filterModule: (queryString: string, cb) => void
@@ -237,7 +249,7 @@ class ListPage extends BaseListPage {
   public loadTree: (node, resolve) => void
 
   private doLoadTree(node, resolve) {
-    this.laodTreeNodes(this.state, node, resolve)
+    this.laodTreeNodes(node, resolve)
   }
 
   public expandTreeNode: (nodeData, node) => void
@@ -247,7 +259,7 @@ class ListPage extends BaseListPage {
       this.resetSearchFields()
       this.state.searchParams.parentId = node.level === 1 ? node.data.code : node.data.id
       this.state.searchParams.firstLevel = node.level === 1
-      this.listByTree(this.state)
+      this.listByTree()
     }
   }
 
@@ -265,19 +277,12 @@ class ListPage extends BaseListPage {
     }
     // @ts-ignore
     const result = await ajax({url: "sysDict/get", params});
-    this.state.tableData = [result.data]
-    this.state.pagination.total = 1
-  }
-
-  public async updateActive(row) {
-    const params = {
-      searchPayload: {
-        id: row.itemId
-      },
-      active: row.active
+    if (result.data) {
+      this.state.tableData = [result.data]
+      this.state.pagination.total = 1
+    } else {
+      ElMessage.error('数据加载失败！')
     }
-    // @ts-ignore
-    const result = await ajax({url: "sysDictItem/update", method: "put", params});
   }
 
   private createFilter(queryString) {
@@ -286,60 +291,80 @@ class ListPage extends BaseListPage {
     }
   }
 
-  public async laodTreeNodes(state: any, node, resolve) {
+  private async laodTreeNodes(node, resolve) {
     const params = {
       parentId: node.level === 0 ? null : (node.level === 1 ? node.data.code : node.data.id),
       firstLevel: node.level === 1,
-      active: state.searchParams.active ? true : null
+      active: this.state.searchParams.active ? true : null
     }
     // @ts-ignore
     const result = await ajax({url: "sysDict/laodTreeNodes", method: "post", params});
-    resolve(result.data)
+    if (result.data) {
+      resolve(result.data)
+    } else {
+      ElMessage.error('数据加载失败！')
+    }
   }
 
-  public async listByTree(state: any) {
+  private async listByTree() {
     this.state.searchSource = "tree"
     const params = {
-      parentId: state.searchParams.parentId,
-      firstLevel: state.searchParams.firstLevel,
-      pageNo: state.pagination.pageNo,
-      pageSize: state.pagination.pageSize,
-      active: state.searchParams.active ? true : null
+      parentId: this.state.searchParams.parentId,
+      firstLevel: this.state.searchParams.firstLevel,
+      pageNo: this.state.pagination.pageNo,
+      pageSize: this.state.pagination.pageSize,
+      active: this.state.searchParams.active ? true : null
     }
-    if (state.sort.orderProperty) {
+    if (this.state.sort.orderProperty) {
       params["orders"] = [{
-        property: state.sort.orderProperty,
-        direction: state.sort.orderDirection,
+        property: this.state.sort.orderProperty,
+        direction: this.state.sort.orderDirection,
       }]
     }
     // @ts-ignore
-    const result = await ajax({url: "sysDict/listByTree", method: "post", params});
-    state.tableData = result.data.first
-    state.pagination.total = result.data.second
+    const result = await ajax({url: "sysDict/searchByTree", method: "post", params});
+    if (result.data) {
+      this.state.tableData = result.data.first
+      this.state.pagination.total = result.data.second
+    } else {
+      ElMessage.error('数据加载失败！')
+    }
   }
 
-  public async loadModules(state: any) {
+  private async loadModules() {
     // @ts-ignore
     const result = await ajax({url: "sysDict/loadModules"})
-    result.data.forEach((val) => {
-      state.modules.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
-    })
+    if (result.data) {
+      result.data.forEach((val) => {
+        this.state.modules.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
+      })
+    } else {
+      ElMessage.error('数据加载失败！')
+    }
   }
 
-  public async loadDictTypes(state: any) {
+  private async loadDictTypes() {
     // @ts-ignore
     const result = await ajax({url: "sysDict/loadDictTypes"})
-    result.data.forEach((val) => {
-      state.dictTypes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
-    })
+    if (result.data) {
+      result.data.forEach((val) => {
+        this.state.dictTypes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
+      })
+    } else {
+      ElMessage.error('数据加载失败！')
+    }
   }
 
-  public async loadDictItemCodes(state: any) {
+  private async loadDictItemCodes() {
     // @ts-ignore
     const result = await ajax({url: "sysDictItem/loadDictItemCodes"})
-    result.data.forEach((val) => {
-      state.dictItemCodes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
-    })
+    if (result.data) {
+      result.data.forEach((val) => {
+        this.state.dictItemCodes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
+      })
+    } else {
+      ElMessage.error('数据加载失败！')
+    }
   }
 
   /**

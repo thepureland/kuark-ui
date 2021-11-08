@@ -62,16 +62,8 @@ class Page extends BaseAddEditPage {
     }
   }
 
-  protected getValidationRuleUrl(): String {
-    return "sysDict/getValidationRule"
-  }
-
-  protected getSubmitUrl(): String {
-    return "sysDict/saveOrUpdate";
-  }
-
-  protected getRowObjectLoadUrl(): String {
-    return "sysDict/get";
+  protected getRootActionPath(): String {
+    return "sysDict";
   }
 
   protected createSubmitParams(): any {
@@ -162,7 +154,6 @@ class Page extends BaseAddEditPage {
 
 export default defineComponent({
   name: "~addEditDict",
-  // components: { QuillEditor, },
   props: {
     modelValue: Boolean,
     rid: String,
