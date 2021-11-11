@@ -98,7 +98,7 @@ class ListPage extends BaseListPage {
         paramValue: '',
         active: true
       },
-      modules: []
+      subSysDictCodes: []
     }
   }
 

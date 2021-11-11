@@ -93,7 +93,7 @@ const routes = [
                 meta: {
                     title: '资源管理'
                 },
-                // component: () => import ( /* webpackChunkName: "dashboard" */ "../views/Dashboard.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/resource/index.vue")
             }, {
                 path: "/sys/dict",
                 name: "dict",

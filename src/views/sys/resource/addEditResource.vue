@@ -1,18 +1,24 @@
 <template>
-  <el-dialog title="添加参数信息" v-model="visible" width="30%" center @close="close">
+  <el-dialog title="添加资源信息" v-model="visible" width="30%" center @close="close">
     <el-form ref="form" :model="formModel" label-width="90px" :rules="rules">
-      <el-form-item label="所属模块" prop="module">
-        <el-select v-model="formModel.module" placeholder="Select">
-          <el-option v-for="item in modules" :key="item.value" :label="item.value" :value="item.value"/>
+      <el-form-item label="上级" prop="parent">
+        <el-cascader ref="cascader" v-model="formModel.parent" :props="cascaderProps"/>
+      </el-form-item>
+      <el-form-item label="所属子系统" prop="subSysDictCode">
+        <el-select v-model="formModel.subSysDictCode" placeholder="Select">
+          <el-option v-for="item in subSysDictCodes" :key="item.value" :label="item.value" :value="item.value"/>
+        </el-select>
+
+      </el-form-item>
+      <el-form-item label="资源类型" prop="resourceType">
+        <el-select v-model="formModel.resourceTypeDictCode" placeholder="Select">
+          <el-option v-for="item in resourceTypeDictCodes" :key="item.value" :label="item.value" :value="item.value"/>
         </el-select>
       </el-form-item>
-      <el-form-item label="参数名称" prop="paramName">
-        <el-input v-model="formModel.paramName"/>
+      <el-form-item label="资源名称" prop="name">
+        <el-input v-model="formModel.name"/>
       </el-form-item>
-      <el-form-item label="参数值" prop="paramValue">
-        <el-input v-model="formModel.paramValue"/>
-      </el-form-item>
-      <el-form-item label="参数默认值" prop="defaultValue">
+      <el-form-item label="资源默认值" prop="defaultValue">
         <el-input v-model="formModel.defaultValue"/>
       </el-form-item>
       <el-form-item label="序号" prop="seqNo">
@@ -40,7 +46,8 @@ class Page extends BaseAddEditPage {
 
   constructor(props, context) {
     super(props, context)
-    this.loadModules()
+    this.loadSubSysDictCodes()
+    this.loadResourceTypeDictCodes()
     this.convertThis() // 为了解决恶心的this问题
   }
 
@@ -54,7 +61,8 @@ class Page extends BaseAddEditPage {
         seqNo: undefined,
         remark: ""
       },
-      subSysDictCodes: []
+      subSysDictCodes: [],
+      resourceTypeDictCodes: []
     }
   }
 
@@ -74,12 +82,24 @@ class Page extends BaseAddEditPage {
     }
   }
 
-  private async loadModules() {
+  private async loadSubSysDictCodes() {
     // @ts-ignore
-    const result = await ajax({url: "sysParam/loadModules"})
+    const result = await ajax({url: "sysResource/loadSubSyses"})
     if (result.data) {
       result.data.forEach((val) => {
-        this.state.modules.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
+        this.state.subSysDictCodes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
+      })
+    } else {
+      ElMessage.error('数据加载失败！')
+    }
+  }
+
+  private async loadResourceTypeDictCodes() {
+    // @ts-ignore
+    const result = await ajax({url: "sysResource/loadResourceTypes"})
+    if (result.data) {
+      result.data.forEach((val) => {
+        this.state.resourceTypeDictCodes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
       })
     } else {
       ElMessage.error('数据加载失败！')
