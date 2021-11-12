@@ -150,16 +150,14 @@ class ListPage extends BaseListPage {
   }
 
   protected createSearchParams() {
-    return {
-      module: this.state.searchParams.module,
-      dictType: this.state.searchParams.dictType,
-      dictName: this.state.searchParams.dictName,
-      itemCode: this.state.searchParams.itemCode,
-      itemName: this.state.searchParams.itemName,
-      pageNo: this.state.pagination.pageNo,
-      pageSize: this.state.pagination.pageSize,
-      active: this.state.searchParams.active ? true : null
-    }
+    const params = super.createSearchParams()
+    params["module"] = this.state.searchParams.module
+    params["dictType"] = this.state.searchParams.dictType
+    params["dictName"] = this.state.searchParams.dictName
+    params["itemCode"] = this.state.searchParams.itemCode
+    params["itemName"] = this.state.searchParams.itemName
+    params["active"] = this.state.searchParams.active ? true : null
+    return params
   }
 
   protected createDeleteParams(row: any): any {
@@ -216,7 +214,7 @@ class ListPage extends BaseListPage {
   }
 
   protected getBatchDeleteMessage(): string {
-    return "将级联删除所有孩子结点（如果有的话），"+ super.getBatchDeleteMessage();
+    return "将级联删除所有孩子结点（如果有的话），" + super.getBatchDeleteMessage();
   }
 
   protected getRowId(row: any): String | Number {

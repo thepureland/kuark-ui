@@ -54,7 +54,7 @@ class Page extends BaseAddEditPage {
         seqNo: undefined,
         remark: ""
       },
-      subSysDictCodes: []
+      subSyses: []
     }
   }
 

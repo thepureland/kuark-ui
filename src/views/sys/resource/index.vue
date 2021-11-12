@@ -24,11 +24,14 @@
         <el-col :span="22">
           <el-row :gutter="20" class="toolbar">
             <el-col :span="2">
-              <el-autocomplete v-model="searchParams.subSysDictCode" placeholder="所属子系统" @change="search"
-                               @select="search" :fetch-suggestions="filterSubSysDictCode" clearable/>
+              <el-select v-model="searchParams.resourceTypeDictCode" placeholder="资源类型" clearable>
+                <el-option v-for="item in resourceTypes" :key="item.key" :label="item.value" :value="item.key"/>
+              </el-select>
             </el-col>
             <el-col :span="2">
-              <el-input v-model="searchParams.resourceTypeDictCode" placeholder="资源类型" @change="search" clearable/>
+              <el-select v-model="searchParams.subSyseDictCode" placeholder="子系统" clearable>
+                <el-option v-for="item in subSyses" :key="item.key" :label="item.value" :value="item.key"/>
+              </el-select>
             </el-col>
             <el-col :span="2">
               <el-input v-model="searchParams.name" placeholder="资源名称" @change="search" clearable/>
@@ -51,39 +54,40 @@
           </el-row>
 
 
-        <el-table border stripe :data="tableData" height="650" @selection-change="handleSelectionChange"
-                  :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange">
-          <el-table-column type="selection" width="39"/>
-          <el-table-column type="index" width="50"/>
-          <el-table-column label="所属子系统" prop="subSysDictCode" sortable="custom"/>
-          <el-table-column label="资源类型" prop="resourceTypeDictCode" sortable="custom"/>
-          <el-table-column label="资源名称" prop="name" sortable="custom"/>
-          <el-table-column label="URL" prop="url" sortable="custom"/>
-          <el-table-column label="图标" prop="icon" sortable="custom"/>
-          <el-table-column label="顺序" prop="seqNo" sortable="custom"/>
-          <el-table-column label="启用">
-            <template #default="scope">
-              <el-switch v-model="scope.row.active" :active-value=true :inactive-value=false
-                         @change="updateActive(scope.row)"/>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作">
-            <template #default="scope">
-              <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
-              <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+          <el-table border stripe :data="tableData" height="650" @selection-change="handleSelectionChange"
+                    :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange">
+            <el-table-column type="selection" width="39"/>
+            <el-table-column type="index" width="50"/>
+            <el-table-column label="所属子系统" prop="subSysName" sortable="custom"/>
+            <el-table-column label="资源类型" prop="resourceTypeName" sortable="custom"/>
+            <el-table-column label="资源名称" prop="name" sortable="custom"/>
+            <el-table-column label="URL" prop="url" sortable="custom"/>
+            <el-table-column label="图标" prop="icon" sortable="custom"/>
+            <el-table-column label="顺序" prop="seqNo" sortable="custom"/>
+            <el-table-column label="启用">
+              <template #default="scope">
+                <el-switch v-model="scope.row.active" :active-value=true :inactive-value=false
+                           @change="updateActive(scope.row)"/>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作">
+              <template #default="scope">
+                <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
+                <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete">删除
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
 
 
-        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
-                       :current-page="pagination.pageNo" :page-size="pagination.pageSize"
-                       layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
+          <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                         :current-page="pagination.pageNo" :page-size="pagination.pageSize"
+                         layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
         </el-col>
       </el-row>
 
-<!--      <add-edit-param v-model="addDialogVisible" @response="response"/>
-      <add-edit-param v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"/>-->
+      <!--      <add-edit-param v-model="addDialogVisible" @response="response"/>
+            <add-edit-param v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"/>-->
     </el-card>
 
   </div>
@@ -100,6 +104,7 @@ class ListPage extends BaseListPage {
   constructor() {
     super()
     this.loadSubSyses()
+    this.loadResourceTypes()
     this.convertThis() // 为了解决恶心的this问题
   }
 
@@ -118,8 +123,8 @@ class ListPage extends BaseListPage {
         active: true,
         level: null
       },
-      subSysDictCodes: [],
-      resourceTypeDictCodes: [],
+      subSyses: [],
+      resourceTypes: [],
       searchSource: null,
     }
   }
@@ -129,14 +134,14 @@ class ListPage extends BaseListPage {
   }
 
   protected createSearchParams() {
-    return {
-      subSysDictCode: this.state.searchParams.subSysDictCode,
-      resourceTypeDictCode: this.state.searchParams.resourceTypeDictCode,
-      level: this.state.searchParams.level,
-      parentId: this.state.searchParams.parentId,
-      name: this.state.searchParams.name,
-      active: this.state.searchParams.active ? true : null
-    }
+    const params = super.createSearchParams()
+    params["subSysDictCode"] = this.state.searchParams.subSysDictCode
+    params["resourceTypeDictCode"] = this.state.searchParams.resourceTypeDictCode
+    params["name"] = this.state.searchParams.name
+    params["level"] = this.state.searchParams.level
+    params["parentId"] = this.state.searchSource == "button" ? null : this.state.searchParams.parentId
+    params["active"] = this.state.searchParams.active ? true : null
+    return params
   }
 
   protected doResetSearchFields() {
@@ -148,7 +153,7 @@ class ListPage extends BaseListPage {
 
   protected async doSearch(): Promise<void> {
     this.state.searchSource = "button"
-    super.doSearch()
+    await super.doSearch()
   }
 
   public loadTree: (node, resolve) => void
@@ -190,16 +195,18 @@ class ListPage extends BaseListPage {
   }
 
   private setParamsForTree(node) {
-    if (node.level == 1) {
-      this.state.searchParams.resourceTypeDictCodeForTree = node.data.id
-    }
-    if (node.level == 2) {
-      this.state.searchParams.subSysDictCodeForTree = node.data.id
-    }
-    this.state.searchParams.parentId = node.level != 1 && node.level != 2 ? null : node.data.id
     this.state.searchParams.level = node.level
-    this.state.searchParams.resourceTypeDictCode = this.state.searchParams.resourceTypeDictCodeForTree
-    this.state.searchParams.subSysDictCode = this.state.searchParams.subSysDictCodeForTree
+    if (node.level != 0) {
+      if (node.level == 1) {
+        this.state.searchParams.resourceTypeDictCodeForTree = node.data.id
+      }
+      if (node.level == 2) {
+        this.state.searchParams.subSysDictCodeForTree = node.data.id
+      }
+      this.state.searchParams.parentId = node.level == 1 || node.level == 2 ? null : node.data.id
+      this.state.searchParams.resourceTypeDictCode = this.state.searchParams.resourceTypeDictCodeForTree
+      this.state.searchParams.subSysDictCode = this.state.searchParams.subSysDictCodeForTree
+    }
   }
 
   private async laodTreeNodes(node, resolve) {
@@ -234,12 +241,6 @@ class ListPage extends BaseListPage {
     }
   }
 
-  public filterSubSysDictCode: (queryString: string, cb) => void
-
-  private doFilterSubSysDictCode(queryString: string, cb) {
-    cb(queryString ? this.state.subSysDictCodes.filter(this.createFilter(queryString)) : this.state.subSysDictCodes)
-  }
-
   public filterResourceTypeDictCode: (queryString: string, cb) => void
 
   private doFilterResourceTypeDictCode(queryString: string, cb) {
@@ -252,13 +253,25 @@ class ListPage extends BaseListPage {
     }
   }
 
-  public async loadSubSyses() {
+  private async loadSubSyses() {
     // @ts-ignore
     const result = await ajax({url: "sysResource/loadSubSyses"})
     if (result.data) {
-      result.data.forEach((val) => {
-        this.state.subSysDictCodes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
-      })
+      for (let key in result.data) {
+        this.state.subSyses.push({key: key, value: result.data[key]})
+      }
+    } else {
+      ElMessage.error('数据加载失败！')
+    }
+  }
+
+  private async loadResourceTypes() {
+    // @ts-ignore
+    const result = await ajax({url: "sysResource/loadResourceTypes"})
+    if (result.data) {
+      for (let key in result.data) {
+        this.state.resourceTypes.push({key: key, value: result.data[key]})
+      }
     } else {
       ElMessage.error('数据加载失败！')
     }
@@ -276,12 +289,6 @@ class ListPage extends BaseListPage {
     }
     this.clickTreeNode = (nodeData, node) => {
       this.doClickTreeNode(nodeData, node)
-    }
-    this.filterSubSysDictCode = (queryString: string, cb) => {
-      this.doFilterSubSysDictCode(queryString, cb)
-    }
-    this.filterResourceTypeDictCode = (queryString: string, cb) => {
-      this.doFilterResourceTypeDictCode(queryString, cb)
     }
   }
 

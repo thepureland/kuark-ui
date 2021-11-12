@@ -43,7 +43,20 @@ export abstract class BaseListPage {
 
     protected abstract initState(): any
 
-    protected abstract createSearchParams(): any
+    protected createSearchParams(): any {
+        const params = {}
+        if (this.state.sort.orderProperty) {
+            params["orders"] = [{
+                property: this.state.sort.orderProperty,
+                direction: this.state.sort.orderDirection,
+            }]
+        }
+        if (this.state.pagination) {
+            params["pageNo"] = this.state.pagination.pageNo
+            params["pageSize"] = this.state.pagination.pageSize
+        }
+        return params
+    }
 
     protected getSearchUrl(): String {
         return this.getRootActionPath() + "/search"
@@ -92,12 +105,7 @@ export abstract class BaseListPage {
 
     protected async doSearch() {
         const params = this.createSearchParams()
-        if (this.state.sort.orderProperty) {
-            params["orders"] = [{
-                property: this.state.sort.orderProperty,
-                direction: this.state.sort.orderDirection,
-            }]
-        }
+
         // @ts-ignore
         const result = await ajax({url: this.getSearchUrl(), method: "post", params});
         if (result.data) {

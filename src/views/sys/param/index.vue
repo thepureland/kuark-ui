@@ -98,7 +98,7 @@ class ListPage extends BaseListPage {
         paramValue: '',
         active: true
       },
-      subSysDictCodes: []
+      subSyses: []
     }
   }
 
@@ -107,12 +107,12 @@ class ListPage extends BaseListPage {
   }
 
   protected createSearchParams() {
-    return {
-      module: this.state.searchParams.module,
-      paramName: this.state.searchParams.paramName,
-      paramValue: this.state.searchParams.paramValue,
-      active: this.state.searchParams.active ? true : null
-    }
+    const params = super.createSearchParams()
+    params["module"] = this.state.searchParams.module
+    params["paramName"] = this.state.searchParams.paramName
+    params["paramValue"] = this.state.searchParams.paramValue
+    params["active"] = this.state.searchParams.active ? true : null
+    return params
   }
 
   protected doResetSearchFields() {
