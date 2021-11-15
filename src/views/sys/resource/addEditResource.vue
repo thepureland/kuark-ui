@@ -1,27 +1,19 @@
 <template>
   <el-dialog title="添加资源信息" v-model="visible" width="30%" center @close="close">
-    <el-form ref="form" :model="formModel" label-width="90px" :rules="rules">
+    <el-form ref="form" :model="formModel" label-width="80px" :rules="rules">
       <el-form-item label="上级" prop="parent">
         <el-cascader ref="cascader" v-model="formModel.parent" :props="cascaderProps"/>
-      </el-form-item>
-      <el-form-item label="所属子系统" prop="subSysDictCode">
-        <el-select v-model="formModel.subSysDictCode" placeholder="Select">
-          <el-option v-for="item in subSysDictCodes" :key="item.value" :label="item.value" :value="item.value"/>
-        </el-select>
-
-      </el-form-item>
-      <el-form-item label="资源类型" prop="resourceType">
-        <el-select v-model="formModel.resourceTypeDictCode" placeholder="Select">
-          <el-option v-for="item in resourceTypeDictCodes" :key="item.value" :label="item.value" :value="item.value"/>
-        </el-select>
       </el-form-item>
       <el-form-item label="资源名称" prop="name">
         <el-input v-model="formModel.name"/>
       </el-form-item>
-      <el-form-item label="资源默认值" prop="defaultValue">
-        <el-input v-model="formModel.defaultValue"/>
+      <el-form-item label="URL" prop="url">
+        <el-input v-model="formModel.url"/>
       </el-form-item>
-      <el-form-item label="序号" prop="seqNo">
+      <el-form-item label="图标" prop="icon`">
+        <el-input v-model="formModel.icon"/>
+      </el-form-item>
+      <el-form-item label="排序" prop="seqNo">
         <el-input-number v-model="formModel.seqNo" :min="1" :max="999999999"/>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
@@ -46,86 +38,108 @@ class Page extends BaseAddEditPage {
 
   constructor(props, context) {
     super(props, context)
-    this.loadSubSysDictCodes()
-    this.loadResourceTypeDictCodes()
     this.convertThis() // 为了解决恶心的this问题
   }
 
   protected initState(): any {
+    const that = this
     return {
       formModel: {
-        module: "",
-        paramName: "",
-        paramValue: "",
-        defaultValue: "",
+        parent: "",
+        name: null,
+        url: null,
+        icon: null,
         seqNo: undefined,
-        remark: ""
+        remark: null
       },
-      subSyses: [],
-      resourceTypes: []
+      cascaderProps: {
+        lazy: true,
+        value: "id",
+        label: "name",
+        multiple: false,
+        checkStrictly: true,
+        expandTrigger: "hover",
+        lazyLoad(node, resolve) {
+          that.loadTreeNodes(node, resolve)
+        },
+      }
     }
   }
 
   protected getRootActionPath(): String {
-    return "sysParam"
+    return "sysResource"
   }
 
   protected createSubmitParams(): any {
+    const length = this.state.formModel.parent.length
     return {
       id: this.props.rid,
-      module: this.state.formModel.module,
-      paramName: this.state.formModel.paramName,
-      paramValue: this.state.formModel.paramValue,
-      defaultValue: this.state.formModel.defaultValue,
+      parentId: length == 1 || length == 2 ? null : this.state.formModel.parent[length - 1],
+      resourceTypeDictCode: this.state.formModel.parent[0],
+      subSysDictCode: this.state.formModel.parent[1],
+      name: this.state.formModel.name,
+      url: this.state.formModel.url,
+      icon: this.state.formModel.icon,
       seqNo: this.state.formModel.seqNo,
       remark: this.state.formModel.remark
     }
   }
 
-  private async loadSubSysDictCodes() {
-    // @ts-ignore
-    const result = await ajax({url: "sysResource/loadSubSyses"})
-    if (result.data) {
-      result.data.forEach((val) => {
-        this.state.subSysDictCodes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
-      })
-    } else {
-      ElMessage.error('数据加载失败！')
+  protected doSubmit() {
+    const length = this.state.formModel.parent.length
+    if (!length || length == 0) {
+      return ElMessage.error('上级中的资源类型必须指定！')
+    } else if(length == 1) {
+      return ElMessage.error('上级中的子系统必须指定！')
     }
+    return super.doSubmit()
   }
 
-  private async loadResourceTypeDictCodes() {
-    // @ts-ignore
-    const result = await ajax({url: "sysResource/loadResourceTypes"})
-    if (result.data) {
-      result.data.forEach((val) => {
-        this.state.resourceTypeDictCodes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
-      })
-    } else {
-      ElMessage.error('数据加载失败！')
-    }
+  protected createRowObjectLoadParams(): any {
+    const params = super.createRowObjectLoadParams()
+    params["fetchAllParentIds"] = true
+    return params
   }
 
   protected fillForm(rowObject: any) {
-    this.state.formModel.module = rowObject.module
-    this.state.formModel.paramName = rowObject.paramName
-    this.state.formModel.paramValue = rowObject.paramValue
-    this.state.formModel.defaultValue = rowObject.defaultValue
+    this.state.formModel.name = rowObject.name
+    this.state.formModel.url = rowObject.url
+    this.state.formModel.icon = rowObject.icon
     this.state.formModel.seqNo = rowObject.seqNo
     this.state.formModel.remark = rowObject.remark
+    this.state.formModel.parent = rowObject.parentIds
+  }
+
+  public loadTreeNodes: (node, resolve) => void
+
+  private async doLoadTreeNodes(node, resolve) {
+    const params = {
+      level: node.level,
+      parentId: node.level <= 2 ? null : node.data.id,
+      active: true
+    }
+    // @ts-ignore
+    const result = await ajax({url: "sysResource/loadTreeNodes", method: "post", params})
+    if (result.data) {
+      resolve(result.data)
+    } else {
+      ElMessage.error('数据加载失败！')
+    }
   }
 
   /**
    * 为了解决恶心的this问题，不要写任何业务逻辑代码
    */
   private convertThis() {
-
+    this.loadTreeNodes = (node, resolve) => {
+      this.doLoadTreeNodes(node, resolve)
+    }
   }
 
 }
 
 export default defineComponent({
-  name: "~addEditParam",
+  name: "~addEditResource",
   props: {
     modelValue: Boolean,
     rid: String
@@ -135,7 +149,7 @@ export default defineComponent({
     const page = reactive(new Page(props, context))
     return {
       ...toRefs(page),
-      ...toRefs(page.state),
+      ...toRefs(page.state)
     }
   }
 })

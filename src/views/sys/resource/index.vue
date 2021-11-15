@@ -86,8 +86,8 @@
         </el-col>
       </el-row>
 
-      <!--      <add-edit-param v-model="addDialogVisible" @response="response"/>
-            <add-edit-param v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"/>-->
+      <add-edit-param v-model="addDialogVisible" @response="response"/>
+      <add-edit-param v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"/>
     </el-card>
 
   </div>
@@ -160,7 +160,7 @@ class ListPage extends BaseListPage {
 
   private doLoadTree(node, resolve) {
     this.setParamsForTree(node)
-    this.laodTreeNodes(node, resolve)
+    this.loadTreeNodes(node, resolve)
   }
 
   public expandTreeNode: (nodeData, node) => void
@@ -209,10 +209,10 @@ class ListPage extends BaseListPage {
     }
   }
 
-  private async laodTreeNodes(node, resolve) {
+  private async loadTreeNodes(node, resolve) {
     const params = this.createSearchParams()
     // @ts-ignore
-    const result = await ajax({url: "sysResource/laodTreeNodes", method: "post", params});
+    const result = await ajax({url: "sysResource/loadTreeNodes", method: "post", params});
     if (result.data) {
       resolve(result.data)
     } else {
@@ -239,12 +239,6 @@ class ListPage extends BaseListPage {
     } else {
       ElMessage.error('数据加载失败！')
     }
-  }
-
-  public filterResourceTypeDictCode: (queryString: string, cb) => void
-
-  private doFilterResourceTypeDictCode(queryString: string, cb) {
-    cb(queryString ? this.state.resourceTypeDictCodes.filter(this.createFilter(queryString)) : this.state.resourceTypeDictCodes)
   }
 
   private createFilter(queryString) {
@@ -296,7 +290,7 @@ class ListPage extends BaseListPage {
 
 export default defineComponent({
   name: "~index",
-  // components: {addEditParam},
+  components: {addEditParam},
   setup(props, context) {
     const listPage = reactive(new ListPage())
     return {

@@ -247,7 +247,7 @@ class ListPage extends BaseListPage {
   public loadTree: (node, resolve) => void
 
   private doLoadTree(node, resolve) {
-    this.laodTreeNodes(node, resolve)
+    this.loadTreeNodes(node, resolve)
   }
 
   public expandTreeNode: (nodeData, node) => void
@@ -289,14 +289,14 @@ class ListPage extends BaseListPage {
     }
   }
 
-  private async laodTreeNodes(node, resolve) {
+  private async loadTreeNodes(node, resolve) {
     const params = {
       parentId: node.level === 0 ? null : (node.level === 1 ? node.data.code : node.data.id),
       firstLevel: node.level === 1,
       active: this.state.searchParams.active ? true : null
     }
     // @ts-ignore
-    const result = await ajax({url: "sysDict/laodTreeNodes", method: "post", params});
+    const result = await ajax({url: "sysDict/loadTreeNodes", method: "post", params});
     if (result.data) {
       resolve(result.data)
     } else {

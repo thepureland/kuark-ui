@@ -124,18 +124,12 @@ class Page extends BaseAddEditPage {
       active: true
     }
     // @ts-ignore
-    const result = await ajax({url: "sysDict/laodTreeNodes", method: "post", params});
+    const result = await ajax({url: "sysDict/loadTreeNodes", method: "post", params});
     if (result.data) {
       resolve(result.data)
     } else {
       ElMessage.error('数据加载失败！')
     }
-  }
-
-  public loadTree: (node, resolve) => void
-
-  private doLoadTree(node, resolve) {
-    this.loadTreeNodes(node, resolve)
   }
 
   /**
@@ -144,9 +138,6 @@ class Page extends BaseAddEditPage {
   private convertThis() {
     this.loadTreeNodes = (node, resolve) => {
       this.doLoadTreeNodes(node, resolve)
-    }
-    this.loadTree = (node, resolve) => {
-      this.doLoadTree(node, resolve)
     }
   }
 
@@ -162,11 +153,9 @@ export default defineComponent({
   emits: ['update:modelValue', "response"],
   setup(props, context) {
     const page = reactive(new Page(props, context))
-    const cascader = ref()
     return {
       ...toRefs(page),
-      ...toRefs(page.state),
-      cascader,
+      ...toRefs(page.state)
     }
   }
 })
