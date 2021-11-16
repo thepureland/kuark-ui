@@ -32,7 +32,7 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, toRefs, ref} from "vue";
+import {defineComponent, reactive, toRefs} from "vue";
 import {ElMessage} from 'element-plus';
 import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
 
@@ -41,7 +41,7 @@ class Page extends BaseAddEditPage {
   constructor(props, context) {
     super(props, context)
     this.loadModules()
-    this.convertThis() // 为了解决恶心的this问题
+    this.convertThis()
   }
 
   protected initState(): any {

@@ -105,7 +105,7 @@ class ListPage extends BaseListPage {
     super()
     this.loadSubSyses()
     this.loadResourceTypes()
-    this.convertThis() // 为了解决恶心的this问题
+    this.convertThis()
   }
 
   protected initState(): any {
@@ -158,9 +158,16 @@ class ListPage extends BaseListPage {
 
   public loadTree: (node, resolve) => void
 
-  private doLoadTree(node, resolve) {
+  private async doLoadTree(node, resolve) {
     this.setParamsForTree(node)
-    this.loadTreeNodes(node, resolve)
+    const params = this.createSearchParams()
+    // @ts-ignore
+    const result = await ajax({url: "sysResource/loadTreeNodes", method: "post", params});
+    if (result.data) {
+      resolve(result.data)
+    } else {
+      ElMessage.error('数据加载失败！')
+    }
   }
 
   public expandTreeNode: (nodeData, node) => void
@@ -196,6 +203,7 @@ class ListPage extends BaseListPage {
 
   private setParamsForTree(node) {
     this.state.searchParams.level = node.level
+    this.state.searchParams.name = null
     if (node.level != 0) {
       if (node.level == 1) {
         this.state.searchParams.resourceTypeDictCodeForTree = node.data.id
@@ -206,17 +214,6 @@ class ListPage extends BaseListPage {
       this.state.searchParams.parentId = node.level == 1 || node.level == 2 ? null : node.data.id
       this.state.searchParams.resourceTypeDictCode = this.state.searchParams.resourceTypeDictCodeForTree
       this.state.searchParams.subSysDictCode = this.state.searchParams.subSysDictCodeForTree
-    }
-  }
-
-  private async loadTreeNodes(node, resolve) {
-    const params = this.createSearchParams()
-    // @ts-ignore
-    const result = await ajax({url: "sysResource/loadTreeNodes", method: "post", params});
-    if (result.data) {
-      resolve(result.data)
-    } else {
-      ElMessage.error('数据加载失败！')
     }
   }
 
@@ -238,12 +235,6 @@ class ListPage extends BaseListPage {
       this.state.pagination.total = result.data.second
     } else {
       ElMessage.error('数据加载失败！')
-    }
-  }
-
-  private createFilter(queryString) {
-    return (item) => {
-      return (item.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
     }
   }
 

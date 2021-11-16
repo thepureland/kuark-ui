@@ -2,7 +2,7 @@
   <el-dialog title="添加资源信息" v-model="visible" width="30%" center @close="close">
     <el-form ref="form" :model="formModel" label-width="80px" :rules="rules">
       <el-form-item label="上级" prop="parent">
-        <el-cascader ref="cascader" v-model="formModel.parent" :props="cascaderProps"/>
+        <el-cascader v-model="formModel.parent" :props="cascaderProps"/>
       </el-form-item>
       <el-form-item label="资源名称" prop="name">
         <el-input v-model="formModel.name"/>
@@ -30,7 +30,7 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, toRefs, ref} from "vue";
+import {defineComponent, reactive, toRefs} from "vue";
 import {ElMessage} from 'element-plus';
 import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
 
@@ -38,19 +38,19 @@ class Page extends BaseAddEditPage {
 
   constructor(props, context) {
     super(props, context)
-    this.convertThis() // 为了解决恶心的this问题
+    this.convertThis()
   }
 
   protected initState(): any {
-    const that = this
+    const _self = this
     return {
       formModel: {
-        parent: "",
+        parent: [],
         name: null,
         url: null,
         icon: null,
-        seqNo: undefined,
-        remark: null
+        seqNo: 0,
+        remark:null
       },
       cascaderProps: {
         lazy: true,
@@ -60,7 +60,7 @@ class Page extends BaseAddEditPage {
         checkStrictly: true,
         expandTrigger: "hover",
         lazyLoad(node, resolve) {
-          that.loadTreeNodes(node, resolve)
+          _self.loadTreeNodes(node, resolve)
         },
       }
     }

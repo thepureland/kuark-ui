@@ -115,7 +115,7 @@ class ListPage extends BaseListPage {
     this.loadDictTypes()
     this.loadDictItemCodes()
 
-    this.convertThis() // 为了解决恶心的this问题
+    this.convertThis()
   }
 
   protected initState(): any {

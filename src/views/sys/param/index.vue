@@ -87,7 +87,7 @@ class ListPage extends BaseListPage {
   constructor() {
     super()
     this.loadModules()
-    this.convertThis() // 为了解决恶心的this问题
+    this.convertThis()
   }
 
   protected initState(): any {
