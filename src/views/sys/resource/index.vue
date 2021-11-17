@@ -17,7 +17,7 @@
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
-          <el-tree :props="resourceTreeProps" :load="loadTree" :expand-on-click-node="false"
+          <el-tree ref="tree" :props="resourceTreeProps" :load="loadTree" :expand-on-click-node="false" node-key="id"
                    @node-expand="expandTreeNode"
                    @node-click="(nodeData,node)=>clickTreeNode(nodeData,node)" accordion lazy/>
         </el-col>
@@ -29,7 +29,7 @@
               </el-select>
             </el-col>
             <el-col :span="2">
-              <el-select v-model="searchParams.subSyseDictCode" placeholder="子系统" clearable>
+              <el-select v-model="searchParams.subSysDictCode" placeholder="子系统" clearable>
                 <el-option v-for="item in subSyses" :key="item.key" :label="item.value" :value="item.key"/>
               </el-select>
             </el-col>
@@ -86,23 +86,26 @@
         </el-col>
       </el-row>
 
-      <add-edit-param v-model="addDialogVisible" @response="response"/>
-      <add-edit-param v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"/>
+      <add-edit-param v-model="addDialogVisible" @response="afterAdd"/>
+      <add-edit-param v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
     </el-card>
 
   </div>
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, toRefs} from "vue";
+import {defineComponent, reactive, toRefs, ref, onMounted} from "vue";
 import addEditParam from './addEditResource.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
 
 class ListPage extends BaseListPage {
 
-  constructor() {
+  public tree: any
+
+  constructor(tree: any) {
     super()
+    this.tree = tree
     this.loadSubSyses()
     this.loadResourceTypes()
     this.convertThis()
@@ -126,6 +129,8 @@ class ListPage extends BaseListPage {
       subSyses: [],
       resourceTypes: [],
       searchSource: null,
+      rootNode: null,
+      rootResolve: null
     }
   }
 
@@ -156,10 +161,31 @@ class ListPage extends BaseListPage {
     await super.doSearch()
   }
 
+  protected doAfterAdd(params: any) {
+    super.doAfterAdd(params)
+    this.state.rootNode.childNodes = []
+    this.doLoadTree(this.state.rootNode, this.state.rootResolve)
+  }
+
+  protected doAfterEdit(params: any) {
+    this.doAfterAdd(params)
+  }
+
+  protected doAfterDelete(ids: Array<any>) {
+    super.doAfterDelete(ids)
+    for (let id of ids) {
+      this.tree.value.remove({"id": id})
+    }
+  }
+
   public loadTree: (node, resolve) => void
 
   private async doLoadTree(node, resolve) {
-    this.setParamsForTree(node)
+    if (node.level === 0) {
+      this.state.rootNode = node
+      this.state.rootResolve = resolve
+    }
+    this.setParamsForTree(node, true)
     const params = this.createSearchParams()
     // @ts-ignore
     const result = await ajax({url: "sysResource/loadTreeNodes", method: "post", params});
@@ -175,8 +201,8 @@ class ListPage extends BaseListPage {
   private doExpandTreeNode(nodeData, node) {
     if (node.level == 0 || node.level == 1) return
     this.resetSearchFields()
-    this.setParamsForTree(node)
-    this.listByTree()
+    this.setParamsForTree(node, true)
+    this.searchByTree()
   }
 
   public clickTreeNode: (nodeData, node) => void
@@ -185,9 +211,8 @@ class ListPage extends BaseListPage {
     if (node.level === 1 || node.level === 2) {
       return
     }
-    this.state.searchSource = "tree"
-    this.setParamsForTree(node)
     this.resetSearchFields()
+    this.setParamsForTree(node, false)
     const params = {
       id: nodeData.id,
     }
@@ -201,10 +226,15 @@ class ListPage extends BaseListPage {
     }
   }
 
-  private setParamsForTree(node) {
+  private setParamsForTree(node, expend: Boolean) {
+    this.state.searchSource = "tree"
     this.state.searchParams.level = node.level
-    this.state.searchParams.name = null
     if (node.level != 0) {
+      if (expend) {
+        this.state.searchParams.name = null
+      } else {
+        this.state.searchParams.name = node.data.name
+      }
       if (node.level == 1) {
         this.state.searchParams.resourceTypeDictCodeForTree = node.data.id
       }
@@ -217,8 +247,7 @@ class ListPage extends BaseListPage {
     }
   }
 
-  private async listByTree() {
-    this.state.searchSource = "tree"
+  private async searchByTree() {
     const params = this.createSearchParams()
     params["pageNo"] = this.state.pagination.pageNo
     params["pageSize"] = this.state.pagination.pageSize
@@ -283,10 +312,12 @@ export default defineComponent({
   name: "~index",
   components: {addEditParam},
   setup(props, context) {
-    const listPage = reactive(new ListPage())
+    const tree = ref()
+    const listPage = reactive(new ListPage(tree))
     return {
       ...toRefs(listPage.state),
-      ...toRefs(listPage)
+      ...toRefs(listPage),
+      tree
     }
   }
 })

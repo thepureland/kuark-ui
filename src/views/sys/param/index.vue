@@ -70,8 +70,8 @@
                      :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                      layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
 
-      <add-edit-param v-model="addDialogVisible" @response="response"/>
-      <add-edit-param v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"/>
+      <add-edit-param v-model="addDialogVisible" @response="afterAdd"/>
+      <add-edit-param v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
     </el-card>
   </div>
 </template>
@@ -93,12 +93,12 @@ class ListPage extends BaseListPage {
   protected initState(): any {
     return {
       searchParams: {
-        module: '',
-        paramName: '',
-        paramValue: '',
+        module: null,
+        paramName: null,
+        paramValue: null,
         active: true
       },
-      subSyses: []
+      modules: []
     }
   }
 

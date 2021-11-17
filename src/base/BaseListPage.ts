@@ -10,14 +10,12 @@ import {ElMessage, ElMessageBox} from "element-plus";
 export abstract class BaseListPage {
 
     public state: any
-    public dataTable: any
 
     protected constructor() {
         this.state = reactive(this.initBaseState())
         const additionalState = reactive(this.initState())
         Object.assign(this.state, additionalState)
-        this.dataTable = ref()
-        this._convertThis() // 为了解决恶心的this问题，无任何业务逻辑代码
+        this._convertThis()
     }
 
     protected initBaseState(): any {
@@ -74,6 +72,14 @@ export abstract class BaseListPage {
         return this.getRootActionPath() + "/updateActive"
     }
 
+    protected getSelectedIds(): Array<any> {
+        const ids = []
+        for (let row of this.state.selectedItems) {
+            ids.push(this.getRowId(row))
+        }
+        return ids
+    }
+
     protected createDeleteParams(row: any): any {
         return {
             id: this.getRowId(row)
@@ -81,11 +87,7 @@ export abstract class BaseListPage {
     }
 
     protected createBatchDeleteParams(): any {
-        const ids = []
-        for (let row of this.state.selectedItems) {
-            ids.push(this.getRowId(row))
-        }
-        return ids
+        return this.getSelectedIds()
     }
 
     protected getDeleteMessage(): string {
@@ -175,7 +177,7 @@ export abstract class BaseListPage {
         const result = await ajax({url: this.getDeleteUrl(), method: "delete", params: params})
         if (result.data === true) {
             ElMessage.success('删除成功！')
-            this.search()
+            this.doAfterDelete([params["id"]])
         } else {
             ElMessage.error('删除失败！')
         }
@@ -200,7 +202,7 @@ export abstract class BaseListPage {
             const result = await ajax({url: this.getBatchDeleteUrl(), method: "post", params: params})
             if (result.data === true) {
                 ElMessage.success('删除成功！')
-                this.search()
+                this.doAfterDelete(this.getSelectedIds())
             } else {
                 ElMessage.error('删除失败！')
             }
@@ -234,9 +236,21 @@ export abstract class BaseListPage {
         this.state.addDialogVisible = true
     }
 
-    public response: () => void
+    public afterAdd: (params: any) => void
 
-    protected doResponse() {
+    protected doAfterAdd(params: any) {
+        this.search()
+    }
+
+    public afterEdit: (params: any) => void
+
+    protected doAfterEdit(params: any) {
+        this.search()
+    }
+
+    public afterDelete: (ids: Array<any>) => void
+
+    protected doAfterDelete(ids: Array<any>) {
         this.search()
     }
 
@@ -268,8 +282,14 @@ export abstract class BaseListPage {
         this.handleEdit = (row: any) => {
             this.doHandleEdit(row)
         }
-        this.response = () => {
-            this.doResponse()
+        this.afterAdd = (params: any) => {
+            this.doAfterAdd(params)
+        }
+        this.afterEdit = (params: any) => {
+            this.doAfterEdit(params)
+        }
+        this.afterDelete = (ids: Array<any>) => {
+            this.doAfterDelete(ids)
         }
         this.openAddDialog = () => {
             this.doOpenAddDialog()

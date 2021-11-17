@@ -93,8 +93,8 @@
         </el-col>
       </el-row>
 
-      <add-edit-dict v-model="addDialogVisible" @response="response"/>
-      <add-edit-dict v-if="editDialogVisible" v-model="editDialogVisible" @response="response" :rid="rid"
+      <add-edit-dict v-model="addDialogVisible" @response="afterAdd"/>
+      <add-edit-dict v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"
                      :isDict="isDict"/>
     </el-card>
   </div>

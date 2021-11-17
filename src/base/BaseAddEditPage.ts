@@ -38,7 +38,7 @@ export abstract class BaseAddEditPage {
             this.initValidationRule()
         }
 
-        this._convertThis() // 为了解决恶心的this问题，无任何业务逻辑代码
+        this._convertThis()
     }
 
     protected initBaseState(): any {
@@ -107,7 +107,8 @@ export abstract class BaseAddEditPage {
             if (result.data) {
                 ElMessage.success('保存成功！')
                 this.form.value.resetFields()
-                this.context.emit('response')
+                params.id = result.data
+                this.context.emit('response', params)
                 this.context.emit('update:modelValue', false);
             } else {
                 ElMessage.error('保存失败！')

@@ -47,14 +47,14 @@ class Page extends BaseAddEditPage {
   protected initState(): any {
     return {
       formModel: {
-        module: "",
-        paramName: "",
-        paramValue: "",
-        defaultValue: "",
+        module: null,
+        paramName: null,
+        paramValue: null,
+        defaultValue: null,
         seqNo: undefined,
-        remark: ""
+        remark: null
       },
-      subSyses: []
+      modules: []
     }
   }
 
