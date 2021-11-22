@@ -101,7 +101,7 @@ import {ElMessage} from "element-plus";
 
 class ListPage extends BaseListPage {
 
-  public tree: any
+  private tree: any
 
   constructor(tree: any) {
     super()
@@ -120,8 +120,6 @@ class ListPage extends BaseListPage {
         parentId: null,
         subSysDictCode: null,
         resourceTypeDictCode: null,
-        subSysDictCodeForTree: null,
-        resourceTypeDictCodeForTree: null,
         name: null,
         active: true,
         level: null
@@ -192,7 +190,7 @@ class ListPage extends BaseListPage {
     if (result.data) {
       resolve(result.data)
     } else {
-      ElMessage.error('数据加载失败！')
+      ElMessage.error('资源树加载失败！')
     }
   }
 
@@ -226,25 +224,43 @@ class ListPage extends BaseListPage {
     }
   }
 
-  private setParamsForTree(node, expend: Boolean) {
+  private setParamsForTree(node, expand: Boolean) {
     this.state.searchSource = "tree"
     this.state.searchParams.level = node.level
     if (node.level != 0) {
-      if (expend) {
+      if (node.level == 1) {
+        this.state.searchParams.resourceTypeDictCode = node.data.id
+        this.state.searchParams.subSysDictCode = null
+        this.state.searchParams.parentId = null
+        this.state.searchParams.name = null
+      } else if (node.level == 2) {
+        this.state.searchParams.resourceTypeDictCode = node.parent.data.id
+        this.state.searchParams.subSysDictCode = node.data.id
+        this.state.searchParams.parentId = null
         this.state.searchParams.name = null
       } else {
-        this.state.searchParams.name = node.data.name
+        this.state.searchParams.resourceTypeDictCode = this.getResourceTypeByNode(node)
+        this.state.searchParams.subSysDictCode = this.getSubSysByNode(node)
+        this.state.searchParams.parentId = node.data.id
+        if (!expand) {
+          this.state.searchParams.name = node.data.name
+        }
       }
-      if (node.level == 1) {
-        this.state.searchParams.resourceTypeDictCodeForTree = node.data.id
-      }
-      if (node.level == 2) {
-        this.state.searchParams.subSysDictCodeForTree = node.data.id
-      }
-      this.state.searchParams.parentId = node.level == 1 || node.level == 2 ? null : node.data.id
-      this.state.searchParams.resourceTypeDictCode = this.state.searchParams.resourceTypeDictCodeForTree
-      this.state.searchParams.subSysDictCode = this.state.searchParams.subSysDictCodeForTree
     }
+  }
+
+  private getResourceTypeByNode(node) {
+    while (node.level != 1) {
+      node = node.parent
+    }
+    return node.data.id
+  }
+
+  private getSubSysByNode(node) {
+    while (node.level != 2) {
+      node = node.parent
+    }
+    return node.data.id
   }
 
   private async searchByTree() {
@@ -275,7 +291,7 @@ class ListPage extends BaseListPage {
         this.state.subSyses.push({key: key, value: result.data[key]})
       }
     } else {
-      ElMessage.error('数据加载失败！')
+      ElMessage.error('子系统列表加载失败！')
     }
   }
 
@@ -287,7 +303,7 @@ class ListPage extends BaseListPage {
         this.state.resourceTypes.push({key: key, value: result.data[key]})
       }
     } else {
-      ElMessage.error('数据加载失败！')
+      ElMessage.error('资源类型列表加载失败！')
     }
   }
 

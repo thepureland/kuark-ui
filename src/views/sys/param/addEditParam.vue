@@ -82,7 +82,7 @@ class Page extends BaseAddEditPage {
         this.state.modules.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
       })
     } else {
-      ElMessage.error('数据加载失败！')
+      ElMessage.error('模块列表加载失败！')
     }
   }
 

@@ -27,7 +27,7 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, toRefs} from "vue";
+import {defineComponent, reactive, ref, toRefs} from "vue";
 import {ElMessage} from 'element-plus';
 import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
 
@@ -58,7 +58,8 @@ class Page extends BaseAddEditPage {
         lazyLoad(node, resolve) {
           _self.loadTreeNodes(node, resolve)
         },
-      }
+      },
+      parentCache: {}
     }
   }
 
@@ -73,6 +74,7 @@ class Page extends BaseAddEditPage {
       module: this.state.formModel.parent[0],
       parentId: this.state.formModel.parent.length === 1 ? null : this.state.formModel.parent[this.state.formModel.parent.length - 1],
       dictId: this.state.formModel.parent.length === 1 ? null : this.state.formModel.parent[1],
+      dictType: this.state.formModel.parent.length === 1 ? null : this.state.parentCache[this.state.formModel.parent[1]],
       code: this.state.formModel.code,
       name: this.state.formModel.name,
       seqNo: this.state.formModel.seqNo,
@@ -126,9 +128,12 @@ class Page extends BaseAddEditPage {
     // @ts-ignore
     const result = await ajax({url: "sysDict/loadTreeNodes", method: "post", params});
     if (result.data) {
+      for (let item of result.data) {
+        this.state.parentCache[item["id"]] = item["code"]
+      }
       resolve(result.data)
     } else {
-      ElMessage.error('数据加载失败！')
+      ElMessage.error('字典树加载失败！')
     }
   }
 

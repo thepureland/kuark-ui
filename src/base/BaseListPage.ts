@@ -90,13 +90,12 @@ export abstract class BaseListPage {
         return this.getSelectedIds()
     }
 
-    protected getDeleteMessage(): string {
+    protected getDeleteMessage(row: any): string {
         return '确定要删除该数据？'
     }
 
-    protected getBatchDeleteMessage(): string {
-        const count = this.state.selectedItems.length
-        return "确定要删除这" + count + "行数据吗？"
+    protected getBatchDeleteMessage(rows: Array<any>): string {
+        return "确定要删除这" + rows.length + "行数据吗？"
     }
 
     protected getRowId(row: any): String | Number {
@@ -164,7 +163,7 @@ export abstract class BaseListPage {
     public handleDelete: (row: any) => void
 
     protected async doHandleDelete(row: any) {
-        const confirmResult = await ElMessageBox.confirm(this.getDeleteMessage(), '提示', {
+        const confirmResult = await ElMessageBox.confirm(this.getDeleteMessage(row), '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
@@ -186,10 +185,11 @@ export abstract class BaseListPage {
     public multiDelete: () => void
 
     protected async doMultiDelete() {
-        if (this.state.selectedItems.length == 0) {
+        const rows = this.state.selectedItems
+        if (rows.length == 0) {
             ElMessage.info('请先选择要删除的数据！')
         } else {
-            const confirmResult = await ElMessageBox.confirm(this.getBatchDeleteMessage(), '提示', {
+            const confirmResult = await ElMessageBox.confirm(this.getBatchDeleteMessage(rows), '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'

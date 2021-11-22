@@ -17,7 +17,7 @@
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
-          <el-tree :props="dictTreeProps" :load="loadTree" :expand-on-click-node="false"
+          <el-tree ref="tree" :props="dictTreeProps" :load="loadTree" :expand-on-click-node="false" node-key="id"
                    @node-expand="expandTreeNode"
                    @node-click="(nodeData,node)=>clickTreeNode(nodeData,node)" accordion lazy/>
         </el-col>
@@ -80,8 +80,7 @@
             <el-table-column label="操作">
               <template #default="scope">
                 <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
-                <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete"
-                           v-if="scope.row.itemCode">删除
+                <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete">删除
                 </el-button>
               </template>
             </el-table-column>
@@ -101,15 +100,18 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, toRefs} from "vue";
+import {defineComponent, reactive, ref, toRefs} from "vue";
 import addEditDict from './addEditDict.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
 
 class ListPage extends BaseListPage {
 
-  constructor() {
+  private tree: any
+
+  constructor(tree: any) {
     super()
+    this.tree = tree
 
     this.loadModules()
     this.loadDictTypes()
@@ -124,20 +126,22 @@ class ListPage extends BaseListPage {
         label: 'code'
       },
       searchParams: {
-        parentId: '',
-        firstLevel: '',
-        module: '',
-        dictType: '',
-        dictName: '',
-        itemCode: '',
-        itemName: '',
+        parentId: null,
+        firstLevel: null,
+        module: null,
+        dictType: null,
+        dictName: null,
+        itemCode: null,
+        itemName: null,
         active: true
       },
       modules: [],
       dictTypes: [],
       dictItemCodes: [],
       searchSource: null,
-      isDict: null
+      isDict: null,
+      rootNode: null,
+      rootResolve: null
     }
   }
 
@@ -177,7 +181,24 @@ class ListPage extends BaseListPage {
 
   protected async doSearch(): Promise<void> {
     this.state.searchSource = "button"
-    super.doSearch()
+    await super.doSearch()
+  }
+
+  protected doAfterAdd(params: any) {
+    super.doAfterAdd(params)
+    this.state.rootNode.childNodes = []
+    this.doLoadTree(this.state.rootNode, this.state.rootResolve)
+  }
+
+  protected doAfterEdit(params: any) {
+    this.doAfterAdd(params)
+  }
+
+  protected doAfterDelete(ids: Array<any>) {
+    super.doAfterDelete(ids)
+    for (let id of ids) {
+      this.tree.value.remove({"id": id})
+    }
   }
 
   protected doHandleSizeChange(newSize: number) {
@@ -185,7 +206,7 @@ class ListPage extends BaseListPage {
     if (this.state.searchSource == "button") {
       this.search()
     } else {
-      this.listByTree()
+      this.searchByTree()
     }
   }
 
@@ -195,7 +216,7 @@ class ListPage extends BaseListPage {
       if (this.state.searchSource == "button") {
         this.search()
       } else {
-        this.listByTree()
+        this.searchByTree()
       }
     }
   }
@@ -209,12 +230,19 @@ class ListPage extends BaseListPage {
     this.state.searchParams.itemName = null
   }
 
-  protected getDeleteMessage(): string {
+  protected getDeleteMessage(row: any): string {
+    if (row.itemCode == null) {
+      return '删除字典类型时，将删除所有字典项，依然进行删除操作吗？'
+    }
     return '将级联删除所有孩子结点（如果有的话），依然进行删除操作吗？'
   }
 
-  protected getBatchDeleteMessage(): string {
-    return "将级联删除所有孩子结点（如果有的话），" + super.getBatchDeleteMessage();
+  protected getBatchDeleteMessage(rows: Array<any>): string {
+    const existDict = rows.findIndex((row) => row.itemCode == null) != -1
+    if (existDict) {
+      return '删除字典类型时，将删除所有字典项；删除字典项时，将级联删除所有孩子结点（如果有的话）。' + super.getBatchDeleteMessage(rows)
+    }
+    return '将级联删除所有孩子结点（如果有的话），' + super.getBatchDeleteMessage(rows)
   }
 
   protected getRowId(row: any): String | Number {
@@ -244,10 +272,65 @@ class ListPage extends BaseListPage {
     cb(queryString ? this.state.dictItemCodes.filter(this.createFilter(queryString)) : this.state.dictItemCodes)
   }
 
+  private setParamsForTree(node, expend: Boolean) {
+    this.state.searchSource = "tree"
+    this.state.searchParams.level = node.level
+    if (node.level != 0) {
+      if (node.level === 1) {
+        this.state.searchParams.module = node.data.code
+        this.state.searchParams.dictType = null
+        this.state.searchParams.itemCode = null
+      } else if (node.level === 2) {
+        this.state.searchParams.module = node.parent.data.code
+        this.state.searchParams.dictType = node.data.code
+        this.state.searchParams.itemCode = null
+      } else {
+        this.state.searchParams.module = this.getModuleByNode(node)
+        this.state.searchParams.dictType = this.getDictTypeByNode(node)
+        if (!expend) {
+          this.state.searchParams.itemCode = node.data.code
+        }
+      }
+      this.state.searchParams.parentId = node.level === 1 ? node.data.code : node.data.id
+      this.state.searchParams.firstLevel = node.level === 1
+    }
+  }
+
+  private getModuleByNode(node) {
+    while (node.level != 1) {
+      node = node.parent
+    }
+    return node.data.code
+  }
+
+  private getDictTypeByNode(node) {
+    while (node.level != 2) {
+      node = node.parent
+    }
+    return node.data.code
+  }
+
   public loadTree: (node, resolve) => void
 
-  private doLoadTree(node, resolve) {
-    this.loadTreeNodes(node, resolve)
+  private async doLoadTree(node, resolve) {
+    if (node.level === 0) {
+      this.state.rootNode = node
+      this.state.rootResolve = resolve
+    }
+    this.resetSearchFields()
+    this.setParamsForTree(node, true)
+    const params = {
+      parentId: node.level === 0 ? null : (node.level === 1 ? node.data.code : node.data.id),
+      firstLevel: node.level === 1,
+      active: this.state.searchParams.active ? true : null
+    }
+    // @ts-ignore
+    const result = await ajax({url: "sysDict/loadTreeNodes", method: "post", params});
+    if (result.data) {
+      resolve(result.data)
+    } else {
+      ElMessage.error('字典树加载失败！')
+    }
   }
 
   public expandTreeNode: (nodeData, node) => void
@@ -255,9 +338,8 @@ class ListPage extends BaseListPage {
   private doExpandTreeNode(nodeData, node) {
     if (node.data) {
       this.resetSearchFields()
-      this.state.searchParams.parentId = node.level === 1 ? node.data.code : node.data.id
-      this.state.searchParams.firstLevel = node.level === 1
-      this.listByTree()
+      this.setParamsForTree(node, true)
+      this.searchByTree()
     }
   }
 
@@ -269,6 +351,7 @@ class ListPage extends BaseListPage {
     }
     this.state.searchSource = "tree"
     this.resetSearchFields()
+    this.setParamsForTree(node, false)
     const params = {
       id: nodeData.id,
       isDict: node.level === 2
@@ -289,22 +372,7 @@ class ListPage extends BaseListPage {
     }
   }
 
-  private async loadTreeNodes(node, resolve) {
-    const params = {
-      parentId: node.level === 0 ? null : (node.level === 1 ? node.data.code : node.data.id),
-      firstLevel: node.level === 1,
-      active: this.state.searchParams.active ? true : null
-    }
-    // @ts-ignore
-    const result = await ajax({url: "sysDict/loadTreeNodes", method: "post", params});
-    if (result.data) {
-      resolve(result.data)
-    } else {
-      ElMessage.error('数据加载失败！')
-    }
-  }
-
-  private async listByTree() {
+  private async searchByTree() {
     this.state.searchSource = "tree"
     const params = {
       parentId: this.state.searchParams.parentId,
@@ -337,7 +405,7 @@ class ListPage extends BaseListPage {
         this.state.modules.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
       })
     } else {
-      ElMessage.error('数据加载失败！')
+      ElMessage.error('模块列表加载失败！')
     }
   }
 
@@ -349,7 +417,7 @@ class ListPage extends BaseListPage {
         this.state.dictTypes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
       })
     } else {
-      ElMessage.error('数据加载失败！')
+      ElMessage.error('字典类型列表加载失败！')
     }
   }
 
@@ -361,7 +429,7 @@ class ListPage extends BaseListPage {
         this.state.dictItemCodes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
       })
     } else {
-      ElMessage.error('数据加载失败！')
+      ElMessage.error('字典项编码列表加载失败！')
     }
   }
 
@@ -395,10 +463,12 @@ export default defineComponent({
   name: "~index",
   components: {addEditDict},
   setup(props, context) {
-    const listPage = reactive(new ListPage())
+    const tree = ref()
+    const listPage = reactive(new ListPage(tree))
     return {
       ...toRefs(listPage.state),
-      ...toRefs(listPage)
+      ...toRefs(listPage),
+      tree
     }
   }
 })

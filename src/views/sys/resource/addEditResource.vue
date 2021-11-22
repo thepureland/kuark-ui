@@ -123,7 +123,7 @@ class Page extends BaseAddEditPage {
     if (result.data) {
       resolve(result.data)
     } else {
-      ElMessage.error('数据加载失败！')
+      ElMessage.error('资源树加载失败！')
     }
   }
 

@@ -1,5 +1,5 @@
 <!--
- * 参数列表
+ * 流程定义
  *
  * @author: K
  * @since 1.0.0
@@ -10,25 +10,26 @@
   <div>
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>系统配置</el-breadcrumb-item>
-      <el-breadcrumb-item>参数列表</el-breadcrumb-item>
+      <el-breadcrumb-item>工作流管理</el-breadcrumb-item>
+      <el-breadcrumb-item>流程定义</el-breadcrumb-item>
     </el-breadcrumb>
 
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
-          <el-autocomplete v-model="searchParams.module" placeholder="所属模块" @change="search"
-                           @select="search" :fetch-suggestions="filterModule" clearable/>
+          <el-input v-model="searchParams.key" placeholder="流程key" clearable/>
         </el-col>
         <el-col :span="2">
-          <el-input v-model="searchParams.paramName" placeholder="参数名称" @change="search" clearable/>
+          <el-input v-model="searchParams.name" placeholder="流程名称" clearable/>
         </el-col>
         <el-col :span="2">
-          <el-input v-model="searchParams.paramValue" placeholder="参数值" @change="search" clearable/>
+          <el-select v-model="searchParams.category" placeholder="分类" clearable>
+            <el-option v-for="item in categoryies" :key="item.key" :label="item.value" :value="item.key"/>
+          </el-select>
         </el-col>
 
         <el-col :span="1">
-          <el-checkbox v-model="searchParams.active" label="仅启用" class="el-input" checked/>
+          <el-checkbox v-model="searchParams.latestOnly" label="仅显示最新版本" class="el-input" checked/>
         </el-col>
 
         <el-col :span="1">
@@ -69,80 +70,64 @@
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
                      :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                      layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
-
-      <add-edit-param v-model="addDialogVisible" @response="afterAdd"/>
-      <add-edit-param v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
     </el-card>
   </div>
 </template>
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue";
-import addEditParam from './addEditParam.vue';
-import {BaseListPage} from "../../../base/BaseListPage.ts";
+import {BaseListPage} from "../../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
 
 class ListPage extends BaseListPage {
 
   constructor() {
     super()
-    this.loadModules()
+    this.loadCategories()
     this.convertThis()
   }
 
   protected initState(): any {
     return {
       searchParams: {
-        module: null,
-        paramName: null,
-        paramValue: null,
-        active: true
+        key: null,
+        name: null,
+        category: null,
+        latestOnly: true
       },
-      modules: []
+      categoryies: []
     }
   }
 
   protected getRootActionPath(): String {
-    return "sysParam"
+    return "flow/definition"
   }
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params["module"] = this.state.searchParams.module
-    params["paramName"] = this.state.searchParams.paramName
-    params["paramValue"] = this.state.searchParams.paramValue
-    params["active"] = this.state.searchParams.active ? true : null
+    params["key"] = this.state.searchParams.key
+    params["name"] = this.state.searchParams.name
+    params["category"] = this.state.searchParams.category
+    params["latestOnly"] = this.state.searchParams.latestOnly ? true : null
     return params
   }
 
   protected doResetSearchFields() {
     super.doResetSearchFields()
-    this.state.searchParams.module = null
-    this.state.searchParams.paramName = null
-    this.state.searchParams.paramValue = null
+    this.state.searchParams.key = null
+    this.state.searchParams.name = null
+    this.state.searchParams.category = null
   }
 
-  public filterModule: (queryString: string, cb) => void
-
-  private doFilterModule(queryString: string, cb) {
-    cb(queryString ? this.state.modules.filter(this.createFilter(queryString)) : this.state.modules)
-  }
-
-  private createFilter(queryString) {
-    return (item) => {
-      return (item.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
-    }
-  }
-
-  public async loadModules() {
+  public async loadCategories() {
     // @ts-ignore
-    const result = await ajax({url: "sysParam/loadModules"})
+    const result = await ajax({url: "flow/definition/loadCategories"})
     if (result.data) {
-      result.data.forEach((val) => {
-        this.state.modules.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
-      })
+      for (let key in result.data) {
+        this.state.categoryies.push({key: key, value: result.data[key]})
+      }
     } else {
-      ElMessage.error('模块列表加载失败！')
+      ElMessage.error('分类失败！')
     }
   }
 
@@ -150,16 +135,14 @@ class ListPage extends BaseListPage {
    * 为了解决恶心的this问题，不要写任何业务逻辑代码
    */
   private convertThis() {
-    this.filterModule = (queryString: string, cb) => {
-      this.doFilterModule(queryString, cb)
-    }
+
   }
 
 }
 
 export default defineComponent({
   name: "~index",
-  components: {addEditParam},
+//  components: {addEditParam},
   setup(props, context) {
     const listPage = reactive(new ListPage())
     return {
