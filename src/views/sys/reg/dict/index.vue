@@ -102,7 +102,7 @@
 <script lang='ts'>
 import {defineComponent, reactive, ref, toRefs} from "vue";
 import addEditDict from './addEditDict.vue';
-import {BaseListPage} from "../../../base/BaseListPage.ts";
+import {BaseListPage} from "../../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
 
 class ListPage extends BaseListPage {
@@ -146,11 +146,11 @@ class ListPage extends BaseListPage {
   }
 
   protected getRootActionPath(): String {
-    return "sysDict";
+    return "regDict";
   }
 
   protected getUpdateActiveUrl(): String {
-    return "sysDictItem/updateActive";
+    return "regDictItem/updateActive";
   }
 
   protected createSearchParams() {
@@ -325,7 +325,7 @@ class ListPage extends BaseListPage {
       active: this.state.searchParams.active ? true : null
     }
     // @ts-ignore
-    const result = await ajax({url: "sysDict/loadTreeNodes", method: "post", params});
+    const result = await ajax({url: "regDict/loadTreeNodes", method: "post", params});
     if (result.data) {
       resolve(result.data)
     } else {
@@ -357,7 +357,7 @@ class ListPage extends BaseListPage {
       isDict: node.level === 2
     }
     // @ts-ignore
-    const result = await ajax({url: "sysDict/get", params});
+    const result = await ajax({url: "regDict/get", params});
     if (result.data) {
       this.state.tableData = [result.data]
       this.state.pagination.total = 1
@@ -388,7 +388,7 @@ class ListPage extends BaseListPage {
       }]
     }
     // @ts-ignore
-    const result = await ajax({url: "sysDict/searchByTree", method: "post", params});
+    const result = await ajax({url: "regDict/searchByTree", method: "post", params});
     if (result.data) {
       this.state.tableData = result.data.first
       this.state.pagination.total = result.data.second
@@ -399,7 +399,7 @@ class ListPage extends BaseListPage {
 
   private async loadModules() {
     // @ts-ignore
-    const result = await ajax({url: "sysDict/loadModules"})
+    const result = await ajax({url: "regDict/loadModules"})
     if (result.data) {
       result.data.forEach((val) => {
         this.state.modules.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
@@ -411,7 +411,7 @@ class ListPage extends BaseListPage {
 
   private async loadDictTypes() {
     // @ts-ignore
-    const result = await ajax({url: "sysDict/loadDictTypes"})
+    const result = await ajax({url: "regDict/loadDictTypes"})
     if (result.data) {
       result.data.forEach((val) => {
         this.state.dictTypes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
@@ -423,7 +423,7 @@ class ListPage extends BaseListPage {
 
   private async loadDictItemCodes() {
     // @ts-ignore
-    const result = await ajax({url: "sysDictItem/loadDictItemCodes"})
+    const result = await ajax({url: "regDictItem/loadDictItemCodes"})
     if (result.data) {
       result.data.forEach((val) => {
         this.state.dictItemCodes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来

@@ -24,11 +24,11 @@
         </el-col>
         <el-col :span="2">
           <el-select v-model="searchParams.category" placeholder="分类" clearable>
-            <el-option v-for="item in categoryies" :key="item.key" :label="item.value" :value="item.key"/>
+            <el-option v-for="item in categories" :key="item.key" :label="item.value" :value="item.key"/>
           </el-select>
         </el-col>
 
-        <el-col :span="1">
+        <el-col :span="2">
           <el-checkbox v-model="searchParams.latestOnly" label="仅显示最新版本" class="el-input" checked/>
         </el-col>
 
@@ -48,15 +48,27 @@
                 :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange">
         <el-table-column type="selection" width="39"/>
         <el-table-column type="index" width="50"/>
-        <el-table-column label="参数名称" prop="paramName" sortable="custom"/>
-        <el-table-column label="参数值" prop="paramValue" sortable="custom"/>
-        <el-table-column label="参数默认值" prop="defaultValue" sortable="custom"/>
-        <el-table-column label="所属模块" prop="module" sortable="custom"/>
-        <el-table-column label="顺序" prop="seqNo" sortable="custom"/>
-        <el-table-column label="启用">
+        <el-table-column label="流程key" prop="key" sortable="custom"/>
+        <el-table-column label="流程名称" prop="name" sortable="custom"/>
+        <el-table-column label="版本" prop="version" sortable="custom"/>
+        <el-table-column label="分类" prop="category" :formatter="transDict1" sortable="custom">
+<!--          <template #default="scope">
+            {{ transDict("kuark:flow", "flow_category", scope.row.category) }}
+          </template>-->
+        </el-table-column>
+        <el-table-column label="已部署" sortable="custom">
           <template #default="scope">
-            <el-switch v-model="scope.row.active" :active-value=true :inactive-value=false
-                       @change="updateActive(scope.row)"/>
+            {{ formatBool(scope.row.deployed) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="创建时间" sortable="custom">
+          <template #default="scope">
+            {{ formatDate(scope.row.createTime) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="最近更新时间" sortable="custom">
+          <template #default="scope">
+            {{ formatDate(scope.row.lastUpdateTime) }}
           </template>
         </el-table-column>
         <el-table-column label="操作">
@@ -95,7 +107,7 @@ class ListPage extends BaseListPage {
         category: null,
         latestOnly: true
       },
-      categoryies: []
+      categories: []
     }
   }
 
@@ -124,7 +136,7 @@ class ListPage extends BaseListPage {
     const result = await ajax({url: "flow/definition/loadCategories"})
     if (result.data) {
       for (let key in result.data) {
-        this.state.categoryies.push({key: key, value: result.data[key]})
+        this.state.categories.push({key: key, value: result.data[key]})
       }
     } else {
       ElMessage.error('分类失败！')

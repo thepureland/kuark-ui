@@ -32,7 +32,7 @@
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue";
 import {ElMessage} from 'element-plus';
-import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
+import {BaseAddEditPage} from "../../../../base/BaseAddEditPage.ts";
 
 class Page extends BaseAddEditPage {
 
@@ -67,7 +67,7 @@ class Page extends BaseAddEditPage {
   }
 
   protected getRootActionPath(): String {
-    return "sysResource"
+    return "regResource"
   }
 
   protected createSubmitParams(): any {
@@ -119,7 +119,7 @@ class Page extends BaseAddEditPage {
       active: true
     }
     // @ts-ignore
-    const result = await ajax({url: "sysResource/loadTreeNodes", method: "post", params})
+    const result = await ajax({url: "regResource/loadTreeNodes", method: "post", params})
     if (result.data) {
       resolve(result.data)
     } else {

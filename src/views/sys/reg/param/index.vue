@@ -79,7 +79,7 @@
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue";
 import addEditParam from './addEditParam.vue';
-import {BaseListPage} from "../../../base/BaseListPage.ts";
+import {BaseListPage} from "../../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
 
 class ListPage extends BaseListPage {
@@ -103,7 +103,7 @@ class ListPage extends BaseListPage {
   }
 
   protected getRootActionPath(): String {
-    return "sysParam"
+    return "regParam"
   }
 
   protected createSearchParams() {
@@ -136,7 +136,7 @@ class ListPage extends BaseListPage {
 
   public async loadModules() {
     // @ts-ignore
-    const result = await ajax({url: "sysParam/loadModules"})
+    const result = await ajax({url: "regParam/loadModules"})
     if (result.data) {
       result.data.forEach((val) => {
         this.state.modules.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来

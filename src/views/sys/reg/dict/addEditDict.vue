@@ -29,7 +29,7 @@
 <script lang='ts'>
 import {defineComponent, reactive, ref, toRefs} from "vue";
 import {ElMessage} from 'element-plus';
-import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
+import {BaseAddEditPage} from "../../../../base/BaseAddEditPage.ts";
 
 class Page extends BaseAddEditPage {
 
@@ -64,7 +64,7 @@ class Page extends BaseAddEditPage {
   }
 
   protected getRootActionPath(): String {
-    return "sysDict";
+    return "regDict";
   }
 
   protected createSubmitParams(): any {
@@ -126,7 +126,7 @@ class Page extends BaseAddEditPage {
       active: true
     }
     // @ts-ignore
-    const result = await ajax({url: "sysDict/loadTreeNodes", method: "post", params});
+    const result = await ajax({url: "regDict/loadTreeNodes", method: "post", params});
     if (result.data) {
       for (let item of result.data) {
         this.state.parentCache[item["id"]] = item["code"]

@@ -65,7 +65,7 @@ const routes = [
                 meta: {
                     title: '流程定义'
                 },
-                // component: () => import ( /* webpackChunkName: "dashboard" */ "../views/Dashboard.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/wf/flow/definition/index.vue")
             }, {
                 path: "/flow/form",
                 name: "flowForm",
@@ -93,21 +93,21 @@ const routes = [
                 meta: {
                     title: '资源管理'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/resource/index.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/resource/index.vue")
             }, {
                 path: "/sys/dict",
                 name: "dict",
                 meta: {
                     title: '字典管理'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/dict/index.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/dict/index.vue")
             }, {
                 path: "/sys/param",
                 name: "param",
                 meta: {
                     title: '参数管理'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/param/index.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/param/index.vue")
             }, {
                 path: "/geo/country",
                 name: "country",

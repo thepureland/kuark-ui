@@ -1,5 +1,6 @@
-import {reactive, ref} from "vue";
-import {ElMessage, ElMessageBox} from "element-plus";
+import {reactive} from "vue"
+import * as moment from 'moment'
+import {ElMessage, ElMessageBox} from "element-plus"
 
 /**
  * 列表页面处理抽象父类
@@ -10,6 +11,8 @@ import {ElMessage, ElMessageBox} from "element-plus";
 export abstract class BaseListPage {
 
     public state: any
+
+    private dictCache: Map<String, Map<String, String>> = new Map()// Map<字典类型, Map<字典项编码，字典项名称>>
 
     protected constructor() {
         this.state = reactive(this.initBaseState())
@@ -108,7 +111,7 @@ export abstract class BaseListPage {
         const params = this.createSearchParams()
 
         // @ts-ignore
-        const result = await ajax({url: this.getSearchUrl(), method: "post", params});
+        const result = await ajax({url: this.getSearchUrl(), method: "post", params})
         if (result.data) {
             this.state.tableData = result.data.first
             this.state.pagination.total = result.data.second
@@ -226,7 +229,7 @@ export abstract class BaseListPage {
     public handleEdit: (row: any) => void
 
     protected doHandleEdit(row: any) {
-        this.state.editDialogVisible = true;
+        this.state.editDialogVisible = true
         this.state.rid = this.getRowId(row)
     }
 
@@ -252,6 +255,40 @@ export abstract class BaseListPage {
 
     protected doAfterDelete(ids: Array<any>) {
         this.search()
+    }
+
+    public formatBool = (value: Boolean) => {
+        return value ? "是" : "否"
+    }
+
+    public formatDate = (date, formatStr = 'YYYY-MM-DD HH:mm:ss') => {
+        return moment(date).format(formatStr)
+    }
+
+    public transDict: (module, type, code) => Promise<String>
+
+    public transDict1 = (row, column, cellValue, index) => {
+        console.info("####################: "+cellValue)
+    }
+
+    protected async doTransDict(module, type, code): Promise<String> {
+        let itemMap = this.dictCache[type]
+        if (itemMap == null) {
+            const params = {
+                module: module,
+                type: type
+            }
+            // @ts-ignore
+            const result = await ajax({url: "regDictItem/getDictItemMap", params})
+            if (result.data) {
+                itemMap = result.data
+                this.dictCache[type] = itemMap
+            } else {
+                ElMessage.error('字典项加载失败！')
+            }
+        }
+        const name = itemMap[code]
+        return name != null ? name : code
     }
 
     /**
@@ -302,6 +339,9 @@ export abstract class BaseListPage {
         }
         this.handleSelectionChange = (selection) => {
             this.doHandleSelectionChange(selection)
+        }
+        this.transDict = (module, type, code) => {
+            return this.doTransDict(module, type, code).finally()
         }
     }
 
