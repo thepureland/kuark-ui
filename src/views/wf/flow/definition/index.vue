@@ -53,7 +53,7 @@
         <el-table-column label="版本" prop="version" sortable="custom"/>
         <el-table-column label="分类" prop="category" :formatter="transDict1" sortable="custom">
 <!--          <template #default="scope">
-            {{ transDict("kuark:flow", "flow_category", scope.row.category) }}
+            {{ transDict("kuark:flow", "flow_category", scope.row.category, scope.row) }}
           </template>-->
         </el-table-column>
         <el-table-column label="已部署" sortable="custom">
@@ -141,6 +141,10 @@ class ListPage extends BaseListPage {
     } else {
       ElMessage.error('分类失败！')
     }
+  }
+
+  protected transDictOnRow(row: any, type: String, value: String) {
+    row["category"] = value
   }
 
   /**

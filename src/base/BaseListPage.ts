@@ -265,13 +265,13 @@ export abstract class BaseListPage {
         return moment(date).format(formatStr)
     }
 
-    public transDict: (module, type, code) => Promise<String>
+    public transDict: (module, type, code, row) => void
 
     public transDict1 = (row, column, cellValue, index) => {
-        console.info("####################: "+cellValue)
+        console.info("####################: " + cellValue)
     }
 
-    protected async doTransDict(module, type, code): Promise<String> {
+    protected async doTransDict(module, type, code, row): Promise<String> {
         let itemMap = this.dictCache[type]
         if (itemMap == null) {
             const params = {
@@ -340,9 +340,17 @@ export abstract class BaseListPage {
         this.handleSelectionChange = (selection) => {
             this.doHandleSelectionChange(selection)
         }
-        this.transDict = (module, type, code) => {
-            return this.doTransDict(module, type, code).finally()
+        this.transDict = (module, type, code, row) => {
+            if (row) {
+                this.doTransDict(module, type, code, row).then((value) => {
+                        this.transDictOnRow(row, type, value)
+                    }
+                )
+            }
         }
+    }
+
+    protected transDictOnRow(row: any, type: String, value: String) {
     }
 
 }

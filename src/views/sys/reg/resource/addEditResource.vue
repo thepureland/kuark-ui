@@ -14,7 +14,7 @@
         <el-input v-model="formModel.icon"/>
       </el-form-item>
       <el-form-item label="排序" prop="seqNo">
-        <el-input-number v-model="formModel.seqNo" :min="1" :max="999999999"/>
+        <el-input-number v-model="formModel.seqNo"/>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="formModel.remark"/>
