@@ -265,30 +265,26 @@ export abstract class BaseListPage {
         return moment(date).format(formatStr)
     }
 
-    public transDict: (module, type, code, row) => void
+    public transDict: (module, type, code, row) => String
 
-    public transDict1 = (row, column, cellValue, index) => {
-        console.info("####################: " + cellValue)
-    }
-
-    protected async doTransDict(module, type, code, row): Promise<String> {
+    protected doTransDict(module, type, code, row): String {
         let itemMap = this.dictCache[type]
-        if (itemMap == null) {
-            const params = {
-                module: module,
-                type: type
-            }
-            // @ts-ignore
-            const result = await ajax({url: "regDictItem/getDictItemMap", params})
-            if (result.data) {
-                itemMap = result.data
-                this.dictCache[type] = itemMap
-            } else {
-                ElMessage.error('字典项加载失败！')
-            }
-        }
         const name = itemMap[code]
         return name != null ? name : code
+    }
+
+    protected async loadDict(module, type) {
+        const params = {
+            module: module,
+            type: type
+        }
+        // @ts-ignore
+        const result = await ajax({url: "regDictItem/getDictItemMap", params})
+        if (result.data) {
+            this.dictCache[type] = result.data
+        } else {
+            ElMessage.error('字典项加载失败！')
+        }
     }
 
     /**
@@ -341,16 +337,8 @@ export abstract class BaseListPage {
             this.doHandleSelectionChange(selection)
         }
         this.transDict = (module, type, code, row) => {
-            if (row) {
-                this.doTransDict(module, type, code, row).then((value) => {
-                        this.transDictOnRow(row, type, value)
-                    }
-                )
-            }
+            return this.doTransDict(module, type, code, row)
         }
-    }
-
-    protected transDictOnRow(row: any, type: String, value: String) {
     }
 
 }
