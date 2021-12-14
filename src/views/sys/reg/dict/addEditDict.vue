@@ -67,6 +67,10 @@ class Page extends BaseAddEditPage {
     return "regDict";
   }
 
+  protected getRowObjectLoadUrl(): String {
+    return this.getRootActionPath() + "/getDict"
+  }
+
   protected createSubmitParams(): any {
     return {
       id: this.props.rid,

@@ -70,6 +70,10 @@ class Page extends BaseAddEditPage {
     return "regResource"
   }
 
+  protected getRowObjectLoadUrl(): String {
+    return this.getRootActionPath() + "/getRes"
+  }
+
   protected createSubmitParams(): any {
     const length = this.state.formModel.parent.length
     return {
