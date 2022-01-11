@@ -65,7 +65,7 @@ const routes = [
                 meta: {
                     title: '流程定义'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/wf/flow/definition/index.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/wf/flow/definition/FlowDefinitionList.vue")
             }, {
                 path: "/flow/form",
                 name: "flowForm",
@@ -79,35 +79,35 @@ const routes = [
                 meta: {
                     title: '角色管理'
                 },
-                // component: () => import ( /* webpackChunkName: "dashboard" */ "../views/Dashboard.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/auth/role/RoleList.vue")
             }, {
                 path: "/auth/group",
                 name: "group",
                 meta: {
                     title: '组管理'
                 },
-                // component: () => import ( /* webpackChunkName: "dashboard" */ "../views/Dashboard.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/auth/group/UserGroupList.vue")
             }, {
                 path: "/sys/res",
                 name: "res",
                 meta: {
                     title: '资源管理'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/resource/index.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/resource/ResourceList.vue")
             }, {
                 path: "/sys/dict",
                 name: "dict",
                 meta: {
                     title: '字典管理'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/dict/index.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/dict/DictList.vue")
             }, {
                 path: "/sys/param",
                 name: "param",
                 meta: {
                     title: '参数管理'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/param/index.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/param/ParamList.vue")
             }, {
                 path: "/geo/country",
                 name: "country",

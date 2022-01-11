@@ -262,7 +262,7 @@ export abstract class BaseListPage {
     }
 
     public formatDate = (date, formatStr = 'YYYY-MM-DD HH:mm:ss') => {
-        return moment(date).format(formatStr)
+        return moment(date.slice(0, 6)).format(formatStr)
     }
 
     public transDict: (module, type, code, row) => String
