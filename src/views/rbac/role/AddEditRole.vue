@@ -1,11 +1,11 @@
 <template>
-  <el-dialog title="添加组信息" v-model="visible" width="30%" center @close="close">
+  <el-dialog title="添加角色信息" v-model="visible" width="30%" center @close="close">
     <el-form ref="form" :model="formModel" label-width="80px" :rules="rules">
-      <el-form-item label="组编码" prop="groupCode">
-        <el-input v-model="formModel.groupCode"/>
+      <el-form-item label="角色编码" prop="roleCode">
+        <el-input v-model="formModel.roleCode"/>
       </el-form-item>
-      <el-form-item label="组名称" prop="groupName">
-        <el-input v-model="formModel.groupName"/>
+      <el-form-item label="角色名称" prop="roleName">
+        <el-input v-model="formModel.roleName"/>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="formModel.remark"/>
@@ -35,29 +35,29 @@ class Page extends BaseAddEditPage {
     const _self = this
     return {
       formModel: {
-        groupCode: null,
-        groupName: null,
+        roleCode: null,
+        roleName: null,
         remark:null
       },
     }
   }
 
   protected getRootActionPath(): String {
-    return "auth/group"
+    return "rbac/role"
   }
 
   protected createSubmitParams(): any {
     return {
       id: this.props.rid,
-      groupCode: this.state.formModel.groupCode,
-      groupName: this.state.formModel.groupName,
+      roleCode: this.state.formModel.roleCode,
+      roleName: this.state.formModel.roleName,
       remark: this.state.formModel.remark
     }
   }
 
   protected fillForm(rowObject: any) {
-    this.state.formModel.groupCode = rowObject.groupCode
-    this.state.formModel.groupName = rowObject.groupName
+    this.state.formModel.roleCode = rowObject.roleCode
+    this.state.formModel.roleName = rowObject.roleName
     this.state.formModel.remark = rowObject.remark
   }
 
@@ -70,7 +70,7 @@ class Page extends BaseAddEditPage {
 }
 
 export default defineComponent({
-  name: "~AddEditUserGroup",
+  name: "~addEditRole",
   props: {
     modelValue: Boolean,
     rid: String

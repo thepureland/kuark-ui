@@ -79,14 +79,14 @@ const routes = [
                 meta: {
                     title: '角色管理'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/auth/role/RoleList.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/rbac/role/RoleList.vue")
             }, {
                 path: "/auth/group",
                 name: "group",
                 meta: {
                     title: '组管理'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/auth/group/UserGroupList.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/rbac/group/UserGroupList.vue")
             }, {
                 path: "/sys/res",
                 name: "res",

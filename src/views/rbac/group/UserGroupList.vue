@@ -1,5 +1,5 @@
 <!--
- * 角色管理
+ * 组管理
  *
  * @author: K
  * @since 1.0.0
@@ -11,16 +11,16 @@
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>角色管理</el-breadcrumb-item>
+      <el-breadcrumb-item>组管理</el-breadcrumb-item>
     </el-breadcrumb>
 
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
-          <el-input v-model="searchParams.roleCode" placeholder="角色编码" @change="search" clearable/>
+          <el-input v-model="searchParams.groupCode" placeholder="组编码" @change="search" clearable/>
         </el-col>
         <el-col :span="2">
-          <el-input v-model="searchParams.roleName" placeholder="角色名称" @change="search" clearable/>
+          <el-input v-model="searchParams.groupName" placeholder="组名称" @change="search" clearable/>
         </el-col>
 
         <el-col :span="2">
@@ -43,8 +43,8 @@
                 :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange">
         <el-table-column type="selection" width="39"/>
         <el-table-column type="index" width="50"/>
-        <el-table-column label="角色编码" prop="roleCode"/>
-        <el-table-column label="角色名称" prop="roleName"/>
+        <el-table-column label="组编码" prop="groupCode"/>
+        <el-table-column label="组名称" prop="groupName"/>
         <el-table-column label="备注" prop="remark"/>
         <el-table-column label="启用">
           <template #default="scope">
@@ -69,8 +69,8 @@
                      :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                      layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
 
-      <add-edit-role v-model="addDialogVisible" @response="afterAdd"/>
-      <add-edit-role v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
+      <add-edit-user-group v-model="addDialogVisible" @response="afterAdd"/>
+      <add-edit-user-group v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
 
     </el-card>
 
@@ -79,7 +79,7 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, ref, toRefs} from "vue"
-import addEditRole from './addEditRole.vue';
+import AddEditUserGroup from './AddEditUserGroup.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts"
 
 class ListPage extends BaseListPage {
@@ -92,27 +92,27 @@ class ListPage extends BaseListPage {
   protected initState(): any {
     return {
       searchParams: {
-        roleCode: null,
-        roleName: null,
+        groupCode: null,
+        groupName: null,
       },
     }
   }
 
   protected getRootActionPath(): String {
-    return "auth/role"
+    return "rbac/group"
   }
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params["roleCode"] = this.state.searchParams.roleCode
-    params["roleName"] = this.state.searchParams.roleName
+    params["groupCode"] = this.state.searchParams.groupCode
+    params["groupName"] = this.state.searchParams.groupName
     return params
   }
 
   protected doResetSearchFields() {
     super.doResetSearchFields()
-    this.state.searchParams.roleCode = null
-    this.state.searchParams.roleName = null
+    this.state.searchParams.groupCode = null
+    this.state.searchParams.groupName = null
   }
 
   /**
@@ -125,7 +125,7 @@ class ListPage extends BaseListPage {
 
 export default defineComponent({
   name: "~index",
-  components: {addEditRole},
+  components: {AddEditUserGroup},
 
 //  components: {addEditParam},
   setup(props, context) {
