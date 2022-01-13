@@ -88,6 +88,13 @@ const routes = [
                 },
                 component: () => import ( /* webpackChunkName: "dashboard" */ "../views/rbac/group/UserGroupList.vue")
             }, {
+                path: "/user/account",
+                name: "user",
+                meta: {
+                    title: '用户账号'
+                },
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/user/account/AccountList.vue")
+            }, {
                 path: "/sys/res",
                 name: "res",
                 meta: {

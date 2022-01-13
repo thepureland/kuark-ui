@@ -1,5 +1,5 @@
 <!--
- * 组管理
+ * 账号列表
  *
  * @author: K
  * @since 1.0.0
@@ -11,20 +11,13 @@
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>组管理</el-breadcrumb-item>
+      <el-breadcrumb-item>账号列表</el-breadcrumb-item>
     </el-breadcrumb>
 
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
-          <el-input v-model="searchParams.groupCode" placeholder="组编码" @change="search" clearable/>
-        </el-col>
-        <el-col :span="2">
-          <el-input v-model="searchParams.groupName" placeholder="组名称" @change="search" clearable/>
-        </el-col>
-
-        <el-col :span="2">
-          <el-checkbox v-model="searchParams.active" label="仅启用" class="el-input" checked/>
+          <el-input v-model="searchParams.username" placeholder="用户名" @change="search" clearable/>
         </el-col>
 
         <el-col :span="1">
@@ -43,13 +36,25 @@
                 :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange">
         <el-table-column type="selection" width="39"/>
         <el-table-column type="index" width="50"/>
-        <el-table-column label="组编码" prop="groupCode"/>
-        <el-table-column label="组名称" prop="groupName"/>
-        <el-table-column label="备注" prop="remark"/>
-        <el-table-column label="启用">
+        <el-table-column label="用户名" prop="username"/>
+        <el-table-column label="子系统" prop="subSysDictCode">
           <template #default="scope">
-            <el-switch v-model="scope.row.active" :active-value=true :inactive-value=false
-                       @change="updateActive(scope.row)"/>
+            {{ transDict("kuark:sys", "sub_sys", scope.row.subSysDictCode, scope.row) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="用户状态" prop="userStatusDictCode">
+          <template #default="scope">
+            {{ transDict("kuark:user", "user_status", scope.row.userStatusDictCode, scope.row) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="用户类型" prop="userTypeDictCode">
+          <template #default="scope">
+            {{ transDict("kuark:user", "user_type", scope.row.userTypeDictCode, scope.row) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="最后一次登陆时间">
+          <template #default="scope">
+            {{ formatDate(scope.row.lastLoginTime) }}
           </template>
         </el-table-column>
         <el-table-column label="创建时间">
@@ -69,8 +74,8 @@
                      :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                      layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
 
-      <add-edit-user-group v-model="addDialogVisible" @response="afterAdd"/>
-      <add-edit-user-group v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
+      <add-edit-account v-model="addDialogVisible" @response="afterAdd"/>
+      <add-edit-account v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
 
     </el-card>
 
@@ -79,40 +84,41 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, ref, toRefs} from "vue"
-import AddEditUserGroup from './AddEditUserGroup.vue';
+import AddEditAccount from './AddEditAccount.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts"
 
 class ListPage extends BaseListPage {
 
   constructor() {
     super()
+    this.loadDict("kuark:user", "user_status")
+    this.loadDict("kuark:user", "user_type")
+    this.loadDict("kuark:sys", "sub_sys")
     this.convertThis()
   }
 
   protected initState(): any {
     return {
       searchParams: {
-        groupCode: null,
-        groupName: null,
+        username: null,
       },
+      userStatuses: []
     }
   }
 
   protected getRootActionPath(): String {
-    return "rbac/group"
+    return "user/account"
   }
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params["groupCode"] = this.state.searchParams.groupCode
-    params["groupName"] = this.state.searchParams.groupName
+    params["username"] = this.state.searchParams.username
     return params
   }
 
   protected doResetSearchFields() {
     super.doResetSearchFields()
-    this.state.searchParams.groupCode = null
-    this.state.searchParams.groupName = null
+    this.state.searchParams.username = null
   }
 
   /**
@@ -125,7 +131,7 @@ class ListPage extends BaseListPage {
 
 export default defineComponent({
   name: "~index",
-  components: {AddEditUserGroup},
+  components: {AddEditAccount},
   setup(props, context) {
     const listPage = reactive(new ListPage())
     return {

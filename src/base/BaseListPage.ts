@@ -1,6 +1,5 @@
-import {reactive} from "vue"
-import * as moment from 'moment'
 import {ElMessage, ElMessageBox} from "element-plus"
+import {BasePage} from "./BasePage.ts"
 
 /**
  * 列表页面处理抽象父类
@@ -8,16 +7,10 @@ import {ElMessage, ElMessageBox} from "element-plus"
  * @author K
  * @since 1.0.0
  */
-export abstract class BaseListPage {
-
-    public state: any
-
-    private dictCache: Map<String, Map<String, String>> = new Map()// Map<字典类型, Map<字典项编码，字典项名称>>
+export abstract class BaseListPage extends BasePage {
 
     protected constructor() {
-        this.state = reactive(this.initBaseState())
-        const additionalState = reactive(this.initState())
-        Object.assign(this.state, additionalState)
+        super()
         this._convertThis()
     }
 
@@ -257,36 +250,6 @@ export abstract class BaseListPage {
         this.search()
     }
 
-    public formatBool = (value: Boolean) => {
-        return value ? "是" : "否"
-    }
-
-    public formatDate = (date, formatStr = 'YYYY-MM-DD HH:mm:ss') => {
-        return moment(date.slice(0, 6)).format(formatStr)
-    }
-
-    public transDict: (module, type, code, row) => String
-
-    protected doTransDict(module, type, code, row): String {
-        let itemMap = this.dictCache[type]
-        const name = itemMap[code]
-        return name != null ? name : code
-    }
-
-    protected async loadDict(module, type) {
-        const params = {
-            module: module,
-            type: type
-        }
-        // @ts-ignore
-        const result = await ajax({url: "regDictItem/getDictItemMap", params})
-        if (result.data) {
-            this.dictCache[type] = result.data
-        } else {
-            ElMessage.error('字典项加载失败！')
-        }
-    }
-
     /**
      * 为了解决恶心的this问题，无任何业务逻辑代码
      */
@@ -335,9 +298,6 @@ export abstract class BaseListPage {
         }
         this.handleSelectionChange = (selection) => {
             this.doHandleSelectionChange(selection)
-        }
-        this.transDict = (module, type, code, row) => {
-            return this.doTransDict(module, type, code, row)
         }
     }
 

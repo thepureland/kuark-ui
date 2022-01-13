@@ -32,7 +32,6 @@ class Page extends BaseAddEditPage {
   }
 
   protected initState(): any {
-    const _self = this
     return {
       formModel: {
         groupCode: null,

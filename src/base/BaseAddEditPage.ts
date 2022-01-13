@@ -1,7 +1,10 @@
-import {ElMessage} from "element-plus";
-import {computed, reactive, ref, Ref} from "vue";
+import {ElMessage} from "element-plus"
+import {computed, ref} from "vue"
 // @ts-ignore
-import {ValidationRuleAdapter} from "./ValidationRuleAdapter.ts";
+import {ValidationRuleAdapter} from "./ValidationRuleAdapter.ts"
+// @ts-ignore
+import {BasePage} from "./BasePage.ts"
+
 
 /**
  * 添加/编辑页面处理抽象父类
@@ -9,9 +12,8 @@ import {ValidationRuleAdapter} from "./ValidationRuleAdapter.ts";
  * @author K
  * @since 1.0.0
  */
-export abstract class BaseAddEditPage {
+export abstract class BaseAddEditPage extends BasePage {
 
-    public state: any
     public form: any
 
     public props: any
@@ -19,6 +21,7 @@ export abstract class BaseAddEditPage {
     public visible: any
 
     protected constructor(props, context) {
+        super()
         this.props = props
         this.context = context
         this.form = ref()
@@ -27,10 +30,6 @@ export abstract class BaseAddEditPage {
             set: () => {
             }
         })
-
-        this.state = reactive(this.initBaseState())
-        const additionalState = reactive(this.initState())
-        Object.assign(this.state, additionalState)
 
         if (this.props.rid) {
             this.loadRowObject().then(() => this.initValidationRule())
@@ -88,6 +87,7 @@ export abstract class BaseAddEditPage {
         // @ts-ignore
         const result = await ajax({url: this.getValidationRuleUrl()});
         if (result.data) {
+            // @ts-ignore
             this.state.rules = new ValidationRuleAdapter(result.data, () => {
                 return this.form.value.model
             }).getRules()

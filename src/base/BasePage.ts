@@ -18,7 +18,7 @@ export abstract class BasePage {
         this.state = reactive(this.initBaseState())
         const additionalState = reactive(this.initState())
         Object.assign(this.state, additionalState)
-        this._convertThis()
+        this.__convertThis()
     }
 
     protected abstract initState(): any
@@ -26,20 +26,6 @@ export abstract class BasePage {
     protected abstract initBaseState(): any
 
     protected abstract getRootActionPath(): String
-
-    protected async loadDict(module, type) {
-        const params = {
-            module: module,
-            type: type
-        }
-        // @ts-ignore
-        const result = await ajax({url: "regDictItem/getDictItemMap", params})
-        if (result.data) {
-            this.dictCache[type] = result.data
-        } else {
-            ElMessage.error('字典项加载失败！')
-        }
-    }
 
     public transDict: (module, type, code, row) => String
 
@@ -49,18 +35,35 @@ export abstract class BasePage {
         return name != null ? name : code
     }
 
+    protected async loadDict(module, type) {
+        const params = {
+            module: module,
+            type: type
+        }
+        // @ts-ignore
+        const result = await ajax({url: "reg/dictItem/getDictItemMap", params})
+        if (result.data) {
+            this.dictCache[type] = result.data
+        } else {
+            ElMessage.error('字典项加载失败！')
+        }
+    }
+
     public formatBool = (value: Boolean) => {
         return value ? "是" : "否"
     }
 
     public formatDate = (date, formatStr = 'YYYY-MM-DD HH:mm:ss') => {
-        return moment(date).format(formatStr)
+        if (date) {
+            return moment(date.slice(0, 6)).format(formatStr)
+        }
+        return ''
     }
 
     /**
      * 为了解决恶心的this问题，无任何业务逻辑代码
      */
-    private _convertThis() {
+    private __convertThis() {
         this.transDict = (module, type, code, row) => {
             return this.doTransDict(module, type, code, row)
         }

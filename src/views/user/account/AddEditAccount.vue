@@ -1,11 +1,14 @@
 <template>
-  <el-dialog title="添加角色信息" v-model="visible" width="30%" center @close="close">
+  <el-dialog title="添加账号信息" v-model="visible" width="30%" center @close="close">
     <el-form ref="form" :model="formModel" label-width="80px" :rules="rules">
-      <el-form-item label="角色编码" prop="roleCode">
-        <el-input v-model="formModel.roleCode"/>
+      <el-form-item label="用户名" prop="username">
+        <el-input v-model="formModel.username"/>
       </el-form-item>
-      <el-form-item label="角色名称" prop="roleName">
-        <el-input v-model="formModel.roleName"/>
+      <el-form-item label="子系统" prop="subSysDictCode">
+        <el-input v-model="formModel.subSysDictCode"/>
+      </el-form-item>
+      <el-form-item label="用户类型" prop="userTypeDictCode">
+        <el-input v-model="formModel.userTypeDictCode"/>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="formModel.remark"/>
@@ -28,6 +31,7 @@ class Page extends BaseAddEditPage {
 
   constructor(props, context) {
     super(props, context)
+
     this.convertThis()
   }
 
@@ -42,21 +46,23 @@ class Page extends BaseAddEditPage {
   }
 
   protected getRootActionPath(): String {
-    return "rbac/role"
+    return "user/account"
   }
 
   protected createSubmitParams(): any {
     return {
       id: this.props.rid,
-      roleCode: this.state.formModel.roleCode,
-      roleName: this.state.formModel.roleName,
+      username: this.state.formModel.username,
+      subSysDictCode: this.state.formModel.subSysDictCode,
+      userTypeDictCode: this.state.formModel.userTypeDictCode,
       remark: this.state.formModel.remark
     }
   }
 
   protected fillForm(rowObject: any) {
-    this.state.formModel.roleCode = rowObject.roleCode
-    this.state.formModel.roleName = rowObject.roleName
+    this.state.formModel.username = rowObject.username
+    this.state.formModel.subSysDictCode = rowObject.subSysDictCode
+    this.state.formModel.userTypeDictCode = rowObject.userTypeDictCode
     this.state.formModel.remark = rowObject.remark
   }
 
@@ -69,7 +75,7 @@ class Page extends BaseAddEditPage {
 }
 
 export default defineComponent({
-  name: "~AddEditRole",
+  name: "~AddEditAccount",
   props: {
     modelValue: Boolean,
     rid: String

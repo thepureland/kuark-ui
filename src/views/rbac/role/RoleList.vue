@@ -78,8 +78,8 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, ref, toRefs} from "vue"
-import addEditRole from './addEditRole.vue';
+import {defineComponent, reactive, toRefs} from "vue"
+import addEditRole from './AddEditRole.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts"
 
 class ListPage extends BaseListPage {
@@ -126,8 +126,6 @@ class ListPage extends BaseListPage {
 export default defineComponent({
   name: "~index",
   components: {addEditRole},
-
-//  components: {addEditParam},
   setup(props, context) {
     const listPage = reactive(new ListPage())
     return {
