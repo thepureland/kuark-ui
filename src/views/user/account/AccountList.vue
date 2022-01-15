@@ -39,17 +39,17 @@
         <el-table-column label="用户名" prop="username"/>
         <el-table-column label="子系统" prop="subSysDictCode">
           <template #default="scope">
-            {{ transDict("kuark:sys", "sub_sys", scope.row.subSysDictCode, scope.row) }}
+            {{ transDict("kuark:sys", "sub_sys", scope.row.subSysDictCode) }}
           </template>
         </el-table-column>
         <el-table-column label="用户状态" prop="userStatusDictCode">
           <template #default="scope">
-            {{ transDict("kuark:user", "user_status", scope.row.userStatusDictCode, scope.row) }}
+            {{ transDict("kuark:user", "user_status", scope.row.userStatusDictCode) }}
           </template>
         </el-table-column>
         <el-table-column label="用户类型" prop="userTypeDictCode">
           <template #default="scope">
-            {{ transDict("kuark:user", "user_type", scope.row.userTypeDictCode, scope.row) }}
+            {{ transDict("kuark:user", "user_type", scope.row.userTypeDictCode) }}
           </template>
         </el-table-column>
         <el-table-column label="最后一次登陆时间">
@@ -66,6 +66,7 @@
           <template #default="scope">
             <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
             <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete">删除</el-button>
+            <el-button @click="handleDetail(scope.row)" type="info" size="mini" icon="el-icon-tickets">详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -74,8 +75,9 @@
                      :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                      layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
 
-      <add-edit-account v-model="addDialogVisible" @response="afterAdd"/>
-      <add-edit-account v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
+      <account-add-edit v-model="addDialogVisible" @response="afterAdd"/>
+      <account-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
+      <account-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
 
     </el-card>
 
@@ -84,16 +86,20 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, ref, toRefs} from "vue"
-import AddEditAccount from './AddEditAccount.vue';
+import AccountAddEdit from './AccountAddEdit.vue';
+import AccountDetail from './AccountDetail.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts"
+import {Pair} from "../../../base/Pair.ts";
 
 class ListPage extends BaseListPage {
 
   constructor() {
     super()
-    this.loadDict("kuark:user", "user_status")
-    this.loadDict("kuark:user", "user_type")
-    this.loadDict("kuark:sys", "sub_sys")
+    this.loadDicts([
+      new Pair("kuark:user", "user_status"),
+      new Pair("kuark:user", "user_type"),
+      new Pair("kuark:sys", "sub_sys"),
+    ])
     this.convertThis()
   }
 
@@ -131,7 +137,7 @@ class ListPage extends BaseListPage {
 
 export default defineComponent({
   name: "~index",
-  components: {AddEditAccount},
+  components: {AccountAddEdit, AccountDetail},
   setup(props, context) {
     const listPage = reactive(new ListPage())
     return {

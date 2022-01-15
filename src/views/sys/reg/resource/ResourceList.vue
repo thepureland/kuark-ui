@@ -75,6 +75,8 @@
                 <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
                 <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete">删除
                 </el-button>
+                <el-button @click="handleDetail(scope.row)" type="info" size="mini" icon="el-icon-tickets">详情
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -86,8 +88,10 @@
         </el-col>
       </el-row>
 
-      <add-edit-param v-model="addDialogVisible" @response="afterAdd"/>
-      <add-edit-param v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
+      <resource-add-edit v-model="addDialogVisible" @response="afterAdd"/>
+      <resource-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
+      <resource-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
+
     </el-card>
 
   </div>
@@ -95,7 +99,8 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs, ref, onMounted} from "vue";
-import addEditParam from './addEditResource.vue';
+import ResourceAddEdit from './ResourceAddEdit.vue';
+import ResourceDetail from './ResourceDetail.vue';
 import {BaseListPage} from "../../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
 
@@ -326,7 +331,7 @@ class ListPage extends BaseListPage {
 
 export default defineComponent({
   name: "~index",
-  components: {addEditParam},
+  components: {ResourceAddEdit, ResourceDetail},
   setup(props, context) {
     const tree = ref()
     const listPage = reactive(new ListPage(tree))

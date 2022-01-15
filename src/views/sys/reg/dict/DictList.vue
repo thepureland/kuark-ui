@@ -92,8 +92,8 @@
         </el-col>
       </el-row>
 
-      <add-edit-dict v-model="addDialogVisible" @response="afterAdd"/>
-      <add-edit-dict v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"
+      <dict-add-edit v-model="addDialogVisible" @response="afterAdd"/>
+      <dict-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"
                      :isDict="isDict"/>
     </el-card>
   </div>
@@ -101,7 +101,7 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, ref, toRefs} from "vue";
-import addEditDict from './addEditDict.vue';
+import DictAddEdit from './DictAddEdit.vue';
 import {BaseListPage} from "../../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
 
@@ -461,7 +461,7 @@ class ListPage extends BaseListPage {
 
 export default defineComponent({
   name: "~index",
-  components: {addEditDict},
+  components: {DictAddEdit},
   setup(props, context) {
     const tree = ref()
     const listPage = reactive(new ListPage(tree))

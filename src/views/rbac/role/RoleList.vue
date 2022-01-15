@@ -61,6 +61,7 @@
           <template #default="scope">
             <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
             <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete">删除</el-button>
+            <el-button @click="handleDetail(scope.row)" type="info" size="mini" icon="el-icon-tickets">详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -69,8 +70,9 @@
                      :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                      layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
 
-      <add-edit-role v-model="addDialogVisible" @response="afterAdd"/>
-      <add-edit-role v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
+      <role-add-edit v-model="addDialogVisible" @response="afterAdd"/>
+      <role-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
+      <role-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
 
     </el-card>
 
@@ -79,7 +81,8 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue"
-import addEditRole from './AddEditRole.vue';
+import RoleAddEdit from './RoleAddEdit.vue';
+import RoleDetail from './RoleDetail.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts"
 
 class ListPage extends BaseListPage {
@@ -125,7 +128,7 @@ class ListPage extends BaseListPage {
 
 export default defineComponent({
   name: "~index",
-  components: {addEditRole},
+  components: {RoleAddEdit, RoleDetail},
   setup(props, context) {
     const listPage = reactive(new ListPage())
     return {

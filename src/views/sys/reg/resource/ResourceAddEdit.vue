@@ -34,7 +34,7 @@ import {defineComponent, reactive, toRefs} from "vue";
 import {ElMessage} from 'element-plus';
 import {BaseAddEditPage} from "../../../../base/BaseAddEditPage.ts";
 
-class Page extends BaseAddEditPage {
+class AddEditPage extends BaseAddEditPage {
 
   constructor(props, context) {
     super(props, context)
@@ -143,14 +143,14 @@ class Page extends BaseAddEditPage {
 }
 
 export default defineComponent({
-  name: "~addEditResource",
+  name: "~ResourceAddEdit",
   props: {
     modelValue: Boolean,
     rid: String
   },
   emits: ['update:modelValue', "response"],
   setup(props, context) {
-    const page = reactive(new Page(props, context))
+    const page = reactive(new AddEditPage(props, context))
     return {
       ...toRefs(page),
       ...toRefs(page.state)

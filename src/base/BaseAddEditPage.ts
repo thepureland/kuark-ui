@@ -46,19 +46,18 @@ export abstract class BaseAddEditPage extends BasePage {
         }
     }
 
-    protected abstract initState(): any
-
-    protected abstract getRootActionPath(): String
-
     protected getValidationRuleUrl(): String {
+        // @ts-ignore
         return this.getRootActionPath() + "/getValidationRule"
     }
 
     protected getSubmitUrl(): String {
+        // @ts-ignore
         return this.getRootActionPath() + "/saveOrUpdate"
     }
 
     protected getRowObjectLoadUrl(): String {
+        // @ts-ignore
         return this.getRootActionPath() + "/get"
     }
 

@@ -28,14 +28,11 @@ export abstract class BaseListPage extends BasePage {
             },
             addDialogVisible: false,
             editDialogVisible: false,
+            detailDialogVisible: false,
             rid: '',
             selectedRows: []
         }
     }
-
-    protected abstract getRootActionPath(): String
-
-    protected abstract initState(): any
 
     protected createSearchParams(): any {
         const params = {}
@@ -62,6 +59,10 @@ export abstract class BaseListPage extends BasePage {
 
     protected getBatchDeleteUrl(): String {
         return this.getRootActionPath() + "/batchDelete"
+    }
+
+    protected getDetailUrl(): String {
+        return this.getRootActionPath() + "/getDetail"
     }
 
     protected getUpdateActiveUrl(): String {
@@ -182,7 +183,7 @@ export abstract class BaseListPage extends BasePage {
 
     protected async doMultiDelete() {
         const rows = this.state.selectedItems
-        if (rows.length == 0) {
+        if (!rows || rows.length == 0) {
             ElMessage.info('请先选择要删除的数据！')
         } else {
             const confirmResult = await ElMessageBox.confirm(this.getBatchDeleteMessage(rows), '提示', {
@@ -203,6 +204,13 @@ export abstract class BaseListPage extends BasePage {
                 ElMessage.error('删除失败！')
             }
         }
+    }
+
+    public handleDetail: (row: any) => void
+
+    protected async doHandleDetail(row: any) {
+        this.state.detailDialogVisible = true
+        this.state.rid = this.getRowId(row)
     }
 
     public updateActive: (row: any) => void
@@ -277,6 +285,9 @@ export abstract class BaseListPage extends BasePage {
         }
         this.handleEdit = (row: any) => {
             this.doHandleEdit(row)
+        }
+        this.handleDetail = (row: any) => {
+            this.doHandleDetail(row)
         }
         this.afterAdd = (params: any) => {
             this.doAfterAdd(params)

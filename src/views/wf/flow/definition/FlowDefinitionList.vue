@@ -53,7 +53,7 @@
         <el-table-column label="版本" prop="version"/>
         <el-table-column label="分类" prop="category">
           <template #default="scope">
-            {{ transDict("kuark:flow", "flow_category", scope.row.category, scope.row) }}
+            {{ transDict("kuark:flow", "flow_category", scope.row.category) }}
           </template>
         </el-table-column>
         <el-table-column label="已部署">
