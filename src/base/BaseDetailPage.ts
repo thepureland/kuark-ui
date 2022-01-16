@@ -19,10 +19,16 @@ export abstract class BaseDetailPage extends BasePage {
         this.props = props
         this.context = context
         if (this.props.rid) {
-            const self = this
-            this.preLoad().then(function () {
-                self.loadDetail()
-            })
+            const promise = this.preLoad()
+            if (promise) {
+                const self = this
+                promise.then(function () {
+                    self.loadDetail()
+                })
+            } else {
+                this.loadDetail()
+            }
+
         }
         this._convertThis()
     }

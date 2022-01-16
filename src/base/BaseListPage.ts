@@ -208,7 +208,7 @@ export abstract class BaseListPage extends BasePage {
 
     public handleDetail: (row: any) => void
 
-    protected async doHandleDetail(row: any) {
+    protected doHandleDetail(row: any) {
         this.state.detailDialogVisible = true
         this.state.rid = this.getRowId(row)
     }

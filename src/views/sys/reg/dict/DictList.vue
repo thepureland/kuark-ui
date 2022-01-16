@@ -67,11 +67,11 @@
             <el-table-column label="字典类型" prop="dictType" sortable="custom"/>
             <el-table-column label="字典名称" prop="dictName" sortable="custom"/>
             <el-table-column label="所属模块" prop="module" sortable="custom"/>
-            <el-table-column label="字典项编码" prop="itemCode" sortable="custom"/>
-            <el-table-column label="字典项名称" prop="itemName" sortable="custom"/>
-            <el-table-column label="父项编码" prop="parentCode" sortable="custom"/>
-            <el-table-column label="顺序" prop="seqNo" sortable="custom"/>
-            <el-table-column label="启用">
+            <el-table-column label="字典项编码" prop="itemCode" sortable="custom" v-if="!searchParams.isDict"/>
+            <el-table-column label="字典项名称" prop="itemName" sortable="custom" v-if="!searchParams.isDict"/>
+            <el-table-column label="父项编码" prop="parentCode" sortable="custom" v-if="!searchParams.isDict"/>
+            <el-table-column label="顺序" prop="seqNo" sortable="custom" v-if="!searchParams.isDict"/>
+            <el-table-column label="启用" v-if="!searchParams.isDict">
               <template #default="scope">
                 <el-switch v-model="scope.row.active" :active-value=true :inactive-value=false
                            @change="updateActive(scope.row)" v-if="scope.row.itemCode"/>
@@ -79,9 +79,9 @@
             </el-table-column>
             <el-table-column label="操作">
               <template #default="scope">
-                <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
-                <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete">删除
-                </el-button>
+                <edit @click="handleEdit(scope.row)" style="width: 1.5em; height: 1.5em; margin-right: 8px;cursor:pointer;"/>
+                <delete @click="handleDelete(scope.row)" style="width: 1.5em; height: 1.5em; margin-right: 8px;cursor:pointer;"/>
+                <tickets @click="handleDetail(scope.row)" style="width: 1.5em; height: 1.5em; margin-right: 8px;cursor:pointer;"/>
               </template>
             </el-table-column>
           </el-table>
@@ -95,6 +95,9 @@
       <dict-add-edit v-model="addDialogVisible" @response="afterAdd"/>
       <dict-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"
                      :isDict="isDict"/>
+      <dict-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
+      <dict-item-detail v-if="itemDetailDialogVisible" v-model="itemDetailDialogVisible" :rid="rid"/>
+
     </el-card>
   </div>
 </template>
@@ -102,8 +105,11 @@
 <script lang='ts'>
 import {defineComponent, reactive, ref, toRefs} from "vue";
 import DictAddEdit from './DictAddEdit.vue';
+import DictDetail from './DictDetail.vue';
+import DictItemDetail from './DictItemDetail.vue';
 import {BaseListPage} from "../../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
+import {Edit, Delete, Tickets} from '@element-plus/icons'
 
 class ListPage extends BaseListPage {
 
@@ -127,21 +133,23 @@ class ListPage extends BaseListPage {
       },
       searchParams: {
         parentId: null,
-        firstLevel: null,
+        firstLevel: false,
         module: null,
         dictType: null,
         dictName: null,
         itemCode: null,
         itemName: null,
-        active: true
+        active: true,
+        isDict: false
       },
       modules: [],
       dictTypes: [],
       dictItemCodes: [],
       searchSource: null,
-      isDict: null,
+      isDict: false,
       rootNode: null,
-      rootResolve: null
+      rootResolve: null,
+      itemDetailDialogVisible: false
     }
   }
 
@@ -161,6 +169,12 @@ class ListPage extends BaseListPage {
     params["itemCode"] = this.state.searchParams.itemCode
     params["itemName"] = this.state.searchParams.itemName
     params["active"] = this.state.searchParams.active ? true : null
+    if (params["dictType"] || params["dictName"] || params["itemCode"] || params["itemName"]) {
+      this.state.searchParams.isDict = false
+    } else {
+      this.state.searchParams.isDict = true
+    }
+    params["isDict"] = this.state.searchParams.isDict
     return params
   }
 
@@ -254,6 +268,15 @@ class ListPage extends BaseListPage {
     this.state.isDict = row.itemId == null
   }
 
+  protected doHandleDetail(row: any) {
+    if (row.itemId == null) {
+      this.state.detailDialogVisible = true
+    } else {
+      this.state.itemDetailDialogVisible = true
+    }
+    this.state.rid = this.getRowId(row)
+  }
+
   public filterModule: (queryString: string, cb) => void
 
   private doFilterModule(queryString: string, cb) {
@@ -280,16 +303,19 @@ class ListPage extends BaseListPage {
         this.state.searchParams.module = node.data.code
         this.state.searchParams.dictType = null
         this.state.searchParams.itemCode = null
+        this.state.searchParams.isDict = true
       } else if (node.level === 2) {
         this.state.searchParams.module = node.parent.data.code
         this.state.searchParams.dictType = node.data.code
         this.state.searchParams.itemCode = null
+        this.state.searchParams.isDict = expend ? false : true
       } else {
         this.state.searchParams.module = this.getModuleByNode(node)
         this.state.searchParams.dictType = this.getDictTypeByNode(node)
         if (!expend) {
           this.state.searchParams.itemCode = node.data.code
         }
+        this.state.searchParams.isDict = false
       }
       this.state.searchParams.parentId = node.level === 1 ? node.data.code : node.data.id
       this.state.searchParams.firstLevel = node.level === 1
@@ -379,7 +405,8 @@ class ListPage extends BaseListPage {
       firstLevel: this.state.searchParams.firstLevel,
       pageNo: this.state.pagination.pageNo,
       pageSize: this.state.pagination.pageSize,
-      active: this.state.searchParams.active ? true : null
+      active: this.state.searchParams.active ? true : null,
+      isDict: this.state.searchParams.isDict
     }
     if (this.state.sort.orderProperty) {
       params["orders"] = [{
@@ -461,7 +488,7 @@ class ListPage extends BaseListPage {
 
 export default defineComponent({
   name: "~index",
-  components: {DictAddEdit},
+  components: {DictAddEdit, DictDetail, DictItemDetail, Edit, Delete, Tickets},
   setup(props, context) {
     const tree = ref()
     const listPage = reactive(new ListPage(tree))
