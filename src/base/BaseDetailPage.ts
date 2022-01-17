@@ -24,6 +24,8 @@ export abstract class BaseDetailPage extends BasePage {
                 const self = this
                 promise.then(function () {
                     self.loadDetail()
+                    self.loadOthers()
+
                 })
             } else {
                 this.loadDetail()
@@ -71,6 +73,9 @@ export abstract class BaseDetailPage extends BasePage {
         } else {
             ElMessage.error('数据加载失败！')
         }
+    }
+
+    protected async loadOthers() {
     }
 
     public close: () => void
