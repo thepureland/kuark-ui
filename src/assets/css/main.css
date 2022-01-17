@@ -175,3 +175,27 @@ a {
 .v-note-wrapper .v-note-panel {
     min-height: 500px;
 }
+
+
+
+
+
+.el-breadcrumb {
+    margin-bottom: 14px;
+}
+
+.el-pagination {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.toolbar {
+    margin-bottom: 10px;
+}
+
+.operate-column-icon {
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 8px;
+    cursor:pointer;
+}

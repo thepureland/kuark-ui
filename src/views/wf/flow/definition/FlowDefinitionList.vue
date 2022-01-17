@@ -71,11 +71,11 @@
             {{ formatDate(scope.row.lastUpdateTime) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" align="center">
           <template #default="scope">
-            <el-button @click="handleEdit(scope.row)" type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
-            <el-button @click="handleDelete(scope.row)" type="danger" size="mini" icon="el-icon-delete">删除</el-button>
-            <el-button @click="design(scope.row)" type="danger" size="mini" icon="el-icon-delete">设计</el-button>
+            <edit @click="handleEdit(scope.row)" class="operate-column-icon"/>
+            <delete @click="handleDelete(scope.row)" class="operate-column-icon"/>
+            <picture @click="design(scope.row)" class="operate-column-icon"/>
           </template>
         </el-table-column>
       </el-table>
@@ -188,16 +188,5 @@ export default defineComponent({
 </script>
 
 <style lang='css' scoped>
-.el-breadcrumb {
-  margin-bottom: 14px;
-}
 
-.el-pagination {
-  margin-top: 10px;
-  text-align: right;
-}
-
-.toolbar {
-  margin-bottom: 10px;
-}
 </style>

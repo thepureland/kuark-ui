@@ -77,11 +77,11 @@
                            @change="updateActive(scope.row)" v-if="scope.row.itemCode"/>
               </template>
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作" align="center">
               <template #default="scope">
-                <edit @click="handleEdit(scope.row)" style="width: 1.5em; height: 1.5em; margin-right: 8px;cursor:pointer;"/>
-                <delete @click="handleDelete(scope.row)" style="width: 1.5em; height: 1.5em; margin-right: 8px;cursor:pointer;"/>
-                <tickets @click="handleDetail(scope.row)" style="width: 1.5em; height: 1.5em; margin-right: 8px;cursor:pointer;"/>
+                <edit @click="handleEdit(scope.row)" class="operate-column-icon"/>
+                <delete @click="handleDelete(scope.row)" class="operate-column-icon"/>
+                <tickets @click="handleDetail(scope.row)" class="operate-column-icon"/>
               </template>
             </el-table-column>
           </el-table>
@@ -109,7 +109,6 @@ import DictDetail from './DictDetail.vue';
 import DictItemDetail from './DictItemDetail.vue';
 import {BaseListPage} from "../../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
-import {Edit, Delete, Tickets} from '@element-plus/icons'
 
 class ListPage extends BaseListPage {
 
@@ -488,7 +487,7 @@ class ListPage extends BaseListPage {
 
 export default defineComponent({
   name: "~index",
-  components: {DictAddEdit, DictDetail, DictItemDetail, Edit, Delete, Tickets},
+  components: {DictAddEdit, DictDetail, DictItemDetail},
   setup(props, context) {
     const tree = ref()
     const listPage = reactive(new ListPage(tree))
@@ -502,16 +501,5 @@ export default defineComponent({
 </script>
 
 <style lang='css' scoped>
-.el-breadcrumb {
-  margin-bottom: 14px;
-}
 
-.el-pagination {
-  margin-top: 10px;
-  text-align: right;
-}
-
-.toolbar {
-  margin-bottom: 10px;
-}
 </style>
