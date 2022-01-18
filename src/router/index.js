@@ -100,21 +100,21 @@ const routes = [
                 meta: {
                     title: '资源管理'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/resource/ResourceList.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/resource/ResourceList.vue")
             }, {
                 path: "/sys/dict",
                 name: "dict",
                 meta: {
                     title: '字典管理'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/dict/DictList.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/dict/DictList.vue")
             }, {
                 path: "/sys/param",
                 name: "param",
                 meta: {
                     title: '参数管理'
                 },
-                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/reg/param/ParamList.vue")
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/param/ParamList.vue")
             }, {
                 path: "/geo/country",
                 name: "country",

@@ -64,7 +64,7 @@ export abstract class BasePage {
             dictType: dictType
         }
         // @ts-ignore
-        const result = await ajax({url: "reg/dictItem/getDictItemMap", params})
+        const result = await ajax({url: "sys/dictItem/getDictItemMap", params})
         if (result.data) {
             this.dictCache[key] = result.data
         } else {
@@ -88,7 +88,7 @@ export abstract class BasePage {
         if (params.length == 0) return
 
         // @ts-ignore
-        const result = await ajax({url: "reg/dictItem/batchGetDictItemMap", method: "post", params})
+        const result = await ajax({url: "sys/dictItem/batchGetDictItemMap", method: "post", params})
         if (result.data) {
             for(let key in result.data) {
                 this.dictCache[key] = result.data[key]

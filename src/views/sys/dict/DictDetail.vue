@@ -75,7 +75,7 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue"
-import {BaseDetailPage} from "../../../../base/BaseDetailPage.ts"
+import {BaseDetailPage} from "../../../base/BaseDetailPage.ts"
 import {ElMessage} from "element-plus";
 
 class DetailPage extends BaseDetailPage {
@@ -95,7 +95,7 @@ class DetailPage extends BaseDetailPage {
   }
 
   protected getRootActionPath(): String {
-    return "reg/dict"
+    return "sys/dict"
   }
 
   protected async loadOthers(): Promise<void> {
@@ -103,7 +103,7 @@ class DetailPage extends BaseDetailPage {
       dictId: this.props.rid
     }
     // @ts-ignore
-    const result = await ajax({url: "reg/dictItem/getDictItemsByDictId", params});
+    const result = await ajax({url: "sys/dictItem/getDictItemsByDictId", params});
     if (result.data) {
       this.state.tableData = result.data
     } else {

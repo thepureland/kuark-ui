@@ -1,29 +1,29 @@
 <!--
- * 参数详情
+ * 字典项详情
  *
  * @author: K
  * @since 1.0.0
  -->
 
 <template>
-  <el-dialog title="参数信息详情" v-model="visible" width="40%" center @close="close">
+  <el-dialog title="字典项信息详情" v-model="visible" width="40%" center @close="close">
     <el-row :gutter="10">
-      <el-col :span="3">参数ID：</el-col>
+      <el-col :span="3">字典项ID：</el-col>
       <el-col :span="9">{{detail.id}}</el-col>
-      <el-col :span="3">参数名：</el-col>
-      <el-col :span="9">{{detail.paramName}}</el-col>
+      <el-col :span="3">字典ID：</el-col>
+      <el-col :span="9">{{detail.dictId}}</el-col>
     </el-row>
     <el-row :gutter="10">
-      <el-col :span="3">参数值：</el-col>
-      <el-col :span="9">{{detail.paramValue}}</el-col>
-      <el-col :span="3">默认参数值：</el-col>
-      <el-col :span="9">{{detail.defaultValue}}</el-col>
+      <el-col :span="3">字典项编号：</el-col>
+      <el-col :span="9">{{detail.itemCode}}</el-col>
+      <el-col :span="3">字典项名称：</el-col>
+      <el-col :span="9">{{detail.itemName}}</el-col>
     </el-row>
     <el-row :gutter="10">
+      <el-col :span="3">父项ID：</el-col>
+      <el-col :span="9">{{detail.parentId}}</el-col>
       <el-col :span="3">排序：</el-col>
       <el-col :span="9">{{detail.seqNo}}</el-col>
-      <el-col :span="3">模块：</el-col>
-      <el-col :span="9">{{transDict("kuark:sys", "module", detail.module)}}</el-col>
     </el-row>
     <el-row :gutter="10">
       <el-col :span="3">创建时间：</el-col>
@@ -52,7 +52,7 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue"
-import {BaseDetailPage} from "../../../../base/BaseDetailPage.ts"
+import {BaseDetailPage} from "../../../base/BaseDetailPage.ts"
 
 class DetailPage extends BaseDetailPage {
 
@@ -60,18 +60,14 @@ class DetailPage extends BaseDetailPage {
     super(props, context)
   }
 
-  protected async preLoad(): Promise<void> {
-    await this.loadDict("kuark:sys", "module")
-  }
-
   protected getRootActionPath(): String {
-    return "reg/param"
+    return "sys/dictItem"
   }
 
 }
 
 export default defineComponent({
-  name: "~ParamDetail",
+  name: "~DictItemDetail",
   props: {
     modelValue: Boolean,
     rid: String

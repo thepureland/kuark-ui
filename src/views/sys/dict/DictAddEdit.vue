@@ -29,7 +29,7 @@
 <script lang='ts'>
 import {defineComponent, reactive, ref, toRefs} from "vue";
 import {ElMessage} from 'element-plus';
-import {BaseAddEditPage} from "../../../../base/BaseAddEditPage.ts";
+import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
 
 class AddEditPage extends BaseAddEditPage {
 
@@ -64,7 +64,7 @@ class AddEditPage extends BaseAddEditPage {
   }
 
   protected getRootActionPath(): String {
-    return "reg/dict";
+    return "sys/dict";
   }
 
   protected getRowObjectLoadUrl(): String {
@@ -130,7 +130,7 @@ class AddEditPage extends BaseAddEditPage {
       active: true
     }
     // @ts-ignore
-    const result = await ajax({url: "reg/dict/loadTreeNodes", method: "post", params});
+    const result = await ajax({url: "sys/dict/loadTreeNodes", method: "post", params});
     if (result.data) {
       for (let item of result.data) {
         this.state.parentCache[item["id"]] = item["code"]

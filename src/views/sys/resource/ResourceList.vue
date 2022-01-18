@@ -99,7 +99,7 @@
 import {defineComponent, reactive, toRefs, ref, onMounted} from "vue";
 import ResourceAddEdit from './ResourceAddEdit.vue';
 import ResourceDetail from './ResourceDetail.vue';
-import {BaseListPage} from "../../../../base/BaseListPage.ts";
+import {BaseListPage} from "../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
 
 class ListPage extends BaseListPage {
@@ -136,7 +136,7 @@ class ListPage extends BaseListPage {
   }
 
   protected getRootActionPath(): String {
-    return "reg/resource"
+    return "sys/resource"
   }
 
   protected createSearchParams() {
@@ -189,7 +189,7 @@ class ListPage extends BaseListPage {
     this.setParamsForTree(node, true)
     const params = this.createSearchParams()
     // @ts-ignore
-    const result = await ajax({url: "reg/resource/loadTreeNodes", method: "post", params});
+    const result = await ajax({url: "sys/resource/loadTreeNodes", method: "post", params});
     if (result.data) {
       resolve(result.data)
     } else {
@@ -218,7 +218,7 @@ class ListPage extends BaseListPage {
       id: nodeData.id,
     }
     // @ts-ignore
-    const result = await ajax({url: "reg/resource/get", params});
+    const result = await ajax({url: "sys/resource/get", params});
     if (result.data) {
       this.state.tableData = [result.data]
       this.state.pagination.total = 1
@@ -277,7 +277,7 @@ class ListPage extends BaseListPage {
       }]
     }
     // @ts-ignore
-    const result = await ajax({url: "reg/resource/searchByTree", method: "post", params})
+    const result = await ajax({url: "sys/resource/searchByTree", method: "post", params})
     if (result.data) {
       this.state.tableData = result.data.first
       this.state.pagination.total = result.data.second
@@ -288,7 +288,7 @@ class ListPage extends BaseListPage {
 
   private async loadSubSyses() {
     // @ts-ignore
-    const result = await ajax({url: "reg/resource/loadSubSyses"})
+    const result = await ajax({url: "sys/resource/loadSubSyses"})
     if (result.data) {
       for (let key in result.data) {
         this.state.subSyses.push({key: key, value: result.data[key]})
@@ -300,7 +300,7 @@ class ListPage extends BaseListPage {
 
   private async loadResourceTypes() {
     // @ts-ignore
-    const result = await ajax({url: "reg/resource/loadResourceTypes"})
+    const result = await ajax({url: "sys/resource/loadResourceTypes"})
     if (result.data) {
       for (let key in result.data) {
         this.state.resourceTypes.push({key: key, value: result.data[key]})

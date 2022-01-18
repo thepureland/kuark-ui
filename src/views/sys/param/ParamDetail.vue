@@ -1,41 +1,29 @@
 <!--
- * 资源详情
+ * 参数详情
  *
  * @author: K
  * @since 1.0.0
  -->
 
 <template>
-  <el-dialog title="资源信息详情" v-model="visible" width="40%" center @close="close">
+  <el-dialog title="参数信息详情" v-model="visible" width="40%" center @close="close">
     <el-row :gutter="10">
-      <el-col :span="3">资源ID：</el-col>
+      <el-col :span="3">参数ID：</el-col>
       <el-col :span="9">{{detail.id}}</el-col>
-      <el-col :span="3">资源名：</el-col>
-      <el-col :span="9">{{detail.name}}</el-col>
+      <el-col :span="3">参数名：</el-col>
+      <el-col :span="9">{{detail.paramName}}</el-col>
     </el-row>
     <el-row :gutter="10">
-      <el-col :span="3">URL：</el-col>
-      <el-col :span="9">{{detail.url}}</el-col>
-      <el-col :span="3">是否启用：</el-col>
-      <el-col :span="9">{{detail.active ? '是' : '否'}}</el-col>
+      <el-col :span="3">参数值：</el-col>
+      <el-col :span="9">{{detail.paramValue}}</el-col>
+      <el-col :span="3">默认参数值：</el-col>
+      <el-col :span="9">{{detail.defaultValue}}</el-col>
     </el-row>
     <el-row :gutter="10">
       <el-col :span="3">排序：</el-col>
       <el-col :span="9">{{detail.seqNo}}</el-col>
-      <el-col :span="3">图标：</el-col>
-      <el-col :span="9">{{detail.icon}}</el-col>
-    </el-row>
-    <el-row :gutter="10">
-      <el-col :span="3">资源类型：</el-col>
-      <el-col :span="9">{{transDict("kuark:sys", "resource_type", detail.resourceTypeDictCode)}}</el-col>
-      <el-col :span="3">父ID：</el-col>
-      <el-col :span="9">{{detail.parentId}}</el-col>
-    </el-row>
-    <el-row :gutter="10">
-      <el-col :span="3">子系统：</el-col>
-      <el-col :span="9">{{transDict("kuark:sys", "sub_sys", detail.subSysDictCode)}}</el-col>
-      <el-col :span="3">所有者ID：</el-col>
-      <el-col :span="9">{{detail.ownerId}}</el-col>
+      <el-col :span="3">模块：</el-col>
+      <el-col :span="9">{{transDict("kuark:sys", "module", detail.module)}}</el-col>
     </el-row>
     <el-row :gutter="10">
       <el-col :span="3">创建时间：</el-col>
@@ -52,16 +40,19 @@
     <el-row :gutter="10">
       <el-col :span="3">是否内置：</el-col>
       <el-col :span="9">{{detail.builtIn ? '是' : '否'}}</el-col>
+      <el-col :span="3">是否启用：</el-col>
+      <el-col :span="9">{{detail.active ? '是' : '否'}}</el-col>
+    </el-row>
+    <el-row :gutter="10">
       <el-col :span="3">备注：</el-col>
-      <el-col :span="9">{{detail.remark}}</el-col>
+      <el-col :span="21">{{detail.remark}}</el-col>
     </el-row>
   </el-dialog>
 </template>
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue"
-import {BaseDetailPage} from "../../../../base/BaseDetailPage.ts"
-import {Pair} from "../../../../base/Pair.ts";
+import {BaseDetailPage} from "../../../base/BaseDetailPage.ts"
 
 class DetailPage extends BaseDetailPage {
 
@@ -70,20 +61,17 @@ class DetailPage extends BaseDetailPage {
   }
 
   protected async preLoad(): Promise<void> {
-    await this.loadDicts([
-        new Pair("kuark:sys", "sub_sys"),
-      new Pair("kuark:sys", "resource_type"),
-    ])
+    await this.loadDict("kuark:sys", "module")
   }
 
   protected getRootActionPath(): String {
-    return "reg/resource"
+    return "sys/param"
   }
 
 }
 
 export default defineComponent({
-  name: "~ResourceDetail",
+  name: "~ParamDetail",
   props: {
     modelValue: Boolean,
     rid: String
@@ -103,6 +91,7 @@ export default defineComponent({
 .el-row {
   margin-bottom: 20px;
 }
+
 .el-col-3 {
   text-align: right;
   font-weight: bold;
