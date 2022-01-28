@@ -91,7 +91,7 @@ export abstract class BaseAddEditPage extends BasePage {
                 return this.form.value.model
             }).getRules()
         } else {
-            ElMessage.error('数据加载失败！')
+            ElMessage.error('表单校验规则加载失败！')
         }
     }
 
@@ -108,7 +108,7 @@ export abstract class BaseAddEditPage extends BasePage {
                 this.form.value.resetFields()
                 params.id = result.data
                 this.context.emit('response', params)
-                this.context.emit('update:modelValue', false);
+                this.context.emit('update:modelValue', false)
             } else {
                 ElMessage.error('保存失败！')
             }

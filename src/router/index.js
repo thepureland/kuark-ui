@@ -116,6 +116,13 @@ const routes = [
                 },
                 component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/param/ParamList.vue")
             }, {
+                path: "/user/org",
+                name: "org",
+                meta: {
+                    title: '组织机构'
+                },
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/user/organization/OrganizationList.vue")
+            }, {
                 path: "/geo/country",
                 name: "country",
                 meta: {

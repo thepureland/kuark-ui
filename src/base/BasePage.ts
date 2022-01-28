@@ -90,8 +90,9 @@ export abstract class BasePage {
         // @ts-ignore
         const result = await ajax({url: "sys/dictItem/batchGetDictItemMap", method: "post", params})
         if (result.data) {
-            for(let key in result.data) {
-                this.dictCache[key] = result.data[key]
+            for (let key in result.data) {
+                const parts = key.substr(1, key.length - 2).split(", ")
+                this.dictCache[parts[0] + "---" + parts[1]] = result.data[key]
             }
         } else {
             ElMessage.error('批量加载字典项失败！')
@@ -103,7 +104,7 @@ export abstract class BasePage {
         const map = this.dictCache[key]
         const pairs = []
         if (map) {
-            for(let k in map) {
+            for (let k in map) {
                 pairs.push(new Pair(k, map[k]))
             }
         }

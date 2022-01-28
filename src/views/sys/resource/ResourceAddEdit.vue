@@ -49,7 +49,7 @@ class AddEditPage extends BaseAddEditPage {
         name: null,
         url: null,
         icon: null,
-        seqNo: undefined,
+        seqNo: 0,
         remark:null
       },
       cascaderProps: {

@@ -71,7 +71,7 @@
                      :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                      layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
 
-      <param-add-edit v-model="addDialogVisible" @response="afterAdd"/>
+      <param-add-edit v-if="addDialogVisible" v-model="addDialogVisible" @response="afterAdd"/>
       <param-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
       <param-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
 

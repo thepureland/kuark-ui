@@ -33,8 +33,13 @@ import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
 
 class AddEditPage extends BaseAddEditPage {
 
+  private defaultModel: string
+  private defaultDictType: string
+
   constructor(props, context) {
     super(props, context)
+    this.defaultModel = props.module
+    this.defaultDictType = props.dictType
     this.convertThis()
   }
 
@@ -45,7 +50,7 @@ class AddEditPage extends BaseAddEditPage {
         parent: null,
         code: null,
         name: null,
-        seqNo: undefined,
+        seqNo: 0,
         remark: null
       },
       cascaderProps: {
@@ -113,7 +118,7 @@ class AddEditPage extends BaseAddEditPage {
     if (!isDict) {
       const parentIds = rowObject.parentIds
       if (parentIds) {
-        for(let parentId of parentIds) {
+        for (let parentId of parentIds) {
           parents.push(parentId)
         }
       }
@@ -130,14 +135,33 @@ class AddEditPage extends BaseAddEditPage {
       active: true
     }
     // @ts-ignore
-    const result = await ajax({url: "sys/dict/loadTreeNodes", method: "post", params});
+    const result = await ajax({url: "sys/dict/loadTreeNodes", method: "post", params})
     if (result.data) {
       for (let item of result.data) {
         this.state.parentCache[item["id"]] = item["code"]
       }
       resolve(result.data)
+
+      // 新增时，尽量自动选上上级
+      this.autoSelectParentWhenAdd(node, result.data)
     } else {
       ElMessage.error('字典树加载失败！')
+    }
+  }
+
+  private autoSelectParentWhenAdd(node, data) {
+    if (!this.props.rid && this.defaultModel) {
+      // 自动选上默认的模块
+      if (node.level === 0) {
+        this.state.formModel.parent = [this.defaultModel]
+      } else if(node.level === 1 && this.defaultDictType) {
+        for (let item of data) {
+          if (item["code"] === this.defaultDictType) {
+            this.state.formModel.parent = [this.defaultModel, item["id"]]
+            break
+          }
+        }
+      }
     }
   }
 
@@ -157,7 +181,9 @@ export default defineComponent({
   props: {
     modelValue: Boolean,
     rid: String,
-    isDict: Boolean
+    isDict: Boolean,
+    module: String,
+    dictType: String
   },
   emits: ['update:modelValue', "response"],
   setup(props, context) {

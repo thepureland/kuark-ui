@@ -86,7 +86,7 @@
         </el-col>
       </el-row>
 
-      <resource-add-edit v-model="addDialogVisible" @response="afterAdd"/>
+      <resource-add-edit v-if="addDialogVisible" v-model="addDialogVisible" @response="afterAdd"/>
       <resource-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
       <resource-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
 

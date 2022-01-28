@@ -1,5 +1,5 @@
 <!--
- * 组管理
+ * 组织列表
  *
  * @author: K
  * @since 1.0.0
@@ -10,17 +10,14 @@
   <div>
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>组管理</el-breadcrumb-item>
+      <el-breadcrumb-item>系统配置</el-breadcrumb-item>
+      <el-breadcrumb-item>组织列表</el-breadcrumb-item>
     </el-breadcrumb>
 
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
-          <el-input v-model="searchParams.groupCode" placeholder="组编码" @change="search" clearable/>
-        </el-col>
-        <el-col :span="2">
-          <el-input v-model="searchParams.groupName" placeholder="组名称" @change="search" clearable/>
+          <el-input v-model="searchParams.name" placeholder="名称" @change="search" clearable/>
         </el-col>
 
         <el-col :span="2">
@@ -43,9 +40,20 @@
                 :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange">
         <el-table-column type="selection" width="39"/>
         <el-table-column type="index" width="50"/>
-        <el-table-column label="组编码" prop="groupCode"/>
-        <el-table-column label="组名称" prop="groupName"/>
-        <el-table-column label="备注" prop="remark"/>
+        <el-table-column label="名称" prop="name"/>
+        <el-table-column label="组织类型" prop="orgTypeDictCode">
+          <template #default="scope">
+            {{ transDict("kuark:user", "organization_type", scope.row.orgTypeDictCode) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="子系统" prop="subSysDictCode">
+          <template #default="scope">
+            {{ transDict("kuark:sys", "sub_sys", scope.row.subSysDictCode) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="所有者id" prop="ownerId"/>
+        <el-table-column label="简称" prop="abbrName"/>
+        <el-table-column label="排序" prop="seqNo"/>
         <el-table-column label="启用">
           <template #default="scope">
             <el-switch v-model="scope.row.active" :active-value=true :inactive-value=false
@@ -66,10 +74,6 @@
         </el-table-column>
       </el-table>
 
-      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
-                     :current-page="pagination.pageNo" :page-size="pagination.pageSize"
-                     layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
-
       <user-group-add-edit v-if="addDialogVisible" v-model="addDialogVisible" @response="afterAdd"/>
       <user-group-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
       <user-group-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
@@ -81,41 +85,49 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue"
-import UserGroupAddEdit from './UserGroupAddEdit.vue'
-import UserGroupDetail from './UserGroupDetail.vue'
+import UserGroupAddEdit from './OrganizationAddEdit.vue'
+import UserGroupDetail from './OrganizationDetail.vue'
 import {BaseListPage} from "../../../base/BaseListPage.ts"
+import {Pair} from "../../../base/Pair.ts";
 
 class ListPage extends BaseListPage {
 
   constructor() {
     super()
+    this.loadDicts([
+      new Pair("kuark:user", "organization_type"),
+      new Pair("kuark:sys", "sub_sys")
+    ])
     this.convertThis()
   }
 
   protected initState(): any {
     return {
       searchParams: {
-        groupCode: null,
-        groupName: null,
+        name: null,
+        active: true
       },
     }
   }
 
   protected getRootActionPath(): String {
-    return "rbac/group"
+    return "user/organization"
+  }
+
+  protected getSearchUrl(): String {
+    return this.getRootActionPath() + "/searchTree"
   }
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params["groupCode"] = this.state.searchParams.groupCode
-    params["groupName"] = this.state.searchParams.groupName
+    params["name"] = this.state.searchParams.name
+    params["active"] = this.state.searchParams.active
     return params
   }
 
   protected doResetSearchFields() {
     super.doResetSearchFields()
-    this.state.searchParams.groupCode = null
-    this.state.searchParams.groupName = null
+    this.state.searchParams.name = null
   }
 
   /**

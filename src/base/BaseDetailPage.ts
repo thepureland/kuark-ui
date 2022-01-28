@@ -23,14 +23,12 @@ export abstract class BaseDetailPage extends BasePage {
             if (promise) {
                 const self = this
                 promise.then(function () {
-                    self.loadDetail()
+                    self.loadData()
                     self.loadOthers()
-
                 })
             } else {
-                this.loadDetail()
+                this.loadData()
             }
-
         }
         this._convertThis()
     }
@@ -61,7 +59,7 @@ export abstract class BaseDetailPage extends BasePage {
         }
     }
 
-    protected async loadDetail() {
+    protected async loadData() {
         const params = this.createDetailLoadParams()
         // @ts-ignore
         const result = await ajax({url: this.getDetailLoadUrl(), params});

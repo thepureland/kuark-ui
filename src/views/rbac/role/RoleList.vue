@@ -62,6 +62,25 @@
             <edit @click="handleEdit(scope.row)" class="operate-column-icon"/>
             <delete @click="handleDelete(scope.row)" class="operate-column-icon"/>
             <tickets @click="handleDetail(scope.row)" class="operate-column-icon"/>
+            <el-dropdown split-button size="small" type="primary" @command="authorize" style="margin-right: 8px;">
+              授权
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item v-for="item in getDictItems('kuark:sys', 'resource_type')"
+                                    v-text="item.second" :command="commandValue(item,scope.row)"/>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+
+            <el-dropdown split-button size="small" type="primary" @command="assign">
+              用户
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item :command="1">关联用户</el-dropdown-item>
+                  <el-dropdown-item :command="2">查看用户</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -70,9 +89,10 @@
                      :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                      layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
 
-      <role-add-edit v-model="addDialogVisible" @response="afterAdd"/>
+      <role-add-edit v-if="addDialogVisible" v-model="addDialogVisible" @response="afterAdd"/>
       <role-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
       <role-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
+      <menu-authorization v-if="menuAuthorizationDialogVisible" v-model="menuAuthorizationDialogVisible" :rid="rid"/>
 
     </el-card>
 
@@ -81,14 +101,27 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue"
-import RoleAddEdit from './RoleAddEdit.vue';
-import RoleDetail from './RoleDetail.vue';
+import RoleAddEdit from './RoleAddEdit.vue'
+import RoleDetail from './RoleDetail.vue'
+import MenuAuthorization from './MenuAuthorization.vue'
 import {BaseListPage} from "../../../base/BaseListPage.ts"
+import {Pair} from "../../../base/Pair.ts"
 
 class ListPage extends BaseListPage {
 
+  public commandValue: any
+
   constructor() {
     super()
+    this.commandValue = (item, row) => {
+      return {
+        item: item,
+        row: row
+      }
+    }
+    this.loadDicts([
+      new Pair("kuark:sys", "resource_type")
+    ])
     this.convertThis()
   }
 
@@ -98,6 +131,7 @@ class ListPage extends BaseListPage {
         roleCode: null,
         roleName: null,
       },
+      menuAuthorizationDialogVisible: false
     }
   }
 
@@ -118,17 +152,46 @@ class ListPage extends BaseListPage {
     this.state.searchParams.roleName = null
   }
 
+  public commandValue: (item, row) => any
+
+  public authorize: (commandValue) => void
+
+  private doAuthorize(commandValue) {
+    const { item, row } = commandValue
+    this.state.rid = this.getRowId(row)
+    const resType = item.first
+    if (resType == 1) {
+      this.state.menuAuthorizationDialogVisible = true
+    } else if(resType == 2) {
+
+    } else {
+
+    }
+  }
+
+  public assign: (type) => void
+
+  private doAssign(type) {
+
+  }
+
   /**
    * 为了解决恶心的this问题，不要写任何业务逻辑代码
    */
   private convertThis() {
+    this.assign = (type) => {
+      this.doAssign(type)
+    }
+    this.authorize = (commandValue) => {
+      this.doAuthorize(commandValue)
+    }
   }
 
 }
 
 export default defineComponent({
   name: "~index",
-  components: {RoleAddEdit, RoleDetail},
+  components: {RoleAddEdit, RoleDetail, MenuAuthorization},
   setup(props, context) {
     const listPage = reactive(new ListPage())
     return {

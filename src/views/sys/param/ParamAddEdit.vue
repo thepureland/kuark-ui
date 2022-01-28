@@ -51,7 +51,7 @@ class AddEditPage extends BaseAddEditPage {
         paramName: null,
         paramValue: null,
         defaultValue: null,
-        seqNo: undefined,
+        seqNo: 0,
         remark: null
       },
       modules: []

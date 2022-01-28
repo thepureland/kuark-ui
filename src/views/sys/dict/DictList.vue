@@ -92,7 +92,8 @@
         </el-col>
       </el-row>
 
-      <dict-add-edit v-model="addDialogVisible" @response="afterAdd"/>
+      <dict-add-edit v-if="addDialogVisible" v-model="addDialogVisible" @response="afterAdd"
+                     :module="searchParams.module" :dictType="searchParams.dictType"/>
       <dict-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"
                      :isDict="isDict"/>
       <dict-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
@@ -197,15 +198,15 @@ class ListPage extends BaseListPage {
     await super.doSearch()
   }
 
-  protected doAfterAdd(params: any) {
-    super.doAfterAdd(params)
-    this.state.rootNode.childNodes = []
-    this.doLoadTree(this.state.rootNode, this.state.rootResolve)
-  }
-
-  protected doAfterEdit(params: any) {
-    this.doAfterAdd(params)
-  }
+  // protected doAfterAdd(params: any) {
+  //   super.doAfterAdd(params)
+  //   this.state.rootNode.childNodes = []
+  //   this.doLoadTree(this.state.rootNode, this.state.rootResolve)
+  // }
+  //
+  // protected doAfterEdit(params: any) {
+  //   this.doAfterAdd(params)
+  // }
 
   protected doAfterDelete(ids: Array<any>) {
     super.doAfterDelete(ids)

@@ -3,7 +3,7 @@
     <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" background-color="#324157"
              text-color="#bfcbd9" active-text-color="#20a0ff" unique-opened router>
       <template v-for="item in menuData">
-        <template v-if="item.subs">
+        <template v-if="item.children">
           <el-sub-menu :index="item.index" :key="item.index">
             <template #title>
               <el-icon>
@@ -11,10 +11,10 @@
               </el-icon>
               <span>{{ item.title }}</span>
             </template>
-            <template v-for="subItem in item.subs">
-              <el-sub-menu v-if="subItem.subs" :index="subItem.index" :key="subItem.index">
+            <template v-for="subItem in item.children">
+              <el-sub-menu v-if="subItem.children" :index="subItem.index" :key="subItem.index">
                 <template #title>{{ subItem.title }}</template>
-                <el-menu-item v-for="(threeItem, i) in subItem.subs" :key="i" :index="threeItem.index">
+                <el-menu-item v-for="(threeItem, i) in subItem.children" :key="i" :index="threeItem.index">
                   {{ threeItem.title }}
                 </el-menu-item>
               </el-sub-menu>
@@ -47,8 +47,8 @@ import {useRoute} from "vue-router";
 
 async function loadMenuData(state) {
   //@ts-ignore
-  const menus = await ajax({url: "sys/resource/getMenus"});
-  state.menuData = menus;
+  const result = await ajax({url: "sys/resource/getMenus"});
+  state.menuData = result.data
 }
 
 export default {

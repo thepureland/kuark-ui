@@ -75,7 +75,7 @@
                      :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                      layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
 
-      <account-add-edit v-model="addDialogVisible" @response="afterAdd"/>
+      <account-add-edit v-if="addDialogVisible" v-model="addDialogVisible" @response="afterAdd"/>
       <account-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
       <account-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
 
