@@ -1,29 +1,23 @@
 <!--
- * 参数详情
+ * 租户详情
  *
  * @author: K
  * @since 1.0.0
  -->
 
 <template>
-  <el-dialog title="参数信息详情" v-model="visible" width="44%" center @close="close">
+  <el-dialog title="租户信息详情" v-model="visible" width="44%" center @close="close">
     <el-row :gutter="10">
-      <el-col :span="3">参数ID：</el-col>
+      <el-col :span="3">租户ID：</el-col>
       <el-col :span="9">{{detail.id}}</el-col>
-      <el-col :span="3">参数名：</el-col>
-      <el-col :span="9">{{detail.paramName}}</el-col>
+      <el-col :span="3">租户名：</el-col>
+      <el-col :span="9">{{detail.name}}</el-col>
     </el-row>
     <el-row :gutter="10">
-      <el-col :span="3">参数值：</el-col>
-      <el-col :span="9">{{detail.paramValue}}</el-col>
-      <el-col :span="3">默认参数值：</el-col>
-      <el-col :span="9">{{detail.defaultValue}}</el-col>
-    </el-row>
-    <el-row :gutter="10">
-      <el-col :span="3">排序：</el-col>
-      <el-col :span="9">{{detail.seqNo}}</el-col>
-      <el-col :span="3">模块：</el-col>
-      <el-col :span="9">{{transDict("kuark:sys", "module", detail.module)}}</el-col>
+      <el-col :span="3">子系统：</el-col>
+      <el-col :span="9">{{transDict("kuark:sys", "sub_sys", detail.subSysDictCode)}}</el-col>
+      <el-col :span="3">备注：</el-col>
+      <el-col :span="9">{{detail.remark}}</el-col>
     </el-row>
     <el-row :gutter="10">
       <el-col :span="3">创建时间：</el-col>
@@ -43,10 +37,6 @@
       <el-col :span="3">是否启用：</el-col>
       <el-col :span="9">{{detail.active ? '是' : '否'}}</el-col>
     </el-row>
-    <el-row :gutter="10">
-      <el-col :span="3">备注：</el-col>
-      <el-col :span="21">{{detail.remark}}</el-col>
-    </el-row>
   </el-dialog>
 </template>
 
@@ -60,18 +50,14 @@ class DetailPage extends BaseDetailPage {
     super(props, context)
   }
 
-  protected async preLoad(): Promise<void> {
-    await this.loadDict("kuark:sys", "module")
-  }
-
   protected getRootActionPath(): String {
-    return "sys/param"
+    return "sys/tenant"
   }
 
 }
 
 export default defineComponent({
-  name: "~ParamDetail",
+  name: "~TenantDetail",
   props: {
     modelValue: Boolean,
     rid: String

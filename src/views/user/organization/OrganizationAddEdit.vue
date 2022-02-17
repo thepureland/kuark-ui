@@ -13,20 +13,11 @@
                      :key="item.first" :value="item.first" :label="item.second"/>
         </el-select>
       </el-form-item>
-      <el-form-item label="子系统" prop="subSysDictCode">
-        <el-select v-model="formModel.subSysDictCode" placeholder="请选择子系统" clearable>
-          <el-option v-for="item in getDictItems('kuark:sys', 'sub_sys')"
-                     :key="item.first" :value="item.first" :label="item.second"/>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="所有者ID" prop="ownerId">
-        <el-input v-model="formModel.ownerId"/>
+      <el-form-item label="上级" prop="parent">
+        <el-cascader ref="parentCascader" v-model="formModel.parent" :props="cascaderProps"/>
       </el-form-item>
       <el-form-item label="排序" prop="seqNo">
         <el-input-number v-model="formModel.seqNo"/>
-      </el-form-item>
-      <el-form-item label="上级" prop="parent">
-        <el-cascader v-model="formModel.parent" :props="cascaderProps"/>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="formModel.remark"/>
@@ -42,27 +33,41 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, toRefs} from "vue";
+import {defineComponent, reactive, ref, toRefs} from "vue";
 import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
+import {ElMessage} from "element-plus";
 
 class AddEditPage extends BaseAddEditPage {
 
-  constructor(props, context) {
+  private parentCascader: any
+
+  constructor(props, context, parentCascader) {
     super(props, context)
+    this.parentCascader = parentCascader
     this.convertThis()
   }
 
   protected initState(): any {
+    const _self = this
     return {
       formModel: {
         name: null,
         abbrName: null,
         orgTypeDictCode: null,
-        subSysDictCode: null,
-        ownerId: null,
         seqNo: 0,
         parent: [],
         remark: null
+      },
+      cascaderProps: {
+        lazy: true,
+        value: "id",
+        label: "name",
+        multiple: false,
+        checkStrictly: true,
+        expandTrigger: "hover",
+        lazyLoad(node, resolve) {
+          _self.loadTreeNodes(node, resolve)
+        },
       },
     }
   }
@@ -72,29 +77,94 @@ class AddEditPage extends BaseAddEditPage {
   }
 
   protected createSubmitParams(): any {
+    const nodes = this.parentCascader.value.getCheckedNodes()
     return {
       id: this.props.rid,
       name: this.state.formModel.name,
       abbrName: this.state.formModel.abbrName,
       orgTypeDictCode: this.state.formModel.orgTypeDictCode,
-      subSysDictCode: this.state.formModel.subSysDictCode,
-      ownerId: this.state.formModel.ownerId,
+      subSysDictCode: this.state.formModel.parent[0],
+      tenantId: this.getTenantId(nodes[0]),
+      parentId: this.getParentId(nodes[0]),
       seqNo: this.state.formModel.seqNo,
-      parent: this.state.formModel.parent,
       remark: this.state.formModel.remark
     }
   }
 
   protected fillForm(rowObject: any) {
-    this.state.formModel.groupCode = rowObject.groupCode
-    this.state.formModel.groupName = rowObject.groupName
+    this.state.formModel.name = rowObject.name
+    this.state.formModel.abbrName = rowObject.abbrName
+    this.state.formModel.orgTypeDictCode = rowObject.orgTypeDictCode
+    this.state.formModel.seqNo = rowObject.seqNo
     this.state.formModel.remark = rowObject.remark
+    const parents = [rowObject.subSysDictCode]
+    if (rowObject.tenantId) {
+      parents.push(rowObject.tenantId)
+    }
+    if (rowObject.parentId) {
+      parents.push(rowObject.parentId)
+    }
+    this.state.formModel.parent = parents
+  }
+
+  public loadTreeNodes: (node, resolve) => void
+
+  private async doLoadTreeNodes(node, resolve) {
+    if (node.level === 0) {
+      const dictItems = this.getDictItems("kuark:sys", "sub_sys")
+      const subSyses = []
+      for (let item of dictItems) {
+        subSyses.push({id: item.first, name: item.second})
+      }
+      resolve(subSyses)
+    } else {
+      const params = {
+        subSysDictCode: this.getSubSysDictCode(node),
+        tenantId: this.getTenantId(node),
+        parentId: this.getParentId(node),
+        active: true
+    }
+      // @ts-ignore
+      const result = await ajax({url: this.getRootActionPath() + "/loadTree", method: "post", params})
+      if (result.data) {
+        resolve(result.data)
+      } else {
+        ElMessage.error('组织机构树加载失败！')
+      }
+    }
+  }
+
+  private getSubSysDictCode(node): String {
+    while (node.parent) {
+      node = node.parent
+    }
+    return node.data.id
+  }
+
+  private getTenantId(node): String {
+    while (node.parent) {
+      if (node.data.organization === false) {
+        return node.data.id
+      }
+      node = node.parent
+    }
+    return null
+  }
+
+  private getParentId(node): String {
+    if (node.data.organization === false || node.parent == undefined) {
+      return null
+    }
+    return node.data.id
   }
 
   /**
    * 为了解决恶心的this问题，不要写任何业务逻辑代码
    */
   private convertThis() {
+    this.loadTreeNodes = (node, resolve) => {
+      this.doLoadTreeNodes(node, resolve)
+    }
   }
 
 }
@@ -107,10 +177,12 @@ export default defineComponent({
   },
   emits: ['update:modelValue', "response"],
   setup(props, context) {
-    const page = reactive(new AddEditPage(props, context))
+    const parentCascader = ref()
+    const page = reactive(new AddEditPage(props, context, parentCascader))
     return {
       ...toRefs(page),
-      ...toRefs(page.state)
+      ...toRefs(page.state),
+      parentCascader
     }
   }
 })

@@ -58,7 +58,11 @@
                     :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange">
             <el-table-column type="selection" width="39"/>
             <el-table-column type="index" width="50"/>
-            <el-table-column label="所属子系统" prop="subSysName" sortable="custom"/>
+            <el-table-column label="子系统" prop="subSysDictCode">
+              <template #default="scope">
+                {{ transDict("kuark:sys", "sub_sys", scope.row.subSysDictCode) }}
+              </template>
+            </el-table-column>
             <el-table-column label="资源类型" prop="resourceTypeName" sortable="custom"/>
             <el-table-column label="资源名称" prop="name" sortable="custom"/>
             <el-table-column label="URL" prop="url" sortable="custom"/>
@@ -101,6 +105,7 @@ import ResourceAddEdit from './ResourceAddEdit.vue';
 import ResourceDetail from './ResourceDetail.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
+import {Pair} from "../../../base/Pair.ts";
 
 class ListPage extends BaseListPage {
 
@@ -109,7 +114,10 @@ class ListPage extends BaseListPage {
   constructor(tree: any) {
     super()
     this.tree = tree
-    this.loadSubSyses()
+    // this.loadSubSyses()
+    this.loadDicts([
+      new Pair("kuark:sys", "sub_sys"),
+    ])
     this.loadResourceTypes()
     this.convertThis()
   }
@@ -286,17 +294,17 @@ class ListPage extends BaseListPage {
     }
   }
 
-  private async loadSubSyses() {
-    // @ts-ignore
-    const result = await ajax({url: "sys/resource/loadSubSyses"})
-    if (result.data) {
-      for (let key in result.data) {
-        this.state.subSyses.push({key: key, value: result.data[key]})
-      }
-    } else {
-      ElMessage.error('子系统列表加载失败！')
-    }
-  }
+  // private async loadSubSyses() {
+  //   // @ts-ignore
+  //   const result = await ajax({url: "sys/resource/loadSubSyses"})
+  //   if (result.data) {
+  //     for (let key in result.data) {
+  //       this.state.subSyses.push({key: key, value: result.data[key]})
+  //     }
+  //   } else {
+  //     ElMessage.error('子系统列表加载失败！')
+  //   }
+  // }
 
   private async loadResourceTypes() {
     // @ts-ignore

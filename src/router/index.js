@@ -116,6 +116,13 @@ const routes = [
                 },
                 component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/param/ParamList.vue")
             }, {
+                path: "/sys/tenant",
+                name: "tenant",
+                meta: {
+                    title: '租户管理'
+                },
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/tenant/TenantList.vue")
+            }, {
                 path: "/user/org",
                 name: "org",
                 meta: {
