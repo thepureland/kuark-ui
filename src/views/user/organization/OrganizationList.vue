@@ -17,7 +17,7 @@
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
-          <el-input v-model="searchParams.name" placeholder="名称" @change="search" clearable/>
+          <el-cascader ref="parentCascader" :options="subSysOrTenants" v-model="searchParams.subSysOrTenant" :props="cascaderProps"/>
         </el-col>
 
         <el-col :span="2">
@@ -37,7 +37,7 @@
       </el-row>
 
       <el-table border stripe :data="tableData" height="650" @selection-change="handleSelectionChange"
-                :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange">
+                :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange" default-expand-all row-key="id">
         <el-table-column type="selection" width="39"/>
         <el-table-column type="index" width="50"/>
         <el-table-column label="名称" prop="name"/>
@@ -89,6 +89,7 @@ import UserGroupAddEdit from './OrganizationAddEdit.vue'
 import UserGroupDetail from './OrganizationDetail.vue'
 import {BaseListPage} from "../../../base/BaseListPage.ts"
 import {Pair} from "../../../base/Pair.ts";
+import {ElMessage} from "element-plus";
 
 class ListPage extends BaseListPage {
 
@@ -97,7 +98,7 @@ class ListPage extends BaseListPage {
     this.loadDicts([
       new Pair("kuark:user", "organization_type"),
       new Pair("kuark:sys", "sub_sys")
-    ])
+    ]).then(() => this.loadTenants())
     this.convertThis()
   }
 
@@ -105,8 +106,15 @@ class ListPage extends BaseListPage {
     return {
       searchParams: {
         name: null,
-        active: true
+        active: true,
+        subSysOrTenant: null
       },
+      cascaderProps: {
+        multiple: false,
+        // checkStrictly: true,
+        expandTrigger: "hover"
+      },
+      subSysOrTenants: null
     }
   }
 
@@ -128,6 +136,31 @@ class ListPage extends BaseListPage {
   protected doResetSearchFields() {
     super.doResetSearchFields()
     this.state.searchParams.name = null
+  }
+
+  private async loadTenants() {
+    // @ts-ignore
+    const result = await ajax({url: "sys/tenant/getAllActiveTenants", method: "post"})
+    if (result.data) {
+      const options = []
+      const subSyses = this.getDictItems("kuark:sys", "sub_sys")
+      for(let subSys of subSyses) {
+        const subSysOption = {value: subSys.first, label: subSys.second}
+        options.push(subSysOption)
+        const tenants = result.data[subSys.first]
+        if (tenants) {
+          const tenantOptions = []
+          subSysOption["children"] = tenantOptions
+          for (let tenantId in tenants) {
+            const tenantOption = {value: tenantId, label: tenants[tenantId]}
+            tenantOptions.push(tenantOption)
+          }
+        }
+      }
+      this.state.subSysOrTenants = options
+    } else {
+      ElMessage.error('加载租户信息失败！')
+    }
   }
 
   /**
