@@ -128,8 +128,18 @@ class ListPage extends BaseListPage {
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params["name"] = this.state.searchParams.name
     params["active"] = this.state.searchParams.active
+    const subSysOrTenant = this.state.searchParams.subSysOrTenant
+    if (subSysOrTenant == null || subSysOrTenant.length == 0) {
+        ElMessage.error('请先选择子系统/租户！')
+        return null
+    }
+    if (subSysOrTenant.length > 0) {
+        params["subSysDictCode"] = subSysOrTenant[0]
+    }
+    if (subSysOrTenant.length > 1) {
+        params["tenantId"] = subSysOrTenant[1]
+    }
     return params
   }
 

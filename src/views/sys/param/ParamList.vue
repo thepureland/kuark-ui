@@ -139,15 +139,16 @@ class ListPage extends BaseListPage {
   }
 
   public async loadModules() {
-    // @ts-ignore
-    const result = await ajax({url: "sys/param/loadModules"})
-    if (result.data) {
-      result.data.forEach((val) => {
-        this.state.modules.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
-      })
-    } else {
-      ElMessage.error('模块列表加载失败！')
-    }
+    this.loadDicts([
+        new Pair("kuark:sys", "module")
+    ]).then(()=> {
+        const items = this.getDictItems("kuark:sys", "module")
+        const moduleCodes = []
+        for (let item of items) {
+            moduleCodes.push({"value": item.first}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
+            this.state.modules = moduleCodes
+        }
+    })
   }
 
   /**

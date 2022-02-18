@@ -103,6 +103,9 @@ export abstract class BaseListPage extends BasePage {
 
     protected async doSearch() {
         const params = this.createSearchParams()
+        if (!params) {
+            return
+        }
 
         // @ts-ignore
         const result = await ajax({url: this.getSearchUrl(), method: "post", params})

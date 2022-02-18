@@ -125,7 +125,7 @@ class AddEditPage extends BaseAddEditPage {
         active: true
     }
       // @ts-ignore
-      const result = await ajax({url: this.getRootActionPath() + "/loadTree", method: "post", params})
+      const result = await ajax({url: this.getRootActionPath() + "/lazyLoadTree", method: "post", params})
       if (result.data) {
         resolve(result.data)
       } else {
