@@ -110,11 +110,15 @@ export abstract class BaseListPage extends BasePage {
         // @ts-ignore
         const result = await ajax({url: this.getSearchUrl(), method: "post", params})
         if (result.data) {
-            this.state.tableData = result.data.first
-            this.state.pagination.total = result.data.second
+            this.postSearchSuccessfully(result.data)
         } else {
             ElMessage.error('查询失败！')
         }
+    }
+
+    protected postSearchSuccessfully(data) {
+        this.state.tableData = data.first
+        this.state.pagination.total = data.second
     }
 
     public handleSizeChange: (newSize: number) => void

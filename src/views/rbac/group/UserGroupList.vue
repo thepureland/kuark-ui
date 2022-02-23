@@ -27,13 +27,9 @@
           <el-checkbox v-model="searchParams.active" label="仅启用" class="el-input" checked/>
         </el-col>
 
-        <el-col :span="1">
+        <el-col :span="14">
           <el-button type="primary" round @click="search">搜索</el-button>
-        </el-col>
-        <el-col :span="1">
           <el-button type="primary" round @click="resetSearchFields">重置</el-button>
-        </el-col>
-        <el-col :span="8">
           <el-button type="success" @click="openAddDialog">添加</el-button>
           <el-button type="danger" @click="multiDelete">删除</el-button>
         </el-col>

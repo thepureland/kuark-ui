@@ -17,20 +17,17 @@
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
-          <el-cascader ref="parentCascader" :options="subSysOrTenants" v-model="searchParams.subSysOrTenant" :props="cascaderProps"/>
+          <el-cascader ref="parentCascader" :options="subSysOrTenants" v-model="searchParams.subSysOrTenant"
+                       :props="cascaderProps" placeholder="子系统/租户" />
         </el-col>
 
-        <el-col :span="2">
+        <el-col :span="1">
           <el-checkbox v-model="searchParams.active" label="仅启用" class="el-input" checked/>
         </el-col>
 
-        <el-col :span="1">
+        <el-col :span="16">
           <el-button type="primary" round @click="search">搜索</el-button>
-        </el-col>
-        <el-col :span="1">
           <el-button type="primary" round @click="resetSearchFields">重置</el-button>
-        </el-col>
-        <el-col :span="8">
           <el-button type="success" @click="openAddDialog">添加</el-button>
           <el-button type="danger" @click="multiDelete">删除</el-button>
         </el-col>
@@ -41,18 +38,12 @@
         <el-table-column type="selection" width="39"/>
         <el-table-column type="index" width="50"/>
         <el-table-column label="名称" prop="name"/>
+        <el-table-column label="简称" prop="abbrName"/>
         <el-table-column label="组织类型" prop="orgTypeDictCode">
           <template #default="scope">
             {{ transDict("kuark:user", "organization_type", scope.row.orgTypeDictCode) }}
           </template>
         </el-table-column>
-        <el-table-column label="子系统" prop="subSysDictCode">
-          <template #default="scope">
-            {{ transDict("kuark:sys", "sub_sys", scope.row.subSysDictCode) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="所有者id" prop="ownerId"/>
-        <el-table-column label="简称" prop="abbrName"/>
         <el-table-column label="排序" prop="seqNo"/>
         <el-table-column label="启用">
           <template #default="scope">
@@ -146,6 +137,10 @@ class ListPage extends BaseListPage {
   protected doResetSearchFields() {
     super.doResetSearchFields()
     this.state.searchParams.name = null
+  }
+
+  protected postSearchSuccessfully(data) {
+    this.state.tableData = data
   }
 
   private async loadTenants() {

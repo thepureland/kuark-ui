@@ -36,9 +36,7 @@
               <el-input v-model="searchParams.dictName" placeholder="字典名称" @change="search" clearable/>
             </el-col>
             <el-col :span="2">
-              <el-autocomplete v-model="searchParams.itemCode" placeholder="字典项编码" @change="search"
-                               @select="search" :fetch-suggestions="filterDictItemCode"
-                               :trigger-on-focus="false" clearable/>
+              <el-input v-model="searchParams.itemCode" placeholder="字典项编码" @change="search" clearable/>
             </el-col>
             <el-col :span="2">
               <el-input v-model="searchParams.itemName" placeholder="字典项名称" @change="search" clearable/>
@@ -48,13 +46,9 @@
               <el-checkbox v-model="searchParams.active" label="仅启用" class="el-input" checked/>
             </el-col>
 
-            <el-col :span="1">
+            <el-col :span="9">
               <el-button type="primary" round @click="search">搜索</el-button>
-            </el-col>
-            <el-col :span="1">
               <el-button type="primary" round @click="resetSearchFields">重置</el-button>
-            </el-col>
-            <el-col :span="8">
               <el-button type="success" @click="openAddDialog">添加</el-button>
               <el-button type="danger" @click="multiDelete">删除</el-button>
             </el-col>
@@ -110,6 +104,7 @@ import DictDetail from './DictDetail.vue';
 import DictItemDetail from './DictItemDetail.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts";
 import {ElMessage} from "element-plus";
+import {Pair} from "../../../base/Pair.ts";
 
 class ListPage extends BaseListPage {
 
@@ -121,7 +116,6 @@ class ListPage extends BaseListPage {
 
     this.loadModules()
     this.loadDictTypes()
-    this.loadDictItemCodes()
 
     this.convertThis()
   }
@@ -197,16 +191,6 @@ class ListPage extends BaseListPage {
     this.state.searchSource = "button"
     await super.doSearch()
   }
-
-  // protected doAfterAdd(params: any) {
-  //   super.doAfterAdd(params)
-  //   this.state.rootNode.childNodes = []
-  //   this.doLoadTree(this.state.rootNode, this.state.rootResolve)
-  // }
-  //
-  // protected doAfterEdit(params: any) {
-  //   this.doAfterAdd(params)
-  // }
 
   protected doAfterDelete(ids: Array<any>) {
     super.doAfterDelete(ids)
@@ -287,12 +271,6 @@ class ListPage extends BaseListPage {
 
   private doFilterDictType(queryString: string, cb) {
     cb(queryString ? this.state.dictTypes.filter(this.createFilter(queryString)) : this.state.dictTypes)
-  }
-
-  public filterDictItemCode: (queryString: string, cb) => void
-
-  private doFilterDictItemCode(queryString: string, cb) {
-    cb(queryString ? this.state.dictItemCodes.filter(this.createFilter(queryString)) : this.state.dictItemCodes)
   }
 
   private setParamsForTree(node, expend: Boolean) {
@@ -426,14 +404,14 @@ class ListPage extends BaseListPage {
 
   private loadModules() {
     this.loadDicts([
-        new Pair("kuark:sys", "module")
-    ]).then(()=> {
-        const items = this.getDictItems("kuark:sys", "module")
-        const moduleCodes = []
-        for (let item of items) {
-            moduleCodes.push({"value": item.first}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
-            this.state.modules = moduleCodes
-        }
+      new Pair("kuark:sys", "module")
+    ]).then(() => {
+      const items = this.getDictItems("kuark:sys", "module")
+      const moduleCodes = []
+      for (let item of items) {
+        moduleCodes.push({"value": item.first}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
+        this.state.modules = moduleCodes
+      }
     })
   }
 
@@ -449,18 +427,6 @@ class ListPage extends BaseListPage {
     }
   }
 
-  private async loadDictItemCodes() {
-    // @ts-ignore
-    const result = await ajax({url: "sys/dictItem/loadDictItemCodes"})
-    if (result.data) {
-      result.data.forEach((val) => {
-        this.state.dictItemCodes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
-      })
-    } else {
-      ElMessage.error('字典项编码列表加载失败！')
-    }
-  }
-
   /**
    * 为了解决恶心的this问题，不要写任何业务逻辑代码
    */
@@ -470,9 +436,6 @@ class ListPage extends BaseListPage {
     }
     this.filterDictType = (queryString: string, cb) => {
       this.doFilterDictType(queryString, cb)
-    }
-    this.filterDictItemCode = (queryString: string, cb) => {
-      this.doFilterDictItemCode(queryString, cb)
     }
     this.loadTree = (node, resolve) => {
       this.doLoadTree(node, resolve)

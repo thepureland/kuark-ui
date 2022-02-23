@@ -1,13 +1,13 @@
 <template>
   <el-dialog title="添加字典信息" v-model="visible" width="30%" center @close="close">
     <el-form ref="form" :model="formModel" label-width="80px" :rules="rules">
-      <el-form-item label="上级" prop="parent">
-        <el-cascader v-model="formModel.parent" :props="cascaderProps"/>
+      <el-form-item label="上级" prop="parent" class="is-required">
+        <el-cascader v-model="formModel.parent" :props="cascaderProps" style="display: block;"/>
       </el-form-item>
-      <el-form-item label="编码" prop="code">
+      <el-form-item label="编码" prop="code" class="is-required">
         <el-input v-model="formModel.code"/>
       </el-form-item>
-      <el-form-item label="名称" prop="name">
+      <el-form-item label="名称" prop="name" class="is-required">
         <el-input v-model="formModel.name"/>
       </el-form-item>
       <el-form-item label="排序" prop="seqNo">
