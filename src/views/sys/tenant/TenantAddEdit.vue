@@ -1,6 +1,6 @@
 <template>
   <el-dialog title="添加租户信息" v-model="visible" width="30%" center @close="close">
-    <el-form ref="form" :model="formModel" label-width="80px" :rules="rules">
+    <el-form ref="form" :model="formModel" label-width="80px" :rules="rules" :validate-on-rule-change="false">
       <el-form-item label="租户名称" prop="name">
         <el-input v-model="formModel.name"/>
       </el-form-item>

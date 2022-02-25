@@ -1,6 +1,6 @@
 <template>
   <el-dialog title="添加账号信息" v-model="visible" width="30%" center @close="close">
-    <el-form ref="form" :model="formModel" label-width="80px" :rules="rules">
+    <el-form ref="form" :model="formModel" label-width="80px" :rules="rules" :validate-on-rule-change="false">
       <el-form-item label="用户名" prop="username">
         <el-input v-model="formModel.username"/>
       </el-form-item>

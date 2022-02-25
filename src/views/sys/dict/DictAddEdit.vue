@@ -1,6 +1,6 @@
 <template>
   <el-dialog title="添加字典信息" v-model="visible" width="30%" center @close="close">
-    <el-form ref="form" :model="formModel" label-width="80px" :rules="rules">
+    <el-form ref="form" :model="formModel" label-width="80px" :rules="rules" :validate-on-rule-change="false">
       <el-form-item label="上级" prop="parent" class="is-required">
         <el-cascader v-model="formModel.parent" :props="cascaderProps" style="display: block;"/>
       </el-form-item>
