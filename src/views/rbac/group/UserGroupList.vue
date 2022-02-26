@@ -85,7 +85,6 @@ class ListPage extends BaseListPage {
 
   constructor() {
     super()
-    this.convertThis()
   }
 
   protected initState(): any {
@@ -99,25 +98,6 @@ class ListPage extends BaseListPage {
 
   protected getRootActionPath(): String {
     return "rbac/group"
-  }
-
-  protected createSearchParams() {
-    const params = super.createSearchParams()
-    params["groupCode"] = this.state.searchParams.groupCode
-    params["groupName"] = this.state.searchParams.groupName
-    return params
-  }
-
-  protected doResetSearchFields() {
-    super.doResetSearchFields()
-    this.state.searchParams.groupCode = null
-    this.state.searchParams.groupName = null
-  }
-
-  /**
-   * 为了解决恶心的this问题，不要写任何业务逻辑代码
-   */
-  private convertThis() {
   }
 
 }

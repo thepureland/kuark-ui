@@ -80,7 +80,7 @@ import {defineComponent, reactive, toRefs} from "vue";
 import ParamAddEdit from './ParamAddEdit.vue';
 import ParamDetail from './ParamDetail.vue';
 import {BaseListPage} from "../../../base/BaseListPage.ts";
-import {ElMessage} from "element-plus";
+import {Pair} from "../../../base/Pair.ts";
 
 class ListPage extends BaseListPage {
 
@@ -108,18 +108,8 @@ class ListPage extends BaseListPage {
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params["module"] = this.state.searchParams.module
-    params["paramName"] = this.state.searchParams.paramName
-    params["paramValue"] = this.state.searchParams.paramValue
     params["active"] = this.state.searchParams.active ? true : null
     return params
-  }
-
-  protected doResetSearchFields() {
-    super.doResetSearchFields()
-    this.state.searchParams.module = null
-    this.state.searchParams.paramName = null
-    this.state.searchParams.paramValue = null
   }
 
   public filterModule: (queryString: string, cb) => void

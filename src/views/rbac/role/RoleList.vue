@@ -135,19 +135,6 @@ class ListPage extends BaseListPage {
     return "rbac/role"
   }
 
-  protected createSearchParams() {
-    const params = super.createSearchParams()
-    params["roleCode"] = this.state.searchParams.roleCode
-    params["roleName"] = this.state.searchParams.roleName
-    return params
-  }
-
-  protected doResetSearchFields() {
-    super.doResetSearchFields()
-    this.state.searchParams.roleCode = null
-    this.state.searchParams.roleName = null
-  }
-
   public commandValue: (item, row) => any
 
   public authorize: (commandValue) => void

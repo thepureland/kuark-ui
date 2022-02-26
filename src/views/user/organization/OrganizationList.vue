@@ -90,7 +90,6 @@ class ListPage extends BaseListPage {
       new Pair("kuark:user", "organization_type"),
       new Pair("kuark:sys", "sub_sys")
     ]).then(() => this.loadTenants())
-    this.convertThis()
   }
 
   protected initState(): any {
@@ -119,24 +118,19 @@ class ListPage extends BaseListPage {
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params["active"] = this.state.searchParams.active
+    params.active = this.state.searchParams.active
     const subSysOrTenant = this.state.searchParams.subSysOrTenant
     if (subSysOrTenant == null || subSysOrTenant.length == 0) {
         ElMessage.error('请先选择子系统/租户！')
         return null
     }
     if (subSysOrTenant.length > 0) {
-        params["subSysDictCode"] = subSysOrTenant[0]
+        params.subSysDictCode = subSysOrTenant[0]
     }
     if (subSysOrTenant.length > 1) {
-        params["tenantId"] = subSysOrTenant[1]
+        params.tenantId = subSysOrTenant[1]
     }
     return params
-  }
-
-  protected doResetSearchFields() {
-    super.doResetSearchFields()
-    this.state.searchParams.name = null
   }
 
   protected postSearchSuccessfully(data) {
@@ -166,12 +160,6 @@ class ListPage extends BaseListPage {
     } else {
       ElMessage.error('加载租户信息失败！')
     }
-  }
-
-  /**
-   * 为了解决恶心的this问题，不要写任何业务逻辑代码
-   */
-  private convertThis() {
   }
 
 }

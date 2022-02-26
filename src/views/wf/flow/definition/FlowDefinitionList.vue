@@ -84,8 +84,6 @@
 
     </el-card>
 
-
-
   </div>
 </template>
 
@@ -123,18 +121,8 @@ class ListPage extends BaseListPage {
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params["key"] = this.state.searchParams.key
-    params["name"] = this.state.searchParams.name
-    params["category"] = this.state.searchParams.category
-    params["latestOnly"] = this.state.searchParams.latestOnly ? true : null
+    params.latestOnly = this.state.searchParams.latestOnly ? true : null
     return params
-  }
-
-  protected doResetSearchFields() {
-    super.doResetSearchFields()
-    this.state.searchParams.key = null
-    this.state.searchParams.name = null
-    this.state.searchParams.category = null
   }
 
   public async loadCategories() {

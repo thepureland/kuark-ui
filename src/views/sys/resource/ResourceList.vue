@@ -145,20 +145,9 @@ class ListPage extends BaseListPage {
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params["subSysDictCode"] = this.state.searchParams.subSysDictCode
-    params["resourceTypeDictCode"] = this.state.searchParams.resourceTypeDictCode
-    params["name"] = this.state.searchParams.name
-    params["level"] = this.state.searchParams.level
-    params["parentId"] = this.state.searchSource == "button" ? null : this.state.searchParams.parentId
-    params["active"] = this.state.searchParams.active ? true : null
+    params.parentId = this.state.searchSource == "button" ? null : this.state.searchParams.parentId
+    params.active = this.state.searchParams.active ? true : null
     return params
-  }
-
-  protected doResetSearchFields() {
-    super.doResetSearchFields()
-    this.state.searchParams.subSysDictCode = null
-    this.state.searchParams.resourceTypeDictCode = null
-    this.state.searchParams.name = null
   }
 
   protected async doSearch(): Promise<void> {

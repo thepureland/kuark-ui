@@ -96,7 +96,6 @@ class ListPage extends BaseListPage {
       new Pair("kuark:user", "user_type"),
       new Pair("kuark:sys", "sub_sys"),
     ])
-    this.convertThis()
   }
 
   protected initState(): any {
@@ -110,23 +109,6 @@ class ListPage extends BaseListPage {
 
   protected getRootActionPath(): String {
     return "user/account"
-  }
-
-  protected createSearchParams() {
-    const params = super.createSearchParams()
-    params["username"] = this.state.searchParams.username
-    return params
-  }
-
-  protected doResetSearchFields() {
-    super.doResetSearchFields()
-    this.state.searchParams.username = null
-  }
-
-  /**
-   * 为了解决恶心的this问题，不要写任何业务逻辑代码
-   */
-  private convertThis() {
   }
 
 }

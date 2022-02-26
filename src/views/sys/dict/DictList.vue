@@ -157,18 +157,13 @@ class ListPage extends BaseListPage {
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params["module"] = this.state.searchParams.module
-    params["dictType"] = this.state.searchParams.dictType
-    params["dictName"] = this.state.searchParams.dictName
-    params["itemCode"] = this.state.searchParams.itemCode
-    params["itemName"] = this.state.searchParams.itemName
-    params["active"] = this.state.searchParams.active ? true : null
-    if (params["dictType"] || params["dictName"] || params["itemCode"] || params["itemName"]) {
+    params.active = this.state.searchParams.active ? true : null
+    if (params.dictType || params.dictName || params.itemCode || params.itemName) {
       this.state.searchParams.isDict = false
     } else {
       this.state.searchParams.isDict = true
     }
-    params["isDict"] = this.state.searchParams.isDict
+    params.isDict = this.state.searchParams.isDict
     return params
   }
 
@@ -217,15 +212,6 @@ class ListPage extends BaseListPage {
         this.searchByTree()
       }
     }
-  }
-
-  protected doResetSearchFields() {
-    super.doResetSearchFields()
-    this.state.searchParams.module = null
-    this.state.searchParams.dictType = null
-    this.state.searchParams.dictName = null
-    this.state.searchParams.itemCode = null
-    this.state.searchParams.itemName = null
   }
 
   protected getDeleteMessage(row: any): string {

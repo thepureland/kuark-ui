@@ -46,6 +46,12 @@ export abstract class BaseListPage extends BasePage {
             params["pageNo"] = this.state.pagination.pageNo
             params["pageSize"] = this.state.pagination.pageSize
         }
+        const searchParams = this.state.searchParams
+        if (searchParams) {
+            for (const paramName in searchParams) {
+                params[paramName] = searchParams[paramName]
+            }
+        }
         return params
     }
 
@@ -147,6 +153,12 @@ export abstract class BaseListPage extends BasePage {
 
     protected doResetSearchFields() {
         this.state.pagination.pageNo = 1
+        const searchParams = this.state.searchParams
+        if (searchParams) {
+            for (const paramName in searchParams) {
+                searchParams[paramName] = null
+            }
+        }
     }
 
     public handleSortChange: (column) => void

@@ -93,7 +93,6 @@ class ListPage extends BaseListPage {
     this.loadDicts([
       new Pair("kuark:sys", "sub_sys"),
     ])
-    this.convertThis()
   }
 
   protected initState(): any {
@@ -112,22 +111,8 @@ class ListPage extends BaseListPage {
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params["name"] = this.state.searchParams.name
-    params["subSysDictCode"] = this.state.searchParams.subSysDictCode
-    params["active"] = this.state.searchParams.active ? true : null
+    params.active = this.state.searchParams.active ? true : null
     return params
-  }
-
-  protected doResetSearchFields() {
-    super.doResetSearchFields()
-    this.state.searchParams.name = null
-    this.state.searchParams.subSysDictCode = null
-  }
-
-  /**
-   * 为了解决恶心的this问题，不要写任何业务逻辑代码
-   */
-  private convertThis() {
   }
 
 }
