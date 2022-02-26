@@ -77,18 +77,13 @@ class AddEditPage extends BaseAddEditPage {
   }
 
   protected createSubmitParams(): any {
-    return {
-      id: this.props.rid,
-      isDict: this.props["isDict"],
-      module: this.state.formModel.parent[0],
-      parentId: this.state.formModel.parent.length === 1 ? null : this.state.formModel.parent[this.state.formModel.parent.length - 1],
-      dictId: this.state.formModel.parent.length === 1 ? null : this.state.formModel.parent[1],
-      dictType: this.state.formModel.parent.length === 1 ? null : this.state.parentCache[this.state.formModel.parent[1]],
-      code: this.state.formModel.code,
-      name: this.state.formModel.name,
-      seqNo: this.state.formModel.seqNo,
-      remark: this.state.formModel.remark
-    }
+    const params = super.createSubmitParams()
+    params.isDict = this.props.isDict
+    params.module = this.state.formModel.parent[0]
+    params.parentId = this.state.formModel.parent.length === 1 ? null : this.state.formModel.parent[this.state.formModel.parent.length - 1]
+    params.dictId = this.state.formModel.parent.length === 1 ? null : this.state.formModel.parent[1]
+    params.dictType = this.state.formModel.parent.length === 1 ? null : this.state.parentCache[this.state.formModel.parent[1]]
+    return params
   }
 
   protected doSubmit() {
@@ -106,14 +101,10 @@ class AddEditPage extends BaseAddEditPage {
   }
 
   protected fillForm(rowObject: any) {
+    super.fillForm(rowObject)
     const isDict = this.props["isDict"]
-    this.state.formModel.module = rowObject.module
-    this.state.formModel.parentId = rowObject.parentId
-    this.state.formModel.dictId = rowObject.dictId
     this.state.formModel.code = isDict ? rowObject.dictType : rowObject.itemCode
     this.state.formModel.name = isDict ? rowObject.dictName : rowObject.itemName
-    this.state.formModel.seqNo = rowObject.seqNo
-    this.state.formModel.remark = rowObject.remark
     const parents = [rowObject.module]
     if (!isDict) {
       const parentIds = rowObject.parentIds
@@ -154,7 +145,7 @@ class AddEditPage extends BaseAddEditPage {
       // 自动选上默认的模块
       if (node.level === 0) {
         this.state.formModel.parent = [this.defaultModel]
-      } else if(node.level === 1 && this.defaultDictType) {
+      } else if (node.level === 1 && this.defaultDictType) {
         for (let item of data) {
           if (item["code"] === this.defaultDictType) {
             this.state.formModel.parent = [this.defaultModel, item["id"]]

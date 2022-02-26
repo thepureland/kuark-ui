@@ -45,21 +45,6 @@ class AddEditPage extends BaseAddEditPage {
     return "rbac/role"
   }
 
-  protected createSubmitParams(): any {
-    return {
-      id: this.props.rid,
-      roleCode: this.state.formModel.roleCode,
-      roleName: this.state.formModel.roleName,
-      remark: this.state.formModel.remark
-    }
-  }
-
-  protected fillForm(rowObject: any) {
-    this.state.formModel.roleCode = rowObject.roleCode
-    this.state.formModel.roleName = rowObject.roleName
-    this.state.formModel.remark = rowObject.remark
-  }
-
   /**
    * 为了解决恶心的this问题，不要写任何业务逻辑代码
    */

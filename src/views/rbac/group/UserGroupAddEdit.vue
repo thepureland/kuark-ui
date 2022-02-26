@@ -45,21 +45,6 @@ class AddEditPage extends BaseAddEditPage {
     return "rbac/group"
   }
 
-  protected createSubmitParams(): any {
-    return {
-      id: this.props.rid,
-      groupCode: this.state.formModel.groupCode,
-      groupName: this.state.formModel.groupName,
-      remark: this.state.formModel.remark
-    }
-  }
-
-  protected fillForm(rowObject: any) {
-    this.state.formModel.groupCode = rowObject.groupCode
-    this.state.formModel.groupName = rowObject.groupName
-    this.state.formModel.remark = rowObject.remark
-  }
-
   /**
    * 为了解决恶心的this问题，不要写任何业务逻辑代码
    */

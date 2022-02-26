@@ -49,21 +49,6 @@ class AddEditPage extends BaseAddEditPage {
     return "sys/tenant"
   }
 
-  protected createSubmitParams(): any {
-    return {
-      id: this.props.rid,
-      name: this.state.formModel.name,
-      subSysDictCode: this.state.formModel.subSysDictCode,
-      remark: this.state.formModel.remark
-    }
-  }
-
-  protected fillForm(rowObject: any) {
-    this.state.formModel.name = rowObject.name
-    this.state.formModel.subSysDictCode = rowObject.subSysDictCode
-    this.state.formModel.remark = rowObject.remark
-  }
-
   /**
    * 为了解决恶心的this问题，不要写任何业务逻辑代码
    */

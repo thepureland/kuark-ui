@@ -61,9 +61,30 @@ export abstract class BaseAddEditPage extends BasePage {
         return this.getRootActionPath() + "/get"
     }
 
-    protected abstract createSubmitParams(): any
+    protected createSubmitParams(): any {
+        // remark: this.state.formModel.remark
+        const params = {
+            id: this.props.rid
+        }
+        // @ts-ignore
+        const model = this.state.formModel
+        if (model) {
+            for (const propName in model) {
+                params[propName] = model[propName]
+            }
+        }
+        return params
+    }
 
-    protected abstract fillForm(rowObject: any)
+    protected fillForm(rowObject: any) {
+        for (const propName in rowObject) {
+            // @ts-ignore
+            if (propName in this.state.formModel) {
+                // @ts-ignore
+                this.state.formModel[propName] = rowObject[propName]
+            }
+        }
+    }
 
     protected createRowObjectLoadParams(): any {
         return {

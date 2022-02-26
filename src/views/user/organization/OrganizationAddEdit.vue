@@ -77,26 +77,16 @@ class AddEditPage extends BaseAddEditPage {
   }
 
   protected createSubmitParams(): any {
+    const params = super.createSubmitParams()
     const nodes = this.parentCascader.value.getCheckedNodes()
-    return {
-      id: this.props.rid,
-      name: this.state.formModel.name,
-      abbrName: this.state.formModel.abbrName,
-      orgTypeDictCode: this.state.formModel.orgTypeDictCode,
-      subSysDictCode: this.state.formModel.parent[0],
-      tenantId: this.getTenantId(nodes[0]),
-      parentId: this.getParentId(nodes[0]),
-      seqNo: this.state.formModel.seqNo,
-      remark: this.state.formModel.remark
-    }
+    params.tenantId = this.getTenantId(nodes[0])
+    params.parentId = this.getParentId(nodes[0])
+    params.subSysDictCode = this.state.formModel.parent[0]
+    return params
   }
 
   protected fillForm(rowObject: any) {
-    this.state.formModel.name = rowObject.name
-    this.state.formModel.abbrName = rowObject.abbrName
-    this.state.formModel.orgTypeDictCode = rowObject.orgTypeDictCode
-    this.state.formModel.seqNo = rowObject.seqNo
-    this.state.formModel.remark = rowObject.remark
+    super.fillForm(rowObject)
     const parents = [rowObject.subSysDictCode]
     if (rowObject.tenantId) {
       parents.push(rowObject.tenantId)

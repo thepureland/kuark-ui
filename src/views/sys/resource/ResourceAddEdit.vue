@@ -75,18 +75,12 @@ class AddEditPage extends BaseAddEditPage {
   }
 
   protected createSubmitParams(): any {
+    const params = super.createSubmitParams();
     const length = this.state.formModel.parent.length
-    return {
-      id: this.props.rid,
-      parentId: length == 1 || length == 2 ? null : this.state.formModel.parent[length - 1],
-      resourceTypeDictCode: this.state.formModel.parent[0],
-      subSysDictCode: this.state.formModel.parent[1],
-      name: this.state.formModel.name,
-      url: this.state.formModel.url,
-      icon: this.state.formModel.icon,
-      seqNo: this.state.formModel.seqNo,
-      remark: this.state.formModel.remark
-    }
+    params.parentId = length == 1 || length == 2 ? null : this.state.formModel.parent[length - 1]
+    params.resourceTypeDictCode = this.state.formModel.parent[0]
+    params.subSysDictCode = this.state.formModel.parent[1]
+    return params
   }
 
   protected doSubmit() {
@@ -106,11 +100,7 @@ class AddEditPage extends BaseAddEditPage {
   }
 
   protected fillForm(rowObject: any) {
-    this.state.formModel.name = rowObject.name
-    this.state.formModel.url = rowObject.url
-    this.state.formModel.icon = rowObject.icon
-    this.state.formModel.seqNo = rowObject.seqNo
-    this.state.formModel.remark = rowObject.remark
+    super.fillForm(rowObject)
     this.state.formModel.parent = rowObject.parentIds
   }
 

@@ -35,6 +35,7 @@
 import {defineComponent, reactive, toRefs} from "vue";
 import {ElMessage} from 'element-plus';
 import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
+import {Pair} from "../../../base/Pair.ts";
 
 class AddEditPage extends BaseAddEditPage {
 
@@ -62,18 +63,6 @@ class AddEditPage extends BaseAddEditPage {
     return "sys/param"
   }
 
-  protected createSubmitParams(): any {
-    return {
-      id: this.props.rid,
-      module: this.state.formModel.module,
-      paramName: this.state.formModel.paramName,
-      paramValue: this.state.formModel.paramValue,
-      defaultValue: this.state.formModel.defaultValue,
-      seqNo: this.state.formModel.seqNo,
-      remark: this.state.formModel.remark
-    }
-  }
-
   private async loadModules() {
     this.loadDicts([
         new Pair("kuark:sys", "module")
@@ -87,20 +76,10 @@ class AddEditPage extends BaseAddEditPage {
     })
   }
 
-  protected fillForm(rowObject: any) {
-    this.state.formModel.module = rowObject.module
-    this.state.formModel.paramName = rowObject.paramName
-    this.state.formModel.paramValue = rowObject.paramValue
-    this.state.formModel.defaultValue = rowObject.defaultValue
-    this.state.formModel.seqNo = rowObject.seqNo
-    this.state.formModel.remark = rowObject.remark
-  }
-
   /**
    * 为了解决恶心的this问题，不要写任何业务逻辑代码
    */
   private convertThis() {
-
   }
 
 }

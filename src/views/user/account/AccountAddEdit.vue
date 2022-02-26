@@ -55,23 +55,6 @@ class AddEditPage extends BaseAddEditPage {
     return "user/account"
   }
 
-  protected createSubmitParams(): any {
-    return {
-      id: this.props.rid,
-      username: this.state.formModel.username,
-      subSysDictCode: this.state.formModel.subSysDictCode,
-      userTypeDictCode: this.state.formModel.userTypeDictCode,
-      remark: this.state.formModel.remark
-    }
-  }
-
-  protected fillForm(rowObject: any) {
-    this.state.formModel.username = rowObject.username
-    this.state.formModel.subSysDictCode = rowObject.subSysDictCode
-    this.state.formModel.userTypeDictCode = rowObject.userTypeDictCode
-    this.state.formModel.remark = rowObject.remark
-  }
-
   /**
    * 为了解决恶心的this问题，不要写任何业务逻辑代码
    */
