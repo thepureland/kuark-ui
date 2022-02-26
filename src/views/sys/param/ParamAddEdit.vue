@@ -42,7 +42,6 @@ class AddEditPage extends BaseAddEditPage {
   constructor(props, context) {
     super(props, context)
     this.loadModules()
-    this.convertThis()
   }
 
   protected initState(): any {
@@ -74,12 +73,6 @@ class AddEditPage extends BaseAddEditPage {
             this.state.modules = moduleCodes
         }
     })
-  }
-
-  /**
-   * 为了解决恶心的this问题，不要写任何业务逻辑代码
-   */
-  private convertThis() {
   }
 
 }
