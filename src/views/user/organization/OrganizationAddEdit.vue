@@ -1,20 +1,20 @@
 <template>
   <el-dialog title="添加组织信息" v-model="visible" width="30%" center @close="close">
     <el-form ref="form" :model="formModel" label-width="80px" :rules="rules" :validate-on-rule-change="false">
-      <el-form-item label="名称" prop="name">
+      <el-form-item label="名称" prop="name" class="is-required">
         <el-input v-model="formModel.name"/>
       </el-form-item>
       <el-form-item label="简称" prop="abbrName">
         <el-input v-model="formModel.abbrName"/>
       </el-form-item>
-      <el-form-item label="组织类型" prop="orgTypeDictCode">
+      <el-form-item label="上级" prop="parent" class="is-required">
+        <el-cascader ref="parentCascader" v-model="formModel.parent" :props="cascaderProps" style="display: block;"/>
+      </el-form-item>
+      <el-form-item label="组织类型" prop="orgTypeDictCode" class="is-required">
         <el-select v-model="formModel.orgTypeDictCode" placeholder="请选择组织类型" clearable>
           <el-option v-for="item in getDictItems('kuark:user', 'organization_type')"
                      :key="item.first" :value="item.first" :label="item.second"/>
         </el-select>
-      </el-form-item>
-      <el-form-item label="上级" prop="parent">
-        <el-cascader ref="parentCascader" v-model="formModel.parent" :props="cascaderProps"/>
       </el-form-item>
       <el-form-item label="排序" prop="seqNo">
         <el-input-number v-model="formModel.seqNo"/>

@@ -279,18 +279,6 @@ class ListPage extends BaseListPage {
     }
   }
 
-  // private async loadSubSyses() {
-  //   // @ts-ignore
-  //   const result = await ajax({url: "sys/resource/loadSubSyses"})
-  //   if (result.data) {
-  //     for (let key in result.data) {
-  //       this.state.subSyses.push({key: key, value: result.data[key]})
-  //     }
-  //   } else {
-  //     ElMessage.error('子系统列表加载失败！')
-  //   }
-  // }
-
   private async loadResourceTypes() {
     // @ts-ignore
     const result = await ajax({url: "sys/resource/loadResourceTypes"})

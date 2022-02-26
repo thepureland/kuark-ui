@@ -1,12 +1,12 @@
 <template>
   <el-dialog title="添加参数信息" v-model="visible" width="30%" center @close="close">
     <el-form ref="form" :model="formModel" label-width="90px" :rules="rules" :validate-on-rule-change="false">
-      <el-form-item label="所属模块" prop="module">
+      <el-form-item label="所属模块" prop="module" class="is-required">
         <el-select v-model="formModel.module" placeholder="Select">
           <el-option v-for="item in modules" :key="item.value" :label="item.value" :value="item.value"/>
         </el-select>
       </el-form-item>
-      <el-form-item label="参数名称" prop="paramName">
+      <el-form-item label="参数名称" prop="paramName" class="is-required">
         <el-input v-model="formModel.paramName"/>
       </el-form-item>
       <el-form-item label="参数值" prop="paramValue">

@@ -127,7 +127,7 @@ class ListPage extends BaseListPage {
       },
       searchParams: {
         parentId: null,
-        firstLevel: false,
+        level: null,
         module: null,
         dictType: null,
         dictName: null,
@@ -164,6 +164,7 @@ class ListPage extends BaseListPage {
       this.state.searchParams.isDict = true
     }
     params.isDict = this.state.searchParams.isDict
+    params.parentId = null
     return params
   }
 
@@ -272,28 +273,27 @@ class ListPage extends BaseListPage {
         this.state.searchParams.module = node.parent.data.code
         this.state.searchParams.dictType = node.data.code
         this.state.searchParams.itemCode = null
-        this.state.searchParams.isDict = expend ? false : true
+        this.state.searchParams.isDict = !expend
       } else {
-        this.state.searchParams.module = this.getModuleByNode(node)
-        this.state.searchParams.dictType = this.getDictTypeByNode(node)
+        this.state.searchParams.module = ListPage.getModuleByNode(node)
+        this.state.searchParams.dictType = ListPage.getDictTypeByNode(node)
         if (!expend) {
           this.state.searchParams.itemCode = node.data.code
         }
         this.state.searchParams.isDict = false
       }
       this.state.searchParams.parentId = node.level === 1 ? node.data.code : node.data.id
-      this.state.searchParams.firstLevel = node.level === 1
     }
   }
 
-  private getModuleByNode(node) {
+  private static getModuleByNode(node) {
     while (node.level != 1) {
       node = node.parent
     }
     return node.data.code
   }
 
-  private getDictTypeByNode(node) {
+  private static getDictTypeByNode(node) {
     while (node.level != 2) {
       node = node.parent
     }
@@ -366,7 +366,7 @@ class ListPage extends BaseListPage {
     this.state.searchSource = "tree"
     const params = {
       parentId: this.state.searchParams.parentId,
-      firstLevel: this.state.searchParams.firstLevel,
+      firstLevel: this.state.searchParams.level == 1,
       pageNo: this.state.pagination.pageNo,
       pageSize: this.state.pagination.pageSize,
       active: this.state.searchParams.active ? true : null,

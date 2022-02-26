@@ -1,10 +1,10 @@
 <template>
   <el-dialog title="添加租户信息" v-model="visible" width="30%" center @close="close">
     <el-form ref="form" :model="formModel" label-width="80px" :rules="rules" :validate-on-rule-change="false">
-      <el-form-item label="租户名称" prop="name">
+      <el-form-item label="租户名称" prop="name" class="is-required">
         <el-input v-model="formModel.name"/>
       </el-form-item>
-      <el-form-item label="子系统" prop="subSysDictCode">
+      <el-form-item label="子系统" prop="subSysDictCode" class="is-required">
         <el-select v-model="formModel.subSysDictCode" placeholder="请选择子系统" clearable>
           <el-option v-for="item in getDictItems('kuark:sys', 'sub_sys')"
                      :key="item.first" :value="item.first" :label="item.second"/>
