@@ -121,19 +121,21 @@ export abstract class BaseAddEditPage extends BasePage {
     protected doSubmit() {
         this.form.value.validate(async valid => {
             if (!valid) return ElMessage.error('验证未通过')
-            const params = this.createSubmitParams();
-            // @ts-ignore
-            const result = await ajax({url: this.getSubmitUrl(), method: "post", params})
-            if (result.data) {
-                ElMessage.success('保存成功！')
-                this.form.value.resetFields()
-                params.id = result.data
-                this.context.emit('response', params)
-                this.context.emit('update:modelValue', false)
-            } else {
-                ElMessage.error('保存失败！')
+            const params = this.createSubmitParams()
+            if (params) {
+                // @ts-ignore
+                const result = await ajax({url: this.getSubmitUrl(), method: "post", params})
+                if (result.data) {
+                    ElMessage.success('保存成功！')
+                    this.form.value.resetFields()
+                    params.id = result.data
+                    this.context.emit('response', params)
+                    this.context.emit('update:modelValue', false)
+                } else {
+                    ElMessage.error('保存失败！')
+                }
             }
-        });
+        })
     }
 
     public close: () => void
