@@ -7,6 +7,12 @@
       <el-form-item label="角色名称" prop="roleName" class="is-required">
         <el-input v-model="formModel.roleName"/>
       </el-form-item>
+      <el-form-item label="子系统" prop="subSysDictCode" class="is-required">
+        <el-select v-model="formModel.subSysDictCode" placeholder="请选择子系统" clearable>
+          <el-option v-for="item in getDictItems('kuark:sys', 'sub_sys')"
+                     :key="item.first" :value="item.first" :label="item.second"/>
+        </el-select>
+      </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="formModel.remark"/>
       </el-form-item>
@@ -35,6 +41,7 @@ class AddEditPage extends BaseAddEditPage {
       formModel: {
         roleCode: null,
         roleName: null,
+        subSysDictCode: null,
         remark:null
       },
     }

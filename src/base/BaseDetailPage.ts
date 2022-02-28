@@ -29,8 +29,10 @@ export abstract class BaseDetailPage extends BasePage {
             } else {
                 this.loadData()
             }
+            this._convertThis()
+        } else {
+            console.error("rid不能为空！")
         }
-        this._convertThis()
     }
 
     protected initBaseState(): any {
@@ -64,13 +66,17 @@ export abstract class BaseDetailPage extends BasePage {
         // @ts-ignore
         const result = await ajax({url: this.getDetailLoadUrl(), params});
         if (result.data) {
-            // @ts-ignore
-            this.state.detail = result.data
-            // @ts-ignore
-            this.state.visible = true
+            this.postLoadDataSuccessfully(result.data)
         } else {
             ElMessage.error('数据加载失败！')
         }
+    }
+
+    protected postLoadDataSuccessfully(data) {
+        // @ts-ignore
+        this.state.detail = data
+        // @ts-ignore
+        this.state.visible = true
     }
 
     protected async loadOthers() {

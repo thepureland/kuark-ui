@@ -17,6 +17,10 @@
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
+          <el-cascader :options="subSysOrTenants" v-model="searchParams.subSysOrTenant"
+                       :props="cascaderProps" placeholder="子系统/租户" />
+        </el-col>
+        <el-col :span="2">
           <el-input v-model="searchParams.roleCode" placeholder="角色编码" @change="search" clearable/>
         </el-col>
         <el-col :span="2">
@@ -27,7 +31,7 @@
           <el-checkbox v-model="searchParams.active" label="仅启用" class="el-input" checked/>
         </el-col>
 
-        <el-col :span="14">
+        <el-col :span="12">
           <el-button type="primary" round @click="search">搜索</el-button>
           <el-button type="primary" round @click="resetSearchFields">重置</el-button>
           <el-button type="success" @click="openAddDialog">添加</el-button>
@@ -41,6 +45,11 @@
         <el-table-column type="index" width="50"/>
         <el-table-column label="角色编码" prop="roleCode"/>
         <el-table-column label="角色名称" prop="roleName"/>
+        <el-table-column label="子系统" prop="subSysDictCode">
+          <template #default="scope">
+            {{ transDict("kuark:sys", "sub_sys", scope.row.subSysDictCode) }}
+          </template>
+        </el-table-column>
         <el-table-column label="备注" prop="remark"/>
         <el-table-column label="启用">
           <template #default="scope">
@@ -72,8 +81,8 @@
               用户
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item :command="1">关联用户</el-dropdown-item>
-                  <el-dropdown-item :command="2">查看用户</el-dropdown-item>
+                  <el-dropdown-item :command="commandValue(1,scope.row)">关联用户</el-dropdown-item>
+                  <el-dropdown-item :command="commandValue(2,scope.row)">查看用户</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -89,6 +98,8 @@
       <role-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
       <role-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
       <menu-authorization v-if="menuAuthorizationDialogVisible" v-model="menuAuthorizationDialogVisible" :rid="rid"/>
+      <user-assignment-dialog v-if="userAssignmentDialogVisible" v-model="userAssignmentDialogVisible"
+                              :rid="rid" :subSysDictCode="subSysDictCode" :tenantId="tenantId"/>
 
     </el-card>
 
@@ -100,8 +111,10 @@ import {defineComponent, reactive, toRefs} from "vue"
 import RoleAddEdit from './RoleAddEdit.vue'
 import RoleDetail from './RoleDetail.vue'
 import MenuAuthorization from './MenuAuthorization.vue'
+import UserAssignmentDialog from './UserAssignmentDialog.vue'
 import {BaseListPage} from "../../../base/BaseListPage.ts"
 import {Pair} from "../../../base/Pair.ts"
+import {ElMessage} from "element-plus";
 
 class ListPage extends BaseListPage {
 
@@ -116,18 +129,29 @@ class ListPage extends BaseListPage {
       }
     }
     this.loadDicts([
-      new Pair("kuark:sys", "resource_type")
-    ])
+      new Pair("kuark:sys", "resource_type"),
+      new Pair("kuark:sys", "sub_sys")
+    ]).then(() => this.loadTenants())
     this.convertThis()
   }
 
   protected initState(): any {
     return {
       searchParams: {
+        subSysOrTenant: null,
         roleCode: null,
         roleName: null,
       },
-      menuAuthorizationDialogVisible: false
+      menuAuthorizationDialogVisible: false,
+      userAssignmentDialogVisible: false,
+      subSysDictCode: null,
+      tenantId: null,
+      subSysOrTenants: null,
+      cascaderProps: {
+        multiple: false,
+        checkStrictly: true,
+        expandTrigger: "hover"
+      },
     }
   }
 
@@ -135,17 +159,32 @@ class ListPage extends BaseListPage {
     return "rbac/role"
   }
 
+  protected createSearchParams() {
+    const params = super.createSearchParams()
+    params.active = this.state.searchParams.active
+    const subSysOrTenant = this.state.searchParams.subSysOrTenant
+    if (subSysOrTenant) {
+      if (subSysOrTenant.length > 0) {
+        params.subSysDictCode = subSysOrTenant[0]
+      }
+      if (subSysOrTenant.length > 1) {
+        params.tenantId = subSysOrTenant[1]
+      }
+    }
+    return params
+  }
+
   public commandValue: (item, row) => any
 
   public authorize: (commandValue) => void
 
   private doAuthorize(commandValue) {
-    const { item, row } = commandValue
+    const {item, row} = commandValue
     this.state.rid = this.getRowId(row)
     const resType = item.first
     if (resType == 1) {
       this.state.menuAuthorizationDialogVisible = true
-    } else if(resType == 2) {
+    } else if (resType == 2) {
 
     } else {
 
@@ -155,7 +194,42 @@ class ListPage extends BaseListPage {
   public assign: (type) => void
 
   private doAssign(type) {
+    const {item, row} = type
+    this.state.rid = this.getRowId(row)
+    this.state.subSysDictCode = row.subSysDictCode
+    this.state.tenantId = row.tenantId
+    if (item == 1) {
+      this.state.userAssignmentDialogVisible = true
+    } else if (item == 2) {
 
+    } else {
+
+    }
+  }
+
+  private async loadTenants() {
+    // @ts-ignore
+    const result = await ajax({url: "sys/tenant/getAllActiveTenants", method: "post"})
+    if (result.data) {
+      const options = []
+      const subSyses = this.getDictItems("kuark:sys", "sub_sys")
+      for(let subSys of subSyses) {
+        const subSysOption = {value: subSys.first, label: subSys.second}
+        options.push(subSysOption)
+        const tenants = result.data[subSys.first]
+        if (tenants) {
+          const tenantOptions = []
+          subSysOption["children"] = tenantOptions
+          for (let tenantId in tenants) {
+            const tenantOption = {value: tenantId, label: tenants[tenantId]}
+            tenantOptions.push(tenantOption)
+          }
+        }
+      }
+      this.state.subSysOrTenants = options
+    } else {
+      ElMessage.error('加载租户信息失败！')
+    }
   }
 
   /**
@@ -174,7 +248,7 @@ class ListPage extends BaseListPage {
 
 export default defineComponent({
   name: "~index",
-  components: {RoleAddEdit, RoleDetail, MenuAuthorization},
+  components: {RoleAddEdit, RoleDetail, MenuAuthorization, UserAssignmentDialog},
   setup(props, context) {
     const listPage = reactive(new ListPage())
     return {

@@ -17,7 +17,7 @@
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
-          <el-cascader ref="parentCascader" :options="subSysOrTenants" v-model="searchParams.subSysOrTenant"
+          <el-cascader :options="subSysOrTenants" v-model="searchParams.subSysOrTenant"
                        :props="cascaderProps" placeholder="子系统/租户" />
         </el-col>
 

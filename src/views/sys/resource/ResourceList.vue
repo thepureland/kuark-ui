@@ -30,7 +30,8 @@
             </el-col>
             <el-col :span="2">
               <el-select v-model="searchParams.subSysDictCode" placeholder="子系统" clearable>
-                <el-option v-for="item in subSyses" :key="item.key" :label="item.value" :value="item.key"/>
+                <el-option v-for="item in getDictItems('kuark:sys', 'sub_sys')"
+                           :key="item.first" :value="item.first" :label="item.second"/>
               </el-select>
             </el-col>
             <el-col :span="2">
@@ -110,7 +111,6 @@ class ListPage extends BaseListPage {
   constructor(tree: any) {
     super()
     this.tree = tree
-    // this.loadSubSyses()
     this.loadDicts([
       new Pair("kuark:sys", "sub_sys"),
     ])
@@ -131,7 +131,6 @@ class ListPage extends BaseListPage {
         active: true,
         level: null
       },
-      subSyses: [],
       resourceTypes: [],
       searchSource: null,
       rootNode: null,
