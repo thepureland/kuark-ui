@@ -112,11 +112,10 @@ import RoleAddEdit from './RoleAddEdit.vue'
 import RoleDetail from './RoleDetail.vue'
 import MenuAuthorization from './MenuAuthorization.vue'
 import UserAssignmentDialog from './UserAssignmentDialog.vue'
-import {BaseListPage} from "../../../base/BaseListPage.ts"
+import {TenantSupportListPage} from "../../../base/page/TenantSupportListPage.ts";
 import {Pair} from "../../../base/Pair.ts"
-import {ElMessage} from "element-plus";
 
-class ListPage extends BaseListPage {
+class ListPage extends TenantSupportListPage {
 
   public commandValue: any
 
@@ -131,27 +130,18 @@ class ListPage extends BaseListPage {
     this.loadDicts([
       new Pair("kuark:sys", "resource_type"),
       new Pair("kuark:sys", "sub_sys")
-    ]).then(() => this.loadTenants())
+    ])
     this.convertThis()
   }
 
   protected initState(): any {
     return {
       searchParams: {
-        subSysOrTenant: null,
         roleCode: null,
         roleName: null,
       },
       menuAuthorizationDialogVisible: false,
       userAssignmentDialogVisible: false,
-      subSysDictCode: null,
-      tenantId: null,
-      subSysOrTenants: null,
-      cascaderProps: {
-        multiple: false,
-        checkStrictly: true,
-        expandTrigger: "hover"
-      },
     }
   }
 
@@ -162,15 +152,6 @@ class ListPage extends BaseListPage {
   protected createSearchParams() {
     const params = super.createSearchParams()
     params.active = this.state.searchParams.active
-    const subSysOrTenant = this.state.searchParams.subSysOrTenant
-    if (subSysOrTenant) {
-      if (subSysOrTenant.length > 0) {
-        params.subSysDictCode = subSysOrTenant[0]
-      }
-      if (subSysOrTenant.length > 1) {
-        params.tenantId = subSysOrTenant[1]
-      }
-    }
     return params
   }
 
@@ -204,31 +185,6 @@ class ListPage extends BaseListPage {
 
     } else {
 
-    }
-  }
-
-  private async loadTenants() {
-    // @ts-ignore
-    const result = await ajax({url: "sys/tenant/getAllActiveTenants", method: "post"})
-    if (result.data) {
-      const options = []
-      const subSyses = this.getDictItems("kuark:sys", "sub_sys")
-      for(let subSys of subSyses) {
-        const subSysOption = {value: subSys.first, label: subSys.second}
-        options.push(subSysOption)
-        const tenants = result.data[subSys.first]
-        if (tenants) {
-          const tenantOptions = []
-          subSysOption["children"] = tenantOptions
-          for (let tenantId in tenants) {
-            const tenantOption = {value: tenantId, label: tenants[tenantId]}
-            tenantOptions.push(tenantOption)
-          }
-        }
-      }
-      this.state.subSysOrTenants = options
-    } else {
-      ElMessage.error('加载租户信息失败！')
     }
   }
 

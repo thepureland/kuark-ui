@@ -78,18 +78,17 @@
 import {defineComponent, reactive, toRefs} from "vue"
 import UserGroupAddEdit from './OrganizationAddEdit.vue'
 import UserGroupDetail from './OrganizationDetail.vue'
-import {BaseListPage} from "../../../base/BaseListPage.ts"
+import {TenantSupportListPage} from "../../../base/page/TenantSupportListPage.ts";
 import {Pair} from "../../../base/Pair.ts";
-import {ElMessage} from "element-plus";
 
-class ListPage extends BaseListPage {
+class ListPage extends TenantSupportListPage {
 
   constructor() {
     super()
     this.loadDicts([
       new Pair("kuark:user", "organization_type"),
       new Pair("kuark:sys", "sub_sys")
-    ]).then(() => this.loadTenants())
+    ])
   }
 
   protected initState(): any {
@@ -97,14 +96,7 @@ class ListPage extends BaseListPage {
       searchParams: {
         name: null,
         active: true,
-        subSysOrTenant: null
       },
-      cascaderProps: {
-        multiple: false,
-        // checkStrictly: true,
-        expandTrigger: "hover"
-      },
-      subSysOrTenants: null
     }
   }
 
@@ -118,48 +110,22 @@ class ListPage extends BaseListPage {
 
   protected createSearchParams() {
     const params = super.createSearchParams()
-    params.active = this.state.searchParams.active
-    const subSysOrTenant = this.state.searchParams.subSysOrTenant
-    if (subSysOrTenant == null || subSysOrTenant.length == 0) {
-        ElMessage.error('请先选择子系统/租户！')
-        return null
-    }
-    if (subSysOrTenant.length > 0) {
-        params.subSysDictCode = subSysOrTenant[0]
-    }
-    if (subSysOrTenant.length > 1) {
-        params.tenantId = subSysOrTenant[1]
+    if (params) {
+      params.active = this.state.searchParams.active
     }
     return params
   }
 
-  protected postSearchSuccessfully(data) {
-    this.state.tableData = data
+  protected isCheckStrictly(): boolean {
+    return false
   }
 
-  private async loadTenants() {
-    // @ts-ignore
-    const result = await ajax({url: "sys/tenant/getAllActiveTenants", method: "post"})
-    if (result.data) {
-      const options = []
-      const subSyses = this.getDictItems("kuark:sys", "sub_sys")
-      for(let subSys of subSyses) {
-        const subSysOption = {value: subSys.first, label: subSys.second}
-        options.push(subSysOption)
-        const tenants = result.data[subSys.first]
-        if (tenants) {
-          const tenantOptions = []
-          subSysOption["children"] = tenantOptions
-          for (let tenantId in tenants) {
-            const tenantOption = {value: tenantId, label: tenants[tenantId]}
-            tenantOptions.push(tenantOption)
-          }
-        }
-      }
-      this.state.subSysOrTenants = options
-    } else {
-      ElMessage.error('加载租户信息失败！')
-    }
+  protected isRequireSubSysOrTenantForSearch(): boolean {
+    return true
+  }
+
+  protected postSearchSuccessfully(data) {
+    this.state.tableData = data
   }
 
 }

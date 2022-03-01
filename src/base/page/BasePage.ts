@@ -2,7 +2,7 @@ import {reactive} from "vue"
 import * as moment from 'moment'
 import {ElMessage} from "element-plus"
 // @ts-ignore
-import {Pair} from "./Pair.ts";
+import {Pair} from "../Pair.ts";
 
 /**
  * 列表页面处理抽象父类

@@ -48,7 +48,7 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue"
-import {BaseDetailPage} from "../../../base/BaseDetailPage.ts"
+import {BaseDetailPage} from "../../../base/page/BaseDetailPage.ts"
 
 class DetailPage extends BaseDetailPage {
 

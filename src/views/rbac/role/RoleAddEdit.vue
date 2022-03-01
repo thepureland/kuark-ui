@@ -26,14 +26,12 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue";
-import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
-import {ElMessage} from "element-plus";
+import {TenantSupportAddEditPage} from "../../../base/page/TenantSupportAddEditPage.ts";
 
-class AddEditPage extends BaseAddEditPage {
+class AddEditPage extends TenantSupportAddEditPage {
 
   constructor(props, context) {
     super(props, context)
-    this.loadTenants()
   }
 
   protected initState(): any {
@@ -41,70 +39,13 @@ class AddEditPage extends BaseAddEditPage {
       formModel: {
         roleCode: null,
         roleName: null,
-        subSysDictCode: null,
-        subSysOrTenant: [],
         remark: null
       },
-      cascaderProps: {
-        multiple: false,
-        checkStrictly: true,
-        expandTrigger: "hover"
-      },
-      subSysOrTenants: [],
     }
   }
 
   protected getRootActionPath(): String {
     return "rbac/role"
-  }
-
-  protected createSubmitParams(): any {
-    const params = super.createSubmitParams()
-    const subSysOrTenant = this.state.formModel.subSysOrTenant
-    if (!subSysOrTenant) {
-      ElMessage.error('请选择子系统/租户！')
-      return
-    } else {
-      params.subSysDictCode = subSysOrTenant[0]
-      if (subSysOrTenant.length > 1) {
-        params.tenantId = subSysOrTenant[1]
-      }
-    }
-    return params
-  }
-
-  protected fillForm(rowObject: any) {
-    super.fillForm(rowObject)
-    const subSysOrTenant = [rowObject.subSysDictCode]
-    if (rowObject.tenantId) {
-      subSysOrTenant.push(rowObject.tenantId)
-    }
-    this.state.formModel.subSysOrTenant = subSysOrTenant
-  }
-
-  private async loadTenants() {
-    // @ts-ignore
-    const result = await ajax({url: "sys/tenant/getAllActiveTenants", method: "post"})
-    if (result.data) {
-      const options = []
-      const subSyses = this.getDictItems("kuark:sys", "sub_sys")
-      for (let subSys of subSyses) {
-        const subSysOption = {value: subSys.first, label: subSys.second}
-        options.push(subSysOption)
-        const tenants = result.data[subSys.first]
-        if (tenants) {
-          const tenantOptions = []
-          subSysOption["children"] = tenantOptions
-          for (let tenantId in tenants) {
-            const tenantOption = {value: tenantId, label: tenants[tenantId]}
-            tenantOptions.push(tenantOption)
-          }
-        }
-      }
-      this.state.subSysOrTenants = options
-    } else {
-      ElMessage.error('加载租户信息失败！')
-    }
   }
 
 }

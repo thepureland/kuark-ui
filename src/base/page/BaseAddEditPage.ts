@@ -1,7 +1,7 @@
 import {ElMessage} from "element-plus"
 import {computed, ref} from "vue"
 // @ts-ignore
-import {ValidationRuleAdapter} from "./ValidationRuleAdapter.ts"
+import {ValidationRuleAdapter} from "../ValidationRuleAdapter.ts"
 // @ts-ignore
 import {BasePage} from "./BasePage.ts"
 

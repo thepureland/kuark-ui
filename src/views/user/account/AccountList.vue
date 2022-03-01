@@ -17,10 +17,14 @@
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
+          <el-cascader :options="subSysOrTenants" v-model="searchParams.subSysOrTenant"
+                       :props="cascaderProps" placeholder="子系统/租户"/>
+        </el-col>
+        <el-col :span="2">
           <el-input v-model="searchParams.username" placeholder="用户名" @change="search" clearable/>
         </el-col>
 
-        <el-col :span="18">
+        <el-col :span="16">
           <el-button type="primary" round @click="search">搜索</el-button>
           <el-button type="primary" round @click="resetSearchFields">重置</el-button>
           <el-button type="success" @click="openAddDialog">添加</el-button>
@@ -81,20 +85,19 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, ref, toRefs} from "vue"
+import {defineComponent, reactive, toRefs} from "vue"
 import AccountAddEdit from './AccountAddEdit.vue';
 import AccountDetail from './AccountDetail.vue';
-import {BaseListPage} from "../../../base/BaseListPage.ts"
+import {TenantSupportListPage} from "../../../base/page/TenantSupportListPage.ts";
 import {Pair} from "../../../base/Pair.ts";
 
-class ListPage extends BaseListPage {
+class ListPage extends TenantSupportListPage {
 
   constructor() {
     super()
     this.loadDicts([
       new Pair("kuark:user", "user_status"),
       new Pair("kuark:user", "user_type"),
-      new Pair("kuark:sys", "sub_sys"),
     ])
   }
 
@@ -103,7 +106,7 @@ class ListPage extends BaseListPage {
       searchParams: {
         username: null,
       },
-      userStatuses: []
+      userStatuses: [],
     }
   }
 

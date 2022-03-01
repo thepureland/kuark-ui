@@ -79,7 +79,7 @@
 import {defineComponent, reactive, toRefs} from "vue"
 import UserGroupAddEdit from './UserGroupAddEdit.vue'
 import UserGroupDetail from './UserGroupDetail.vue'
-import {BaseListPage} from "../../../base/BaseListPage.ts"
+import {BaseListPage} from "../../../base/page/BaseListPage.ts"
 
 class ListPage extends BaseListPage {
 

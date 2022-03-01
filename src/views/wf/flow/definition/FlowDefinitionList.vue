@@ -88,9 +88,9 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, ref, toRefs} from "vue"
+import {defineComponent, reactive, toRefs} from "vue"
 import flowDesign from './flowDesign.vue'
-import {BaseListPage} from "../../../../base/BaseListPage.ts"
+import {BaseListPage} from "../../../../base/page/BaseListPage.ts"
 import {ElMessage} from "element-plus"
 
 class ListPage extends BaseListPage {

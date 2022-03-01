@@ -98,13 +98,13 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, ref, toRefs} from "vue";
-import DictAddEdit from './DictAddEdit.vue';
-import DictDetail from './DictDetail.vue';
-import DictItemDetail from './DictItemDetail.vue';
-import {BaseListPage} from "../../../base/BaseListPage.ts";
-import {ElMessage} from "element-plus";
-import {Pair} from "../../../base/Pair.ts";
+import {defineComponent, reactive, ref, toRefs} from "vue"
+import DictAddEdit from './DictAddEdit.vue'
+import DictDetail from './DictDetail.vue'
+import DictItemDetail from './DictItemDetail.vue'
+import {BaseListPage} from "../../../base/page/BaseListPage.ts"
+import {ElMessage} from "element-plus"
+import {Pair} from "../../../base/Pair.ts"
 
 class ListPage extends BaseListPage {
 

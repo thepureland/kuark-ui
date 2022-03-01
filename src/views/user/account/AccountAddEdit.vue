@@ -1,14 +1,12 @@
 <template>
   <el-dialog title="添加账号信息" v-model="visible" width="30%" center @close="close">
-    <el-form ref="form" :model="formModel" label-width="80px" :rules="rules" :validate-on-rule-change="false">
+    <el-form ref="form" :model="formModel" label-width="100px" :rules="rules" :validate-on-rule-change="false">
       <el-form-item label="用户名" prop="username" class="is-required">
         <el-input v-model="formModel.username"/>
       </el-form-item>
-      <el-form-item label="子系统" prop="subSysDictCode" class="is-required">
-        <el-select v-model="formModel.subSysDictCode" placeholder="请选择子系统" clearable>
-          <el-option v-for="item in getDictItems('kuark:sys', 'sub_sys')"
-                     :key="item.first" :value="item.first" :label="item.second"/>
-        </el-select>
+      <el-form-item label="子系统/租户" prop="subSysDictCode" class="is-required">
+        <el-cascader :options="subSysOrTenants" v-model="formModel.subSysOrTenant"
+                     :props="cascaderProps" placeholder="请选择子系统/租户"/>
       </el-form-item>
       <el-form-item label="用户类型" prop="userTypeDictCode" class="is-required">
         <el-select v-model="formModel.userTypeDictCode" placeholder="请选择用户类型" clearable>
@@ -30,14 +28,13 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, toRefs} from "vue";
-import {BaseAddEditPage} from "../../../base/BaseAddEditPage.ts";
+import {defineComponent, reactive, toRefs} from "vue"
+import {TenantSupportAddEditPage} from "../../../base/page/TenantSupportAddEditPage.ts"
 
-class AddEditPage extends BaseAddEditPage {
+class AddEditPage extends TenantSupportAddEditPage {
 
   constructor(props, context) {
     super(props, context)
-    this.loadDict("kuark:sys", "sub_sys")
   }
 
   protected initState(): any {
@@ -45,7 +42,7 @@ class AddEditPage extends BaseAddEditPage {
       formModel: {
         roleCode: null,
         roleName: null,
-        remark: null
+        remark: null,
       },
     }
   }
