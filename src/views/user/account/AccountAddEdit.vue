@@ -4,9 +4,8 @@
       <el-form-item label="用户名" prop="username" class="is-required">
         <el-input v-model="formModel.username"/>
       </el-form-item>
-      <el-form-item label="子系统/租户" prop="subSysDictCode" class="is-required">
-        <el-cascader :options="subSysOrTenants" v-model="formModel.subSysOrTenant"
-                     :props="cascaderProps" placeholder="请选择子系统/租户"/>
+      <el-form-item label="隶属" prop="parent" class="is-required">
+        <el-cascader ref="parentCascader" v-model="formModel.parent" :props="cascaderProps" style="display: block;"/>
       </el-form-item>
       <el-form-item label="用户类型" prop="userTypeDictCode" class="is-required">
         <el-select v-model="formModel.userTypeDictCode" placeholder="请选择用户类型" clearable>
@@ -28,13 +27,13 @@
 </template>
 
 <script lang='ts'>
-import {defineComponent, reactive, toRefs} from "vue"
-import {TenantSupportAddEditPage} from "../../../base/page/TenantSupportAddEditPage.ts"
+import {defineComponent, reactive, ref, toRefs} from "vue"
+import {OrgSupportAddEditPage} from "../../../base/page/OrgSupportAddEditPage.ts"
 
-class AddEditPage extends TenantSupportAddEditPage {
+class AddEditPage extends OrgSupportAddEditPage {
 
-  constructor(props, context) {
-    super(props, context)
+  constructor(props, context, parentCascader) {
+    super(props, context, parentCascader)
   }
 
   protected initState(): any {
@@ -61,7 +60,8 @@ export default defineComponent({
   },
   emits: ['update:modelValue', "response"],
   setup(props, context) {
-    const page = reactive(new AddEditPage(props, context))
+    const parentCascader = ref()
+    const page = reactive(new AddEditPage(props, context, parentCascader))
     return {
       ...toRefs(page),
       ...toRefs(page.state)

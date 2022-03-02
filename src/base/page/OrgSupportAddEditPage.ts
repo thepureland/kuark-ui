@@ -51,8 +51,11 @@ export abstract class OrgSupportAddEditPage extends TenantSupportAddEditPage {
         if (rowObject.tenantId) {
             parents.push(rowObject.tenantId)
         }
-        if (rowObject.parentId) {
-            parents.push(rowObject.parentId)
+        const parentIds = rowObject.parentIds
+        if (parentIds) {
+            for (let parentId of parentIds) {
+                parents.push(parentId)
+            }
         }
         this.state.formModel.parent = parents
     }
@@ -75,7 +78,7 @@ export abstract class OrgSupportAddEditPage extends TenantSupportAddEditPage {
                 active: true
             }
             // @ts-ignore
-            const result = await ajax({url: this.getRootActionPath() + "/lazyLoadTree", method: "post", params})
+            const result = await ajax({url: "user/organization/lazyLoadTree", method: "post", params})
             if (result.data) {
                 resolve(result.data)
             } else {

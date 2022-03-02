@@ -116,6 +116,14 @@ class ListPage extends TenantSupportListPage {
     return params
   }
 
+  protected getDeleteMessage(row: any): string {
+    return '将级联删除所有孩子结点（如果有的话），依然进行删除操作吗？'
+  }
+
+  protected getBatchDeleteMessage(rows: Array<any>): string {
+    return '将级联删除所有孩子结点（如果有的话），' + super.getBatchDeleteMessage(rows)
+  }
+
   protected isCheckStrictly(): boolean {
     return false
   }

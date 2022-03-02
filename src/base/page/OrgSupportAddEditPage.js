@@ -99,8 +99,12 @@ var OrgSupportAddEditPage = /** @class */ (function (_super) {
         if (rowObject.tenantId) {
             parents.push(rowObject.tenantId);
         }
-        if (rowObject.parentId) {
-            parents.push(rowObject.parentId);
+        var parentIds = rowObject.parentIds;
+        if (parentIds) {
+            for (var _i = 0, parentIds_1 = parentIds; _i < parentIds_1.length; _i++) {
+                var parentId = parentIds_1[_i];
+                parents.push(parentId);
+            }
         }
         this.state.formModel.parent = parents;
     };
@@ -126,7 +130,7 @@ var OrgSupportAddEditPage = /** @class */ (function (_super) {
                             parentId: this.getParentId(node),
                             active: true
                         };
-                        return [4 /*yield*/, ajax({ url: this.getRootActionPath() + "/lazyLoadTree", method: "post", params: params })];
+                        return [4 /*yield*/, ajax({ url: "user/organization/lazyLoadTree", method: "post", params: params })];
                     case 2:
                         result = _a.sent();
                         if (result.data) {
