@@ -40,7 +40,6 @@ class AddEditPage extends BaseAddEditPage {
     super(props, context)
     this.defaultModel = props.module
     this.defaultDictType = props.dictType
-    this.convertThis()
   }
 
   protected initState(): any {
@@ -156,10 +155,8 @@ class AddEditPage extends BaseAddEditPage {
     }
   }
 
-  /**
-   * 为了解决恶心的this问题，不要写任何业务逻辑代码
-   */
-  private convertThis() {
+  protected convertThis() {
+    super.convertThis()
     this.loadTreeNodes = (node, resolve) => {
       this.doLoadTreeNodes(node, resolve)
     }

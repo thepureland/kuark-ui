@@ -115,7 +115,6 @@ class ListPage extends BaseListPage {
       new Pair("kuark:sys", "sub_sys"),
     ])
     this.loadResourceTypes()
-    this.convertThis()
   }
 
   protected initState(): any {
@@ -290,10 +289,8 @@ class ListPage extends BaseListPage {
     }
   }
 
-  /**
-   * 为了解决恶心的this问题，不要写任何业务逻辑代码
-   */
-  private convertThis() {
+  protected convertThis() {
+    super.convertThis()
     this.loadTree = (node, resolve) => {
       this.doLoadTree(node, resolve)
     }

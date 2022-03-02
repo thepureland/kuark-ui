@@ -11,7 +11,6 @@ export abstract class BaseListPage extends BasePage {
 
     protected constructor() {
         super()
-        this._convertThis()
     }
 
     protected initBaseState(): any {
@@ -277,10 +276,8 @@ export abstract class BaseListPage extends BasePage {
         this.search()
     }
 
-    /**
-     * 为了解决恶心的this问题，无任何业务逻辑代码
-     */
-    private _convertThis() {
+    protected convertThis() {
+        super.convertThis()
         this.handleSizeChange = (newSize: number) => {
             this.doHandleSizeChange(newSize)
         }

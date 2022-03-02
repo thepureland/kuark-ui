@@ -79,7 +79,6 @@ var BaseDetailPage = /** @class */ (function (_super) {
             else {
                 _this.loadData();
             }
-            _this._convertThis();
         }
         else {
             console.error("rid不能为空！");
@@ -151,11 +150,9 @@ var BaseDetailPage = /** @class */ (function (_super) {
         this.state.visible = true;
         this.context.emit('update:modelValue', false);
     };
-    /**
-     * 为了解决恶心的this问题，无任何业务逻辑代码
-     */
-    BaseDetailPage.prototype._convertThis = function () {
+    BaseDetailPage.prototype.convertThis = function () {
         var _this = this;
+        _super.prototype.convertThis.call(this);
         this.close = function () {
             _this.doClose();
         };

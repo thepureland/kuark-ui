@@ -1,7 +1,5 @@
 import {ElMessage} from "element-plus"
 // @ts-ignore
-import {ValidationRuleAdapter} from "./ValidationRuleAdapter.ts"
-// @ts-ignore
 import {BaseAddEditPage} from "./BaseAddEditPage.ts"
 
 
@@ -15,11 +13,11 @@ export abstract class TenantSupportAddEditPage extends BaseAddEditPage {
 
     protected constructor(props, context) {
         super(props, context)
-        this.initTenantVars()
+        this.initVars()
         this.loadTenants()
     }
 
-    private initTenantVars() {
+    protected initVars() {
         let formModel = this.state.formModel
         if (!formModel) {
             formModel = {}

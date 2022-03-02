@@ -51,102 +51,124 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.TenantSupportAddEditPage = void 0;
+exports.OrgSupportAddEditPage = void 0;
 var element_plus_1 = require("element-plus");
 // @ts-ignore
-var BaseAddEditPage_ts_1 = require("./BaseAddEditPage.ts");
+var TenantSupportAddEditPage_ts_1 = require("./TenantSupportAddEditPage.ts");
 /**
- * 多租户支持的添加/编辑页面处理抽象父类
+ * 组织机构支持的添加/编辑页面处理抽象父类
  *
  * @author K
  * @since 1.0.0
  */
-var TenantSupportAddEditPage = /** @class */ (function (_super) {
-    __extends(TenantSupportAddEditPage, _super);
-    function TenantSupportAddEditPage(props, context) {
+var OrgSupportAddEditPage = /** @class */ (function (_super) {
+    __extends(OrgSupportAddEditPage, _super);
+    function OrgSupportAddEditPage(props, context, parentCascader) {
         var _this = _super.call(this, props, context) || this;
-        _this.initVars();
-        _this.loadTenants();
+        _this.parentCascader = parentCascader;
+        _this.convertThis();
         return _this;
     }
-    TenantSupportAddEditPage.prototype.initVars = function () {
-        var formModel = this.state.formModel;
-        if (!formModel) {
-            formModel = {};
-            this.state.formModel = formModel;
-        }
-        formModel.subSysOrTenant = null;
-        formModel.subSysDictCode = null;
-        this.state.tenantId = null;
-        this.state.subSysOrTenants = null;
-        var self = this;
+    OrgSupportAddEditPage.prototype.initVars = function () {
+        _super.prototype.initVars.call(this);
+        var _self = this;
         this.state.cascaderProps = {
+            lazy: true,
+            value: "id",
+            label: "name",
             multiple: false,
-            checkStrictly: self.isCheckStrictly(),
-            expandTrigger: "hover"
+            checkStrictly: true,
+            expandTrigger: "hover",
+            lazyLoad: function (node, resolve) {
+                _self.loadTreeNodes(node, resolve);
+            },
         };
+        this.state.formModel.parent = [];
     };
-    TenantSupportAddEditPage.prototype.isCheckStrictly = function () {
-        return false;
-    };
-    TenantSupportAddEditPage.prototype.createSubmitParams = function () {
+    OrgSupportAddEditPage.prototype.createSubmitParams = function () {
         var params = _super.prototype.createSubmitParams.call(this);
-        var subSysOrTenant = this.state.formModel.subSysOrTenant;
-        if (!subSysOrTenant || subSysOrTenant.length == 0) {
-            element_plus_1.ElMessage.error('请选择子系统/租户！');
-            return;
-        }
-        else {
-            params.subSysDictCode = subSysOrTenant[0];
-            if (subSysOrTenant.length > 1) {
-                params.tenantId = subSysOrTenant[1];
-            }
-        }
+        var nodes = this.parentCascader.value.getCheckedNodes();
+        params.tenantId = this.getTenantId(nodes[0]);
+        params.parentId = this.getParentId(nodes[0]);
+        params.subSysDictCode = this.state.formModel.parent[0];
         return params;
     };
-    TenantSupportAddEditPage.prototype.fillForm = function (rowObject) {
+    OrgSupportAddEditPage.prototype.fillForm = function (rowObject) {
         _super.prototype.fillForm.call(this, rowObject);
-        var subSysOrTenant = [rowObject.subSysDictCode];
+        var parents = [rowObject.subSysDictCode];
         if (rowObject.tenantId) {
-            subSysOrTenant.push(rowObject.tenantId);
+            parents.push(rowObject.tenantId);
         }
-        this.state.formModel.subSysOrTenant = subSysOrTenant;
+        if (rowObject.parentId) {
+            parents.push(rowObject.parentId);
+        }
+        this.state.formModel.parent = parents;
     };
-    TenantSupportAddEditPage.prototype.loadTenants = function () {
+    OrgSupportAddEditPage.prototype.doLoadTreeNodes = function (node, resolve) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, options, subSyses, _i, subSyses_1, subSys, subSysOption, tenants, tenantOptions, tenantId, tenantOption;
+            var dictItems, subSyses, _i, dictItems_1, item, params, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, ajax({ url: "sys/tenant/getAllActiveTenants", method: "post" })];
+                    case 0:
+                        if (!(node.level === 0)) return [3 /*break*/, 1];
+                        dictItems = this.getDictItems("kuark:sys", "sub_sys");
+                        subSyses = [];
+                        for (_i = 0, dictItems_1 = dictItems; _i < dictItems_1.length; _i++) {
+                            item = dictItems_1[_i];
+                            subSyses.push({ id: item.first, name: item.second });
+                        }
+                        resolve(subSyses);
+                        return [3 /*break*/, 3];
                     case 1:
+                        params = {
+                            subSysDictCode: this.getSubSysDictCode(node),
+                            tenantId: this.getTenantId(node),
+                            parentId: this.getParentId(node),
+                            active: true
+                        };
+                        return [4 /*yield*/, ajax({ url: this.getRootActionPath() + "/lazyLoadTree", method: "post", params: params })];
+                    case 2:
                         result = _a.sent();
                         if (result.data) {
-                            options = [];
-                            subSyses = this.getDictItems("kuark:sys", "sub_sys");
-                            for (_i = 0, subSyses_1 = subSyses; _i < subSyses_1.length; _i++) {
-                                subSys = subSyses_1[_i];
-                                subSysOption = { value: subSys.first, label: subSys.second };
-                                options.push(subSysOption);
-                                tenants = result.data[subSys.first];
-                                if (tenants) {
-                                    tenantOptions = [];
-                                    subSysOption["children"] = tenantOptions;
-                                    for (tenantId in tenants) {
-                                        tenantOption = { value: tenantId, label: tenants[tenantId] };
-                                        tenantOptions.push(tenantOption);
-                                    }
-                                }
-                            }
-                            this.state.subSysOrTenants = options;
+                            resolve(result.data);
                         }
                         else {
-                            element_plus_1.ElMessage.error('加载租户信息失败！');
+                            element_plus_1.ElMessage.error('组织机构树加载失败！');
                         }
-                        return [2 /*return*/];
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
                 }
             });
         });
     };
-    return TenantSupportAddEditPage;
-}(BaseAddEditPage_ts_1.BaseAddEditPage));
-exports.TenantSupportAddEditPage = TenantSupportAddEditPage;
+    OrgSupportAddEditPage.prototype.getSubSysDictCode = function (node) {
+        while (node.parent) {
+            node = node.parent;
+        }
+        return node.data.id;
+    };
+    OrgSupportAddEditPage.prototype.getTenantId = function (node) {
+        while (node.parent) {
+            if (node.data.organization === false) {
+                return node.data.id;
+            }
+            node = node.parent;
+        }
+        return null;
+    };
+    OrgSupportAddEditPage.prototype.getParentId = function (node) {
+        if (node.data.organization === false || node.parent == undefined) {
+            return null;
+        }
+        return node.data.id;
+    };
+    OrgSupportAddEditPage.prototype.convertThis = function () {
+        var _this = this;
+        _super.prototype.convertThis.call(this);
+        this.loadTreeNodes = function (node, resolve) {
+            _this.doLoadTreeNodes(node, resolve);
+        };
+    };
+    return OrgSupportAddEditPage;
+}(TenantSupportAddEditPage_ts_1.TenantSupportAddEditPage));
+exports.OrgSupportAddEditPage = OrgSupportAddEditPage;

@@ -36,8 +36,6 @@ export abstract class BaseAddEditPage extends BasePage {
         } else {
             this.initValidationRule()
         }
-
-        this._convertThis()
     }
 
     protected initBaseState(): any {
@@ -145,10 +143,8 @@ export abstract class BaseAddEditPage extends BasePage {
         this.context.emit('update:modelValue', false);
     }
 
-    /**
-     * 为了解决恶心的this问题，无任何业务逻辑代码
-     */
-    private _convertThis() {
+    protected convertThis() {
+        super.convertThis()
         this.submit = () => {
             this.doSubmit()
         }

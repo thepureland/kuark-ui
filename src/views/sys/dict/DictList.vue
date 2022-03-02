@@ -116,8 +116,6 @@ class ListPage extends BaseListPage {
 
     this.loadModules()
     this.loadDictTypes()
-
-    this.convertThis()
   }
 
   protected initState(): any {
@@ -413,10 +411,8 @@ class ListPage extends BaseListPage {
     }
   }
 
-  /**
-   * 为了解决恶心的this问题，不要写任何业务逻辑代码
-   */
-  private convertThis() {
+  protected convertThis() {
+    super.convertThis()
     this.filterModule = (queryString: string, cb) => {
       this.doFilterModule(queryString, cb)
     }

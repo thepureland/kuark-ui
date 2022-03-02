@@ -95,21 +95,33 @@ var TenantSupportListPage = /** @class */ (function (_super) {
         return false;
     };
     TenantSupportListPage.prototype.createSearchParams = function () {
-        var params = _super.prototype.createSearchParams.call(this);
+        var pair = this.parseSubSysOrTenant();
+        if (pair == null) {
+            return null;
+        }
+        else {
+            var params = _super.prototype.createSearchParams.call(this);
+            params.subSysDictCode = pair.first;
+            params.tenantId = pair.second;
+            return params;
+        }
+    };
+    TenantSupportListPage.prototype.parseSubSysOrTenant = function () {
         var subSysOrTenant = this.state.searchParams.subSysOrTenant;
         if (this.isRequireSubSysOrTenantForSearch() && (subSysOrTenant == null || subSysOrTenant.length == 0)) {
             element_plus_1.ElMessage.error('请先选择子系统/租户！');
             return null;
         }
+        var pair = new Pair_ts_1.Pair(null, null);
         if (subSysOrTenant) {
             if (subSysOrTenant.length > 0) {
-                params.subSysDictCode = subSysOrTenant[0];
+                pair.first = subSysOrTenant[0];
             }
             if (subSysOrTenant.length > 1) {
-                params.tenantId = subSysOrTenant[1];
+                pair.second = subSysOrTenant[1];
             }
         }
-        return params;
+        return pair;
     };
     TenantSupportListPage.prototype.loadTenants = function () {
         return __awaiter(this, void 0, void 0, function () {

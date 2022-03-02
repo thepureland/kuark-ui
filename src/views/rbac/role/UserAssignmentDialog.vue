@@ -32,7 +32,6 @@ class UserAssignmentDialog extends BaseDetailPage {
 
   constructor(props, context) {
     super(props, context)
-    this.convertThis()
   }
 
   protected getRootActionPath(): String {
@@ -91,10 +90,8 @@ class UserAssignmentDialog extends BaseDetailPage {
     }
   }
 
-  /**
-   * 为了解决恶心的this问题，无任何业务逻辑代码
-   */
-  private convertThis() {
+  protected convertThis() {
+    super.convertThis()
     this.submit = () => {
       this.doSubmit()
     }

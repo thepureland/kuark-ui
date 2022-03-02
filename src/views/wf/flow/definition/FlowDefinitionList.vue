@@ -99,7 +99,6 @@ class ListPage extends BaseListPage {
     super()
     this.loadDict("kuark:flow", "flow_category")
     this.loadCategories()
-    this.convertThis()
   }
 
   protected initState(): any {
@@ -145,10 +144,8 @@ class ListPage extends BaseListPage {
     this.state.rid = this.getRowId(row)
   }
 
-  /**
-   * 为了解决恶心的this问题，不要写任何业务逻辑代码
-   */
-  private convertThis() {
+  protected convertThis() {
+    super.convertThis()
     this.design = (row) => {
       this.doDesign(row)
     }

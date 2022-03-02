@@ -46,7 +46,6 @@ class Page extends BaseDetailPage {
       children: 'subs',
       label: 'title',
     }
-    this.convertThis()
   }
 
   protected getRootActionPath(): String {
@@ -94,7 +93,8 @@ class Page extends BaseDetailPage {
     }
   }
 
-  private convertThis() {
+  protected convertThis() {
+    super.convertThis()
     this.save = () => {
       this.doSave()
     }

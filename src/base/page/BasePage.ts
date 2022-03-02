@@ -28,7 +28,7 @@ export abstract class BasePage {
             const additionalState = reactive(initState)
             Object.assign(this.state, additionalState)
         }
-        this.__convertThis()
+        this.convertThis()
     }
 
     protected abstract initState(): any
@@ -125,10 +125,7 @@ export abstract class BasePage {
         return ''
     }
 
-    /**
-     * 为了解决恶心的this问题，无任何业务逻辑代码
-     */
-    private __convertThis() {
+    protected convertThis() {
         this.transDict = (module, type, code) => {
             return this.doTransDict(module, type, code)
         }

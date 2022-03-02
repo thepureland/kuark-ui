@@ -131,7 +131,6 @@ class ListPage extends TenantSupportListPage {
       new Pair("kuark:sys", "resource_type"),
       new Pair("kuark:sys", "sub_sys")
     ])
-    this.convertThis()
   }
 
   protected initState(): any {
@@ -188,10 +187,8 @@ class ListPage extends TenantSupportListPage {
     }
   }
 
-  /**
-   * 为了解决恶心的this问题，不要写任何业务逻辑代码
-   */
-  private convertThis() {
+  protected convertThis() {
+    super.convertThis()
     this.assign = (type) => {
       this.doAssign(type)
     }

@@ -29,7 +29,6 @@ export abstract class BaseDetailPage extends BasePage {
             } else {
                 this.loadData()
             }
-            this._convertThis()
         } else {
             console.error("rid不能为空！")
         }
@@ -90,10 +89,8 @@ export abstract class BaseDetailPage extends BasePage {
         this.context.emit('update:modelValue', false)
     }
 
-    /**
-     * 为了解决恶心的this问题，无任何业务逻辑代码
-     */
-    private _convertThis() {
+    protected convertThis() {
+        super.convertThis()
         this.close = () => {
             this.doClose()
         }

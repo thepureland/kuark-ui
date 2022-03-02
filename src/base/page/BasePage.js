@@ -85,7 +85,7 @@ var BasePage = /** @class */ (function () {
             var additionalState = vue_1.reactive(initState);
             Object.assign(this.state, additionalState);
         }
-        this.__convertThis();
+        this.convertThis();
     }
     BasePage.prototype.doTransDict = function (module, dictType, code) {
         if (code) {
@@ -167,10 +167,7 @@ var BasePage = /** @class */ (function () {
             });
         });
     };
-    /**
-     * 为了解决恶心的this问题，无任何业务逻辑代码
-     */
-    BasePage.prototype.__convertThis = function () {
+    BasePage.prototype.convertThis = function () {
         var _this = this;
         this.transDict = function (module, type, code) {
             return _this.doTransDict(module, type, code);

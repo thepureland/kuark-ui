@@ -63,9 +63,7 @@ var BasePage_ts_1 = require("./BasePage.ts");
 var BaseListPage = /** @class */ (function (_super) {
     __extends(BaseListPage, _super);
     function BaseListPage() {
-        var _this = _super.call(this) || this;
-        _this._convertThis();
-        return _this;
+        return _super.call(this) || this;
     }
     BaseListPage.prototype.initBaseState = function () {
         return {
@@ -314,11 +312,9 @@ var BaseListPage = /** @class */ (function (_super) {
     BaseListPage.prototype.doAfterDelete = function (ids) {
         this.search();
     };
-    /**
-     * 为了解决恶心的this问题，无任何业务逻辑代码
-     */
-    BaseListPage.prototype._convertThis = function () {
+    BaseListPage.prototype.convertThis = function () {
         var _this = this;
+        _super.prototype.convertThis.call(this);
         this.handleSizeChange = function (newSize) {
             _this.doHandleSizeChange(newSize);
         };

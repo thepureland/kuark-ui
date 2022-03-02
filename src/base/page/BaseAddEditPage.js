@@ -82,7 +82,6 @@ var BaseAddEditPage = /** @class */ (function (_super) {
         else {
             _this.initValidationRule();
         }
-        _this._convertThis();
         return _this;
     }
     BaseAddEditPage.prototype.initBaseState = function () {
@@ -208,11 +207,9 @@ var BaseAddEditPage = /** @class */ (function (_super) {
         this.form.value.resetFields();
         this.context.emit('update:modelValue', false);
     };
-    /**
-     * 为了解决恶心的this问题，无任何业务逻辑代码
-     */
-    BaseAddEditPage.prototype._convertThis = function () {
+    BaseAddEditPage.prototype.convertThis = function () {
         var _this = this;
+        _super.prototype.convertThis.call(this);
         this.submit = function () {
             _this.doSubmit();
         };

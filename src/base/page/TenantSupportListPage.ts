@@ -45,21 +45,33 @@ export abstract class TenantSupportListPage extends BaseListPage {
     }
 
     protected createSearchParams() {
-        const params = super.createSearchParams()
+        const pair = this.parseSubSysOrTenant()
+        if (pair == null) {
+            return null
+        } else {
+            const params = super.createSearchParams()
+            params.subSysDictCode = pair.first
+            params.tenantId = pair.second
+            return params
+        }
+    }
+
+    protected parseSubSysOrTenant() {
         const subSysOrTenant = this.state.searchParams.subSysOrTenant
         if (this.isRequireSubSysOrTenantForSearch() && (subSysOrTenant == null || subSysOrTenant.length == 0)) {
             ElMessage.error('请先选择子系统/租户！')
             return null
         }
+        const pair = new Pair(null, null)
         if (subSysOrTenant) {
             if (subSysOrTenant.length > 0) {
-                params.subSysDictCode = subSysOrTenant[0]
+                pair.first = subSysOrTenant[0]
             }
             if (subSysOrTenant.length > 1) {
-                params.tenantId = subSysOrTenant[1]
+                pair.second = subSysOrTenant[1]
             }
         }
-        return params
+        return pair
     }
 
     private async loadTenants() {
