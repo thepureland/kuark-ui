@@ -143,13 +143,13 @@ class ListPage extends TenantSupportListPage {
   }
 
   protected async doSearch(): Promise<void> {
-    this.loadTree()
+    const pair = super.parseSubSysOrTenant()
+    if (pair == null) return null
+    this.loadTree(pair)
     return super.doSearch()
   }
 
-  private async loadTree() {
-    const pair = super.parseSubSysOrTenant()
-    if (pair == null) return
+  private async loadTree(pair) {
     const params = {
       subSysDictCode: pair.first,
       tenantId: pair.second

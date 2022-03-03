@@ -100,6 +100,7 @@
       <menu-authorization v-if="menuAuthorizationDialogVisible" v-model="menuAuthorizationDialogVisible" :rid="rid"/>
       <user-assignment-dialog v-if="userAssignmentDialogVisible" v-model="userAssignmentDialogVisible"
                               :rid="rid" :subSysDictCode="subSysDictCode" :tenantId="tenantId"/>
+      <user-list-dialog v-if="userListDialogVisible" v-model="userListDialogVisible" :rid="rid"/>
 
     </el-card>
 
@@ -111,6 +112,7 @@ import {defineComponent, reactive, toRefs} from "vue"
 import RoleAddEdit from './RoleAddEdit.vue'
 import RoleDetail from './RoleDetail.vue'
 import MenuAuthorization from './MenuAuthorization.vue'
+import UserListDialog from './UserListDialog.vue'
 import UserAssignmentDialog from './UserAssignmentDialog.vue'
 import {TenantSupportListPage} from "../../../base/page/TenantSupportListPage.ts";
 import {Pair} from "../../../base/Pair.ts"
@@ -141,6 +143,7 @@ class ListPage extends TenantSupportListPage {
       },
       menuAuthorizationDialogVisible: false,
       userAssignmentDialogVisible: false,
+      userListDialogVisible: false
     }
   }
 
@@ -180,10 +183,8 @@ class ListPage extends TenantSupportListPage {
     this.state.tenantId = row.tenantId
     if (item == 1) {
       this.state.userAssignmentDialogVisible = true
-    } else if (item == 2) {
-
     } else {
-
+      this.state.userListDialogVisible = true
     }
   }
 
@@ -201,7 +202,7 @@ class ListPage extends TenantSupportListPage {
 
 export default defineComponent({
   name: "~index",
-  components: {RoleAddEdit, RoleDetail, MenuAuthorization, UserAssignmentDialog},
+  components: {RoleAddEdit, RoleDetail, MenuAuthorization, UserAssignmentDialog, UserListDialog},
   setup(props, context) {
     const listPage = reactive(new ListPage())
     return {
