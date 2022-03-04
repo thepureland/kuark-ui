@@ -67,19 +67,13 @@ var BasePage_ts_1 = require("./BasePage.ts");
 var BaseAddEditPage = /** @class */ (function (_super) {
     __extends(BaseAddEditPage, _super);
     function BaseAddEditPage(props, context) {
-        var _this = _super.call(this) || this;
-        _this.props = props;
-        _this.context = context;
+        var _this = _super.call(this, props, context) || this;
         _this.form = vue_1.ref();
-        _this.visible = vue_1.computed({
-            get: function () { return _this.props.modelValue; },
-            set: function () {
-            }
-        });
-        if (_this.props.rid) {
+        if (props.rid) {
             _this.loadRowObject().then(function () { return _this.initValidationRule(); });
         }
         else {
+            _super.prototype.render.call(_this);
             _this.initValidationRule();
         }
         return _this;
@@ -104,7 +98,7 @@ var BaseAddEditPage = /** @class */ (function (_super) {
     BaseAddEditPage.prototype.createSubmitParams = function () {
         // remark: this.state.formModel.remark
         var params = {
-            id: this.props.rid
+            id: _super.prototype.props.rid
         };
         // @ts-ignore
         var model = this.state.formModel;
@@ -126,7 +120,7 @@ var BaseAddEditPage = /** @class */ (function (_super) {
     };
     BaseAddEditPage.prototype.createRowObjectLoadParams = function () {
         return {
-            id: this.props.rid
+            id: _super.prototype.props.rid
         };
     };
     BaseAddEditPage.prototype.loadRowObject = function () {
@@ -141,6 +135,7 @@ var BaseAddEditPage = /** @class */ (function (_super) {
                         result = _a.sent();
                         if (result.data) {
                             this.fillForm(result.data);
+                            _super.prototype.render.call(this);
                         }
                         else {
                             element_plus_1.ElMessage.error('数据加载失败！');
@@ -191,8 +186,8 @@ var BaseAddEditPage = /** @class */ (function (_super) {
                             element_plus_1.ElMessage.success('保存成功！');
                             this.form.value.resetFields();
                             params.id = result.data;
-                            this.context.emit('response', params);
-                            this.context.emit('update:modelValue', false);
+                            this.doClose();
+                            _super.prototype.context.emit('response', params);
                         }
                         else {
                             element_plus_1.ElMessage.error('保存失败！');
@@ -204,17 +199,14 @@ var BaseAddEditPage = /** @class */ (function (_super) {
         }); });
     };
     BaseAddEditPage.prototype.doClose = function () {
+        _super.prototype.doClose.call(this);
         this.form.value.resetFields();
-        this.context.emit('update:modelValue', false);
     };
     BaseAddEditPage.prototype.convertThis = function () {
         var _this = this;
         _super.prototype.convertThis.call(this);
         this.submit = function () {
             _this.doSubmit();
-        };
-        this.close = function () {
-            _this.doClose();
         };
     };
     return BaseAddEditPage;

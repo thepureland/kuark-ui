@@ -63,8 +63,8 @@ var Pair_ts_1 = require("../Pair.ts");
  */
 var TenantSupportListPage = /** @class */ (function (_super) {
     __extends(TenantSupportListPage, _super);
-    function TenantSupportListPage() {
-        var _this = _super.call(this) || this;
+    function TenantSupportListPage(props, context) {
+        var _this = _super.call(this, props, context) || this;
         _this.initTenantVars();
         _this.loadDicts([
             new Pair_ts_1.Pair("kuark:sys", "sub_sys")

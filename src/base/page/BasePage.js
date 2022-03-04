@@ -49,7 +49,7 @@ var Pair_ts_1 = require("../Pair.ts");
  * @since 1.0.0
  */
 var BasePage = /** @class */ (function () {
-    function BasePage() {
+    function BasePage(props, context) {
         var _this = this;
         this.getDictItems = function (module, dictType) {
             var key = (module ? module : "") + '---' + dictType;
@@ -75,6 +75,8 @@ var BasePage = /** @class */ (function () {
             }
             return '';
         };
+        this.props = props;
+        this.context = context;
         if (!window["dictCache"]) {
             window["dictCache"] = new Map();
         }
@@ -86,7 +88,26 @@ var BasePage = /** @class */ (function () {
             Object.assign(this.state, additionalState);
         }
         this.convertThis();
+        if (!this.showAfterLoadData()) {
+            this.render();
+        }
     }
+    BasePage.prototype.render = function () {
+        var _this = this;
+        if (this.props) {
+            this.visible = vue_1.computed({
+                get: function () { return _this.props.modelValue; },
+                set: function () {
+                    _this.context.emit('update:modelValue', false);
+                }
+            });
+            // @ts-ignore
+            this.visible.value = true;
+        }
+    };
+    BasePage.prototype.showAfterLoadData = function () {
+        return false;
+    };
     BasePage.prototype.doTransDict = function (module, dictType, code) {
         if (code) {
             var key = (module ? module : "") + '---' + dictType;
@@ -167,10 +188,16 @@ var BasePage = /** @class */ (function () {
             });
         });
     };
+    BasePage.prototype.doClose = function () {
+        this.visible.value = false;
+    };
     BasePage.prototype.convertThis = function () {
         var _this = this;
         this.transDict = function (module, type, code) {
             return _this.doTransDict(module, type, code);
+        };
+        this.close = function () {
+            _this.doClose();
         };
     };
     return BasePage;

@@ -62,8 +62,8 @@ var BasePage_ts_1 = require("./BasePage.ts");
  */
 var BaseListPage = /** @class */ (function (_super) {
     __extends(BaseListPage, _super);
-    function BaseListPage() {
-        return _super.call(this) || this;
+    function BaseListPage(props, context) {
+        return _super.call(this, props, context) || this;
     }
     BaseListPage.prototype.initBaseState = function () {
         return {

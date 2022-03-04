@@ -95,8 +95,8 @@ import {ElMessage} from "element-plus"
 
 class ListPage extends BaseListPage {
 
-  constructor() {
-    super()
+  constructor(props, context) {
+    super(props, context)
     this.loadDict("kuark:flow", "flow_category")
     this.loadCategories()
   }
@@ -159,7 +159,7 @@ export default defineComponent({
 
 //  components: {addEditParam},
   setup(props, context) {
-    const listPage = reactive(new ListPage())
+    const listPage = reactive(new ListPage(props, context))
     return {
       ...toRefs(listPage.state),
       ...toRefs(listPage),

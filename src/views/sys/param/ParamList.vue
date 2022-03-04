@@ -84,8 +84,8 @@ import {Pair} from "../../../base/Pair.ts"
 
 class ListPage extends BaseListPage {
 
-  constructor() {
-    super()
+  constructor(props, context) {
+    super(props, context)
     this.loadModules()
   }
 
@@ -149,7 +149,7 @@ export default defineComponent({
   name: "~index",
   components: {ParamAddEdit, ParamDetail},
   setup(props, context) {
-    const listPage = reactive(new ListPage())
+    const listPage = reactive(new ListPage(props, context))
     return {
       ...toRefs(listPage.state),
       ...toRefs(listPage)

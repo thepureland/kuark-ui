@@ -83,8 +83,8 @@ import {BaseListPage} from "../../../base/page/BaseListPage.ts"
 
 class ListPage extends BaseListPage {
 
-  constructor() {
-    super()
+  constructor(props, context) {
+    super(props, context)
   }
 
   protected initState(): any {
@@ -106,7 +106,7 @@ export default defineComponent({
   name: "~index",
   components: {UserGroupAddEdit, UserGroupDetail},
   setup(props, context) {
-    const listPage = reactive(new ListPage())
+    const listPage = reactive(new ListPage(props, context))
     return {
       ...toRefs(listPage.state),
       ...toRefs(listPage),

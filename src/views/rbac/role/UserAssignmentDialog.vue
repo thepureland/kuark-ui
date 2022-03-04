@@ -65,8 +65,7 @@ class UserAssignmentDialog extends BaseDetailPage {
         this.state.assignedUsers.push(elem.userId)
       }
     }
-    // @ts-ignore
-    this.state.visible = true
+    super.postLoadDataSuccessfully(data)
   }
 
   public handleChange() {

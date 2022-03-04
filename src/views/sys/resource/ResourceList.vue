@@ -108,8 +108,8 @@ class ListPage extends BaseListPage {
 
   private tree: any
 
-  constructor(tree: any) {
-    super()
+  constructor(props, context, tree) {
+    super(props, context)
     this.tree = tree
     this.loadDicts([
       new Pair("kuark:sys", "sub_sys"),
@@ -309,7 +309,7 @@ export default defineComponent({
   components: {ResourceAddEdit, ResourceDetail},
   setup(props, context) {
     const tree = ref()
-    const listPage = reactive(new ListPage(tree))
+    const listPage = reactive(new ListPage(props, context, tree))
     return {
       ...toRefs(listPage.state),
       ...toRefs(listPage),

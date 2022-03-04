@@ -10,8 +10,8 @@ import {Pair} from "../Pair.ts"
  */
 export abstract class TenantSupportListPage extends BaseListPage {
 
-    protected constructor() {
-        super()
+    protected constructor(props, context) {
+        super(props, context)
         this.initTenantVars()
         this.loadDicts([
             new Pair("kuark:sys", "sub_sys")

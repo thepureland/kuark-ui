@@ -10,15 +10,9 @@ import {ElMessage} from "element-plus"
  */
 export abstract class BaseDetailPage extends BasePage {
 
-    public visible: any
-    public props: any
-    public context: any
-
     protected constructor(props, context) {
-        super()
-        this.props = props
-        this.context = context
-        if (this.props.rid) {
+        super(props, context)
+        if (props.rid) {
             const promise = this.preLoad()
             if (promise) {
                 const self = this
@@ -37,7 +31,6 @@ export abstract class BaseDetailPage extends BasePage {
     protected initBaseState(): any {
         return {
             detail: null,
-            visible: false,
             rid: '',
         }
     }
@@ -46,6 +39,10 @@ export abstract class BaseDetailPage extends BasePage {
     }
 
     protected async preLoad() {
+    }
+
+    protected showAfterLoadData(): Boolean {
+        return false
     }
 
     protected getDetailLoadUrl(): String {
@@ -74,26 +71,16 @@ export abstract class BaseDetailPage extends BasePage {
     protected postLoadDataSuccessfully(data) {
         // @ts-ignore
         this.state.detail = data
-        // @ts-ignore
-        this.state.visible = true
+        if (this.showAfterLoadData()) {
+            this.render()
+        }
     }
 
     protected async loadOthers() {
     }
 
-    public close: () => void
-
-    protected doClose() {
-        // @ts-ignore
-        this.state.visible = true
-        this.context.emit('update:modelValue', false)
-    }
-
     protected convertThis() {
         super.convertThis()
-        this.close = () => {
-            this.doClose()
-        }
     }
 
 }

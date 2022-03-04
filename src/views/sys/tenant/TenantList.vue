@@ -88,8 +88,8 @@ import {Pair} from "../../../base/Pair.ts";
 
 class ListPage extends BaseListPage {
 
-  constructor() {
-    super()
+  constructor(props, context) {
+    super(props, context)
     this.loadDicts([
       new Pair("kuark:sys", "sub_sys"),
     ])
@@ -121,7 +121,7 @@ export default defineComponent({
   name: "~index",
   components: {TenantAddEdit, TenantDetail},
   setup(props, context) {
-    const listPage = reactive(new ListPage())
+    const listPage = reactive(new ListPage(props, context))
     return {
       ...toRefs(listPage.state),
       ...toRefs(listPage)

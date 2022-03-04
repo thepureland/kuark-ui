@@ -110,8 +110,8 @@ class ListPage extends BaseListPage {
 
   private tree: any
 
-  constructor(tree: any) {
-    super()
+  constructor(props, context, tree: any) {
+    super(props, context)
     this.tree = tree
 
     this.loadModules()
@@ -437,7 +437,7 @@ export default defineComponent({
   components: {DictAddEdit, DictDetail, DictItemDetail},
   setup(props, context) {
     const tree = ref()
-    const listPage = reactive(new ListPage(tree))
+    const listPage = reactive(new ListPage(props, context, tree))
     return {
       ...toRefs(listPage.state),
       ...toRefs(listPage),

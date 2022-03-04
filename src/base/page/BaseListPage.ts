@@ -9,8 +9,8 @@ import {BasePage} from "./BasePage.ts"
  */
 export abstract class BaseListPage extends BasePage {
 
-    protected constructor() {
-        super()
+    protected constructor(props, context) {
+        super(props, context)
     }
 
     protected initBaseState(): any {

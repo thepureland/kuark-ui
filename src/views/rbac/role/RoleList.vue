@@ -121,8 +121,8 @@ class ListPage extends TenantSupportListPage {
 
   public commandValue: any
 
-  constructor() {
-    super()
+  constructor(props, context) {
+    super(props, context)
     this.commandValue = (item, row) => {
       return {
         item: item,
@@ -204,7 +204,7 @@ export default defineComponent({
   name: "~index",
   components: {RoleAddEdit, RoleDetail, MenuAuthorization, UserAssignmentDialog, UserListDialog},
   setup(props, context) {
-    const listPage = reactive(new ListPage())
+    const listPage = reactive(new ListPage(props, context))
     return {
       ...toRefs(listPage.state),
       ...toRefs(listPage),

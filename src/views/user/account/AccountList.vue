@@ -108,8 +108,8 @@ import {ElMessage} from "element-plus";
 
 class ListPage extends TenantSupportListPage {
 
-  constructor() {
-    super()
+  constructor(props, context) {
+    super(props, context)
     this.loadDicts([
       new Pair("kuark:user", "user_status"),
       new Pair("kuark:user", "user_type"),
@@ -169,7 +169,7 @@ export default defineComponent({
   name: "~index",
   components: {AccountAddEdit, AccountDetail},
   setup(props, context) {
-    const listPage = reactive(new ListPage())
+    const listPage = reactive(new ListPage(props, context))
     return {
       ...toRefs(listPage.state),
       ...toRefs(listPage),

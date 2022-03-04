@@ -1,4 +1,4 @@
-import {reactive} from "vue"
+import {computed, reactive, ref} from "vue"
 import * as moment from 'moment'
 import {ElMessage} from "element-plus"
 // @ts-ignore
@@ -16,12 +16,17 @@ export abstract class BasePage {
 
     public state: any
 
-    protected constructor() {
+    public visible: any
+    public props: any
+    public context: any
+
+    protected constructor(props, context) {
+        this.props = props
+        this.context = context
         if (!window["dictCache"]) {
             window["dictCache"] = new Map()
         }
         this.dictCache = window["dictCache"]
-
         this.state = reactive(this.initBaseState())
         const initState = this.initState()
         if (initState) {
@@ -29,6 +34,22 @@ export abstract class BasePage {
             Object.assign(this.state, additionalState)
         }
         this.convertThis()
+        if (!this.showAfterLoadData()) {
+            this.render()
+        }
+    }
+
+    protected render() {
+        if (this.props) {
+            this.visible = computed({
+                get: () => this.props.modelValue,
+                set: () => {
+                    this.context.emit('update:modelValue', false)
+                }
+            })
+            // @ts-ignore
+            this.visible.value = true
+        }
     }
 
     protected abstract initState(): any
@@ -36,6 +57,10 @@ export abstract class BasePage {
     protected abstract initBaseState(): any
 
     protected abstract getRootActionPath(): String
+
+    protected showAfterLoadData(): Boolean {
+        return false
+    }
 
     public transDict: (module, type, code) => String
 
@@ -125,9 +150,18 @@ export abstract class BasePage {
         return ''
     }
 
+    public close: () => void
+
+    protected doClose() {
+        this.visible.value = false
+    }
+
     protected convertThis() {
         this.transDict = (module, type, code) => {
             return this.doTransDict(module, type, code)
+        }
+        this.close = () => {
+            this.doClose()
         }
     }
 

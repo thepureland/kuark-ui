@@ -83,8 +83,8 @@ import {Pair} from "../../../base/Pair.ts";
 
 class ListPage extends TenantSupportListPage {
 
-  constructor() {
-    super()
+  constructor(props, context) {
+    super(props, context)
     this.loadDicts([
       new Pair("kuark:user", "organization_type"),
       new Pair("kuark:sys", "sub_sys")
@@ -142,7 +142,7 @@ export default defineComponent({
   name: "~index",
   components: {UserGroupAddEdit, UserGroupDetail},
   setup(props, context) {
-    const listPage = reactive(new ListPage())
+    const listPage = reactive(new ListPage(props, context))
     return {
       ...toRefs(listPage.state),
       ...toRefs(listPage),

@@ -56,26 +56,15 @@
 </template>
 
 <script lang='ts'>
-import {computed, defineComponent, reactive, toRefs} from "vue"
+import {defineComponent, reactive, toRefs} from "vue"
 import {BaseListPage} from "../../../base/page/BaseListPage.ts"
 import AccountDetail from '../../user/account/AccountDetail.vue'
 import {Pair} from "../../../base/Pair.ts"
 
 class UserListDialog extends BaseListPage {
 
-  public visible: any
-  public props: any
-  public context: any
-
   constructor(props, context) {
-    super()
-    this.props = props
-    this.context = context
-    this.visible = computed({
-      get: () => this.props.modelValue,
-      set: () => {
-      }
-    })
+    super(props, context)
     this.loadDicts([
       new Pair("kuark:user", "user_status"),
       new Pair("kuark:user", "user_type"),
@@ -99,19 +88,6 @@ class UserListDialog extends BaseListPage {
     const params = super.createSearchParams()
     params._roleId = this.props.rid
     return params
-  }
-
-  public close: () => void
-
-  protected doClose() {
-    this.context.emit('update:modelValue', false);
-  }
-
-  protected convertThis() {
-    super.convertThis()
-    this.close = () => {
-      this.doClose()
-    }
   }
 
 }

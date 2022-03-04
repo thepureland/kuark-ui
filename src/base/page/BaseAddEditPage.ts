@@ -1,5 +1,5 @@
 import {ElMessage} from "element-plus"
-import {computed, ref} from "vue"
+import {ref} from "vue"
 // @ts-ignore
 import {ValidationRuleAdapter} from "../ValidationRuleAdapter.ts"
 // @ts-ignore
@@ -16,24 +16,13 @@ export abstract class BaseAddEditPage extends BasePage {
 
     public form: any
 
-    public props: any
-    public context: any
-    public visible: any
-
     protected constructor(props, context) {
-        super()
-        this.props = props
-        this.context = context
+        super(props, context)
         this.form = ref()
-        this.visible = computed({
-            get: () => this.props.modelValue,
-            set: () => {
-            }
-        })
-
-        if (this.props.rid) {
+        if (props.rid) {
             this.loadRowObject().then(() => this.initValidationRule())
         } else {
+            super.render()
             this.initValidationRule()
         }
     }
@@ -62,7 +51,7 @@ export abstract class BaseAddEditPage extends BasePage {
     protected createSubmitParams(): any {
         // remark: this.state.formModel.remark
         const params = {
-            id: this.props.rid
+            id: super.props.rid
         }
         // @ts-ignore
         const model = this.state.formModel
@@ -86,7 +75,7 @@ export abstract class BaseAddEditPage extends BasePage {
 
     protected createRowObjectLoadParams(): any {
         return {
-            id: this.props.rid
+            id: super.props.rid
         }
     }
 
@@ -96,6 +85,7 @@ export abstract class BaseAddEditPage extends BasePage {
         const result = await ajax({url: this.getRowObjectLoadUrl(), params});
         if (result.data) {
             this.fillForm(result.data)
+            super.render()
         } else {
             ElMessage.error('数据加载失败！')
         }
@@ -127,8 +117,8 @@ export abstract class BaseAddEditPage extends BasePage {
                     ElMessage.success('保存成功！')
                     this.form.value.resetFields()
                     params.id = result.data
-                    this.context.emit('response', params)
-                    this.context.emit('update:modelValue', false)
+                    this.doClose()
+                    super.context.emit('response', params)
                 } else {
                     ElMessage.error('保存失败！')
                 }
@@ -136,20 +126,15 @@ export abstract class BaseAddEditPage extends BasePage {
         })
     }
 
-    public close: () => void
-
     protected doClose() {
+        super.doClose()
         this.form.value.resetFields()
-        this.context.emit('update:modelValue', false);
     }
 
     protected convertThis() {
         super.convertThis()
         this.submit = () => {
             this.doSubmit()
-        }
-        this.close = () => {
-            this.doClose()
         }
     }
 

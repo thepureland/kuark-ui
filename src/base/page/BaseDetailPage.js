@@ -64,10 +64,8 @@ var element_plus_1 = require("element-plus");
 var BaseDetailPage = /** @class */ (function (_super) {
     __extends(BaseDetailPage, _super);
     function BaseDetailPage(props, context) {
-        var _this = _super.call(this) || this;
-        _this.props = props;
-        _this.context = context;
-        if (_this.props.rid) {
+        var _this = _super.call(this, props, context) || this;
+        if (props.rid) {
             var promise = _this.preLoad();
             if (promise) {
                 var self_1 = _this;
@@ -88,7 +86,6 @@ var BaseDetailPage = /** @class */ (function (_super) {
     BaseDetailPage.prototype.initBaseState = function () {
         return {
             detail: null,
-            visible: false,
             rid: '',
         };
     };
@@ -100,6 +97,9 @@ var BaseDetailPage = /** @class */ (function (_super) {
                 return [2 /*return*/];
             });
         });
+    };
+    BaseDetailPage.prototype.showAfterLoadData = function () {
+        return false;
     };
     BaseDetailPage.prototype.getDetailLoadUrl = function () {
         // @ts-ignore
@@ -135,8 +135,9 @@ var BaseDetailPage = /** @class */ (function (_super) {
     BaseDetailPage.prototype.postLoadDataSuccessfully = function (data) {
         // @ts-ignore
         this.state.detail = data;
-        // @ts-ignore
-        this.state.visible = true;
+        if (this.showAfterLoadData()) {
+            this.render();
+        }
     };
     BaseDetailPage.prototype.loadOthers = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -145,17 +146,8 @@ var BaseDetailPage = /** @class */ (function (_super) {
             });
         });
     };
-    BaseDetailPage.prototype.doClose = function () {
-        // @ts-ignore
-        this.state.visible = true;
-        this.context.emit('update:modelValue', false);
-    };
     BaseDetailPage.prototype.convertThis = function () {
-        var _this = this;
         _super.prototype.convertThis.call(this);
-        this.close = function () {
-            _this.doClose();
-        };
     };
     return BaseDetailPage;
 }(BasePage_ts_1.BasePage));
