@@ -99,7 +99,7 @@ var BaseDetailPage = /** @class */ (function (_super) {
         });
     };
     BaseDetailPage.prototype.showAfterLoadData = function () {
-        return false;
+        return true;
     };
     BaseDetailPage.prototype.getDetailLoadUrl = function () {
         // @ts-ignore

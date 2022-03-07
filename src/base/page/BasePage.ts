@@ -13,12 +13,11 @@ import {Pair} from "../Pair.ts";
 export abstract class BasePage {
 
     public dictCache: Map<String, Map<String, String>>  // Map<模块---字典类型, Map<字典项编码，字典项名称>>
-
     public state: any
+    public visible: any = ref(false)
 
-    public visible: any
-    public props: any
-    public context: any
+    protected props: any
+    protected context: any
 
     protected constructor(props, context) {
         this.props = props
@@ -40,16 +39,7 @@ export abstract class BasePage {
     }
 
     protected render() {
-        if (this.props) {
-            this.visible = computed({
-                get: () => this.props.modelValue,
-                set: () => {
-                    this.context.emit('update:modelValue', false)
-                }
-            })
-            // @ts-ignore
-            this.visible.value = true
-        }
+        this.visible.value = true
     }
 
     protected abstract initState(): any
@@ -154,6 +144,7 @@ export abstract class BasePage {
 
     protected doClose() {
         this.visible.value = false
+        this.context.emit('update:modelValue', false)
     }
 
     protected convertThis() {

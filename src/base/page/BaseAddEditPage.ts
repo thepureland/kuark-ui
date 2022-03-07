@@ -51,7 +51,7 @@ export abstract class BaseAddEditPage extends BasePage {
     protected createSubmitParams(): any {
         // remark: this.state.formModel.remark
         const params = {
-            id: super.props.rid
+            id: this.props.rid
         }
         // @ts-ignore
         const model = this.state.formModel
@@ -75,7 +75,7 @@ export abstract class BaseAddEditPage extends BasePage {
 
     protected createRowObjectLoadParams(): any {
         return {
-            id: super.props.rid
+            id: this.props.rid
         }
     }
 

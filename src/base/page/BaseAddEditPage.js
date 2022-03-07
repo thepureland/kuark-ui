@@ -98,7 +98,7 @@ var BaseAddEditPage = /** @class */ (function (_super) {
     BaseAddEditPage.prototype.createSubmitParams = function () {
         // remark: this.state.formModel.remark
         var params = {
-            id: _super.prototype.props.rid
+            id: this.props.rid
         };
         // @ts-ignore
         var model = this.state.formModel;
@@ -120,7 +120,7 @@ var BaseAddEditPage = /** @class */ (function (_super) {
     };
     BaseAddEditPage.prototype.createRowObjectLoadParams = function () {
         return {
-            id: _super.prototype.props.rid
+            id: this.props.rid
         };
     };
     BaseAddEditPage.prototype.loadRowObject = function () {

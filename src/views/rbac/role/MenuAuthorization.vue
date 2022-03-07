@@ -69,7 +69,7 @@ class Page extends BaseDetailPage {
     if (result.data) {
       this.state.menuData = result.data.first
       this.state.defaultCheckedKeys = result.data.second
-      this.state.visible = true
+      this.render()
     } else {
       ElMessage.error('数据加载失败！')
     }

@@ -42,7 +42,7 @@ export abstract class BaseDetailPage extends BasePage {
     }
 
     protected showAfterLoadData(): Boolean {
-        return false
+        return true
     }
 
     protected getDetailLoadUrl(): String {

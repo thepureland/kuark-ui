@@ -51,6 +51,7 @@ var Pair_ts_1 = require("../Pair.ts");
 var BasePage = /** @class */ (function () {
     function BasePage(props, context) {
         var _this = this;
+        this.visible = vue_1.ref(false);
         this.getDictItems = function (module, dictType) {
             var key = (module ? module : "") + '---' + dictType;
             var map = _this.dictCache[key];
@@ -93,17 +94,7 @@ var BasePage = /** @class */ (function () {
         }
     }
     BasePage.prototype.render = function () {
-        var _this = this;
-        if (this.props) {
-            this.visible = vue_1.computed({
-                get: function () { return _this.props.modelValue; },
-                set: function () {
-                    _this.context.emit('update:modelValue', false);
-                }
-            });
-            // @ts-ignore
-            this.visible.value = true;
-        }
+        this.visible.value = true;
     };
     BasePage.prototype.showAfterLoadData = function () {
         return false;
@@ -190,6 +181,7 @@ var BasePage = /** @class */ (function () {
     };
     BasePage.prototype.doClose = function () {
         this.visible.value = false;
+        this.context.emit('update:modelValue', false);
     };
     BasePage.prototype.convertThis = function () {
         var _this = this;
