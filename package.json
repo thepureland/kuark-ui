@@ -8,13 +8,13 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^0.2.4",
+    "@element-plus/icons": "^0.0.11",
     "axios": "^0.23.0",
     "barcoder": "^2.0.1",
-    "element-plus": "^1.2.0-beta.5",
+    "element-plus": "^2.0.5",
     "moment": "^2.29.1",
     "nprogress": "^0.2.0",
-    "vue": "^3.2.20",
+    "vue": "^3.2.31",
     "vue-cropperjs": "^5.0.0",
     "vue-i18n": "^9.2.0-beta.13",
     "vue-router": "^4.0.12",
