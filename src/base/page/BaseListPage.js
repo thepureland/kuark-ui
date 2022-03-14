@@ -285,6 +285,9 @@ var BaseListPage = /** @class */ (function (_super) {
                             id: this.getRowId(row),
                             active: row.active
                         };
+                        if (row.subSysDictCode) {
+                            params["subSysDictCode"] = row.subSysDictCode;
+                        }
                         return [4 /*yield*/, ajax({ url: this.getUpdateActiveUrl(), params: params })];
                     case 1:
                         result = _a.sent();

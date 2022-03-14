@@ -238,6 +238,9 @@ export abstract class BaseListPage extends BasePage {
             id: this.getRowId(row),
             active: row.active
         }
+        if (row.subSysDictCode) {
+            params["subSysDictCode"] = row.subSysDictCode
+        }
         // @ts-ignore
         const result = await ajax({url: this.getUpdateActiveUrl(), params})
         if (!result.data) {
