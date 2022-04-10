@@ -187,7 +187,7 @@ var BaseAddEditPage = /** @class */ (function (_super) {
                             this.form.value.resetFields();
                             params.id = result.data;
                             this.doClose();
-                            _super.prototype.context.emit('response', params);
+                            this.context.emit('response', params);
                         }
                         else {
                             element_plus_1.ElMessage.error('保存失败！');

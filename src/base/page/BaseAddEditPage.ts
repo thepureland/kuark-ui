@@ -118,7 +118,7 @@ export abstract class BaseAddEditPage extends BasePage {
                     this.form.value.resetFields()
                     params.id = result.data
                     this.doClose()
-                    super.context.emit('response', params)
+                    this.context.emit('response', params)
                 } else {
                     ElMessage.error('保存失败！')
                 }

@@ -7,9 +7,9 @@
             <div class="content">
                 <router-view v-slot="{ Component }">
                     <transition name="move" mode="out-in">
-                        <keep-alive>
+<!--                        <keep-alive>-->
                             <component :is="Component" />
-                        </keep-alive>
+<!--                        </keep-alive>-->
                     </transition>
                 </router-view>
                 <!-- <el-backtop target=".content"></el-backtop> -->

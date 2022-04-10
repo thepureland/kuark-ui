@@ -130,6 +130,13 @@ const routes = [
                 },
                 component: () => import ( /* webpackChunkName: "dashboard" */ "../views/user/organization/OrganizationList.vue")
             }, {
+                path: "/sys/cache",
+                name: "cache",
+                meta: {
+                    title: '缓存管理'
+                },
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/cache/CacheList.vue")
+            }, {
                 path: "/geo/country",
                 name: "country",
                 meta: {
