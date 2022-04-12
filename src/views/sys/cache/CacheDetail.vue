@@ -34,8 +34,8 @@
     <el-row :gutter="10">
       <el-col :span="4">TTL(秒)：</el-col>
       <el-col :span="8">{{detail.ttl}}</el-col>
-      <el-col :span="4">缓存管理Bean的名称：</el-col>
-      <el-col :span="8">{{detail.managementBeanName}}</el-col>
+      <el-col :span="4">备注：</el-col>
+      <el-col :span="8">{{detail.remark}}</el-col>
     </el-row>
     <el-row :gutter="10">
       <el-col :span="4">创建时间：</el-col>
@@ -48,10 +48,6 @@
       <el-col :span="8">{{detail.createUser}}</el-col>
       <el-col :span="4">最近更新用户：</el-col>
       <el-col :span="8">{{detail.updateUser}}</el-col>
-    </el-row>
-    <el-row :gutter="10">
-      <el-col :span="4">备注：</el-col>
-      <el-col :span="20">{{detail.remark}}</el-col>
     </el-row>
   </el-dialog>
 </template>

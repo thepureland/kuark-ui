@@ -44,9 +44,6 @@
           <el-input v-model="formModel.ttl"/>
         </el-col>
       </el-form-item>
-      <el-form-item label="缓存管理Bean的名称" prop="managementBeanName" class="is-required">
-        <el-input v-model="formModel.managementBeanName"/>
-      </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="formModel.remark"/>
       </el-form-item>

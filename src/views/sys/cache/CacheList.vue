@@ -38,7 +38,7 @@
                 :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange">
         <el-table-column type="selection" width="39"/>
         <el-table-column type="index" width="50"/>
-        <el-table-column label="缓存名称" prop="name" sortable="custom"  width="200"/>
+        <el-table-column label="缓存名称" prop="name" sortable="custom" width="350"/>
         <el-table-column label="子系统" prop="subSysDictCode" width="150">
           <template #default="scope">
             {{ transDict("kuark:sys", "sub_sys", scope.row.subSysDictCode) }}
@@ -60,14 +60,13 @@
           </template>
         </el-table-column>
         <el-table-column label="TTL(秒)" prop="ttl" width="100"/>
-        <el-table-column label="缓存管理Bean的名称" prop="managementBeanName"/>
         <el-table-column label="备注" prop="remark"/>
 
         <el-table-column label="操作" align="center">
-          <edit @click="handleEdit(scope.row)" class="operate-column-icon"/>
-          <delete @click="handleDelete(scope.row)" class="operate-column-icon"/>
-          <tickets @click="handleDetail(scope.row)" class="operate-column-icon"/>
           <template #default="scope">
+            <edit @click="handleEdit(scope.row)" class="operate-column-icon"/>
+            <delete @click="handleDelete(scope.row)" class="operate-column-icon"/>
+            <tickets @click="handleDetail(scope.row)" class="operate-column-icon"/>
             <el-dropdown split-button size="small" type="primary" @command="operateCache">
               用户
               <template #dropdown>
@@ -89,6 +88,16 @@
                      :current-page="pagination.pageNo" :page-size="pagination.pageSize"
                      layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"/>
 
+      <el-dialog v-model="keyDialogVisible" title="请输入缓存key" width="20%">
+        <el-input v-model="cacheKey"/>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="keyDialogVisible = false; cacheKey = null">取消</el-button>
+            <el-button type="primary" @click="commitCacheOperation(cacheKey)">确定</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
       <Cache-add-edit v-if="addDialogVisible" v-model="addDialogVisible" @response="afterAdd"/>
       <Cache-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
       <Cache-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
@@ -103,6 +112,7 @@ import CacheAddEdit from './CacheAddEdit.vue';
 import CacheDetail from './CacheDetail.vue';
 import {BaseListPage} from "../../../base/page/BaseListPage.ts";
 import {Pair} from "../../../base/Pair.ts";
+import {ElMessage} from "element-plus";
 
 class ListPage extends BaseListPage {
 
@@ -128,6 +138,10 @@ class ListPage extends BaseListPage {
         name: null,
         subSysDictCode: null
       },
+      keyDialogVisible: false,
+      cacheKey: null,
+      cacheOperation: null,
+      currentRow: null
     }
   }
 
@@ -156,35 +170,63 @@ class ListPage extends BaseListPage {
     }
   }
 
-  private reload(row) {
+  public commitCacheOperation: (key) => any
 
+  private async doCommitCacheOperation(key) {
+    this.state.keyDialogVisible = false
+    const row = this.state.currentRow
+    const operation = this.state.cacheOperation
+    const params = {
+      cacheName: row.name,
+    }
+    if (operation != "reloadAll" && operation != "clear") {
+      params["key"] = key
+    }
+    const url = "sys/cache/management/" + operation
 
-
-
-
+    // @ts-ignore
+    const result = await ajax({url: url, params})
+    if (result.data) {
+      ElMessage.info(result.data)
+    } else {
+      ElMessage.error('请求操作失败！')
+    }
   }
 
-
-
+  private reload(row) {
+    this.state.currentRow = row
+    this.state.cacheOperation = "reload"
+    this.state.keyDialogVisible = true
+  }
 
   private reloadAll(row) {
-
+    this.state.currentRow = row
+    this.state.cacheOperation = "reloadAll"
+    this.commitCacheOperation(null)
   }
 
   private evict(row) {
-
+    this.state.currentRow = row
+    this.state.cacheOperation = "evict"
+    this.state.keyDialogVisible = true
   }
 
   private clear(row) {
-
+    this.state.currentRow = row
+    this.state.cacheOperation = "clear"
+    this.commitCacheOperation(null)
   }
 
   private isExists(row) {
-
+    this.state.currentRow = row
+    this.state.cacheOperation = "isExists"
+    this.state.keyDialogVisible = true
   }
 
   private valueInfo(row) {
-
+    this.state.currentRow = row
+    this.state.cacheOperation = "valueInfo"
+    this.state.keyDialogVisible = true
   }
 
 
@@ -192,6 +234,9 @@ class ListPage extends BaseListPage {
     super.convertThis()
     this.operateCache = (commandValue) => {
       this.doOperateCache(commandValue)
+    }
+    this.commitCacheOperation = (key) => {
+      this.doCommitCacheOperation(key)
     }
   }
 
