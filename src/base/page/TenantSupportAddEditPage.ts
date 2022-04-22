@@ -39,19 +39,17 @@ export abstract class TenantSupportAddEditPage extends BaseAddEditPage {
         return false
     }
 
-    protected createSubmitParams(): any {
-        const params = super.createSubmitParams()
+    protected beforeValidate() {
         const subSysOrTenant = this.state.formModel.subSysOrTenant
         if (!subSysOrTenant || subSysOrTenant.length == 0) {
             ElMessage.error('请选择子系统/租户！')
             return
         } else {
-            params.subSysDictCode = subSysOrTenant[0]
+            this.state.formModel.subSysDictCode = subSysOrTenant[0]
             if (subSysOrTenant.length > 1) {
-                params.tenantId = subSysOrTenant[1]
+                this.state.formModel.tenantId = subSysOrTenant[1]
             }
         }
-        return params
     }
 
     protected fillForm(rowObject: any) {

@@ -13,7 +13,7 @@
           <el-input v-model="formModel.name"/>
         </el-col>
         <el-col :span="16" v-if="props.rid">
-          <span style="color: red">&nbsp;&nbsp;更改后只有重启应用才生效！</span>
+          <span style="color: red">&nbsp;&nbsp;更改后仅当重启应用才生效！</span>
         </el-col>
       </el-form-item>
       <el-form-item label="子系统" prop="subSysDictCode" class="is-required">
@@ -30,7 +30,7 @@
           </el-select>
         </el-col>
         <el-col :span="16" v-if="props.rid">
-          <span style="color: red">&nbsp;&nbsp;更改后只有重启应用才生效！</span>
+          <span style="color: red">&nbsp;&nbsp;更改后仅当重启应用才生效！</span>
         </el-col>
       </el-form-item>
       <el-form-item label="是否启动时写缓存" prop="writeOnBoot">
@@ -42,6 +42,9 @@
       <el-form-item label="TTL(秒)" prop="ttl">
         <el-col :span="8">
           <el-input v-model="formModel.ttl"/>
+        </el-col>
+        <el-col :span="16" v-if="props.rid">
+          <span style="color: red">&nbsp;&nbsp;更改后仅当重启应用且重载缓存才生效！</span>
         </el-col>
       </el-form-item>
       <el-form-item label="备注" prop="remark">

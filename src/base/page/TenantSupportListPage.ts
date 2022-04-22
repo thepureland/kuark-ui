@@ -74,6 +74,18 @@ export abstract class TenantSupportListPage extends BaseListPage {
         return pair
     }
 
+    protected doAfterAdd(params: any) {
+        const subSysDictCode = params.subSysDictCode
+        const tenantId = params.tenantId
+        const subSysOrTenant = [subSysDictCode]
+        if (tenantId) {
+            subSysOrTenant.push(tenantId)
+        }
+        this.state.searchParams.subSysOrTenant = subSysOrTenant
+
+        super.doAfterAdd(params)
+    }
+
     private async loadTenants() {
         // @ts-ignore
         const result = await ajax({url: "sys/tenant/getAllActiveTenants", method: "post"})

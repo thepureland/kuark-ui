@@ -10,20 +10,20 @@
     <el-row :gutter="10">
       <el-col :span="3">角色ID：</el-col>
       <el-col :span="9">{{detail.id}}</el-col>
-      <el-col :span="3">角色编号：</el-col>
-      <el-col :span="9">{{detail.roleCode}}</el-col>
-    </el-row>
-    <el-row :gutter="10">
       <el-col :span="3">角色名：</el-col>
       <el-col :span="9">{{detail.roleName}}</el-col>
-      <el-col :span="3">是否启用：</el-col>
-      <el-col :span="9">{{detail.active ? '是' : '否'}}</el-col>
     </el-row>
     <el-row :gutter="10">
       <el-col :span="3">子系统：</el-col>
       <el-col :span="9">{{transDict("kuark:sys", "sub_sys", detail.subSysDictCode)}}</el-col>
-      <el-col :span="3">所有者ID：</el-col>
-      <el-col :span="9">{{detail.ownerId}}</el-col>
+      <el-col :span="3">备注：</el-col>
+      <el-col :span="9">{{detail.remark}}</el-col>
+    </el-row>
+    <el-row :gutter="10">
+      <el-col :span="3">租户ID：</el-col>
+      <el-col :span="9">{{detail.tenantId}}</el-col>
+      <el-col :span="3">租户名称：</el-col>
+      <el-col :span="9">{{detail.tenantName}}</el-col>
     </el-row>
     <el-row :gutter="10">
       <el-col :span="3">创建时间：</el-col>
@@ -40,8 +40,8 @@
     <el-row :gutter="10">
       <el-col :span="3">是否内置：</el-col>
       <el-col :span="9">{{detail.builtIn ? '是' : '否'}}</el-col>
-      <el-col :span="3">备注：</el-col>
-      <el-col :span="9">{{detail.remark}}</el-col>
+      <el-col :span="3">是否启用：</el-col>
+      <el-col :span="9">{{detail.active ? '是' : '否'}}</el-col>
     </el-row>
   </el-dialog>
 </template>

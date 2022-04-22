@@ -2,7 +2,9 @@
   <el-dialog title="添加账号信息" v-model="visible" width="30%" center @close="close">
     <el-form ref="form" :model="formModel" label-width="100px" :rules="rules" :validate-on-rule-change="false">
       <el-form-item label="用户名" prop="username" class="is-required">
-        <el-input v-model="formModel.username"/>
+        <el-col :span="8">
+          <el-input v-model="formModel.username"/>
+        </el-col>
       </el-form-item>
       <el-form-item label="隶属" prop="parent" class="is-required">
         <el-cascader ref="parentCascader" v-model="formModel.parent" :props="cascaderProps" style="display: block;"/>

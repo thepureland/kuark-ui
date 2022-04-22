@@ -1,5 +1,5 @@
 <!--
- * 组织列表
+ * 域名列表
  *
  * @author: K
  * @since 1.0.0
@@ -11,14 +11,17 @@
     <el-breadcrumb separator="/">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>系统配置</el-breadcrumb-item>
-      <el-breadcrumb-item>组织列表</el-breadcrumb-item>
+      <el-breadcrumb-item>域名列表</el-breadcrumb-item>
     </el-breadcrumb>
 
     <el-card>
       <el-row :gutter="20" class="toolbar">
         <el-col :span="2">
+          <el-input v-model="searchParams.domain" placeholder="域名" @change="search" clearable/>
+        </el-col>
+        <el-col :span="2">
           <el-cascader :options="subSysOrTenants" v-model="searchParams.subSysOrTenant"
-                       :props="cascaderProps" placeholder="子系统/租户" />
+                       :props="cascaderProps" placeholder="子系统/租户"/>
         </el-col>
 
         <el-col :span="1">
@@ -34,23 +37,24 @@
       </el-row>
 
       <el-table border stripe :data="tableData" height="650" @selection-change="handleSelectionChange"
-                :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange" default-expand-all row-key="id">
+                :header-cell-style="{textAlign: 'center'}" @sort-change="handleSortChange" default-expand-all
+                row-key="id">
         <el-table-column type="selection" width="39"/>
         <el-table-column type="index" width="50"/>
-        <el-table-column label="名称" prop="name"/>
-        <el-table-column label="简称" prop="abbrName"/>
-        <el-table-column label="组织类型" prop="orgTypeDictCode">
+        <el-table-column label="域名" prop="domain"/>
+        <el-table-column label="子系统" prop="subSysDictCode">
           <template #default="scope">
-            {{ transDict("kuark:user", "organization_type", scope.row.orgTypeDictCode) }}
+            {{ transDict("kuark:sys", "sub_sys", scope.row.subSysDictCode) }}
           </template>
         </el-table-column>
-        <el-table-column label="排序" prop="seqNo"/>
+        <el-table-column label="租户" prop="tenantName"/>
         <el-table-column label="启用">
           <template #default="scope">
             <el-switch v-model="scope.row.active" :active-value=true :inactive-value=false
                        @change="updateActive(scope.row)"/>
           </template>
         </el-table-column>
+        <el-table-column label="备注" prop="remark"/>
         <el-table-column label="创建时间">
           <template #default="scope">
             {{ formatDate(scope.row.createTime) }}
@@ -65,9 +69,9 @@
         </el-table-column>
       </el-table>
 
-      <organization-add-edit v-if="addDialogVisible" v-model="addDialogVisible" @response="afterAdd"/>
-      <organization-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
-      <organization-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
+      <domain-add-edit v-if="addDialogVisible" v-model="addDialogVisible" @response="afterAdd"/>
+      <domain-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
+      <domain-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
 
     </el-card>
 
@@ -76,17 +80,17 @@
 
 <script lang='ts'>
 import {defineComponent, reactive, toRefs} from "vue"
-import OrganizationAddEdit from './OrganizationAddEdit.vue'
-import OrganizationDetail from './OrganizationDetail.vue'
+import DomainAddEdit from './DomainAddEdit.vue'
+import DomainDetail from './DomainDetail.vue'
 import {TenantSupportListPage} from "../../../base/page/TenantSupportListPage.ts";
 import {Pair} from "../../../base/Pair.ts";
+import {ElMessage} from "element-plus";
 
 class ListPage extends TenantSupportListPage {
 
   constructor(props, context) {
     super(props, context)
     this.loadDicts([
-      new Pair("kuark:user", "organization_type"),
       new Pair("kuark:sys", "sub_sys")
     ])
   }
@@ -94,18 +98,14 @@ class ListPage extends TenantSupportListPage {
   protected initState(): any {
     return {
       searchParams: {
-        name: null,
+        domain: null,
         active: true,
       },
     }
   }
 
   protected getRootActionPath(): String {
-    return "user/organization"
-  }
-
-  protected getSearchUrl(): String {
-    return this.getRootActionPath() + "/searchTree"
+    return "sys/domain"
   }
 
   protected createSearchParams() {
@@ -116,31 +116,16 @@ class ListPage extends TenantSupportListPage {
     return params
   }
 
-  protected getDeleteMessage(row: any): string {
-    return '将级联删除所有孩子结点（如果有的话），依然进行删除操作吗？'
-  }
-
-  protected getBatchDeleteMessage(rows: Array<any>): string {
-    return '将级联删除所有孩子结点（如果有的话），' + super.getBatchDeleteMessage(rows)
-  }
-
-  protected isCheckStrictly(): boolean {
-    return false
-  }
-
-  protected isRequireSubSysOrTenantForSearch(): boolean {
-    return true
-  }
-
-  protected postSearchSuccessfully(data) {
-    this.state.tableData = data
+  protected doAfterAdd(params: any) {
+    this.state.searchParams.domain = params.domain
+    super.doAfterAdd(params)
   }
 
 }
 
 export default defineComponent({
   name: "~index",
-  components: {OrganizationAddEdit, OrganizationDetail},
+  components: {DomainAddEdit, DomainDetail},
   setup(props, context) {
     const listPage = reactive(new ListPage(props, context))
     return {

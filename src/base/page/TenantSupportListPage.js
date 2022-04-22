@@ -123,6 +123,16 @@ var TenantSupportListPage = /** @class */ (function (_super) {
         }
         return pair;
     };
+    TenantSupportListPage.prototype.doAfterAdd = function (params) {
+        var subSysDictCode = params.subSysDictCode;
+        var tenantId = params.tenantId;
+        var subSysOrTenant = [subSysDictCode];
+        if (tenantId) {
+            subSysOrTenant.push(tenantId);
+        }
+        this.state.searchParams.subSysOrTenant = subSysOrTenant;
+        _super.prototype.doAfterAdd.call(this, params);
+    };
     TenantSupportListPage.prototype.loadTenants = function () {
         return __awaiter(this, void 0, void 0, function () {
             var result, options, subSyses, _i, subSyses_1, subSys, subSysOption, tenants, tenantOptions, tenantId, tenantOption;

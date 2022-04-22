@@ -130,6 +130,13 @@ const routes = [
                 },
                 component: () => import ( /* webpackChunkName: "dashboard" */ "../views/user/organization/OrganizationList.vue")
             }, {
+                path: "/sys/domain",
+                name: "domain",
+                meta: {
+                    title: '域名管理'
+                },
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/domain/DomainList.vue")
+            }, {
                 path: "/sys/cache",
                 name: "cache",
                 meta: {

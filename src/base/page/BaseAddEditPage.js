@@ -168,8 +168,11 @@ var BaseAddEditPage = /** @class */ (function (_super) {
             });
         });
     };
+    BaseAddEditPage.prototype.beforeValidate = function () {
+    };
     BaseAddEditPage.prototype.doSubmit = function () {
         var _this = this;
+        this.beforeValidate();
         this.form.value.validate(function (valid) { return __awaiter(_this, void 0, void 0, function () {
             var params, result;
             return __generator(this, function (_a) {

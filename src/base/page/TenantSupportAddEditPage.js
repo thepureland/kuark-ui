@@ -89,20 +89,18 @@ var TenantSupportAddEditPage = /** @class */ (function (_super) {
     TenantSupportAddEditPage.prototype.isCheckStrictly = function () {
         return false;
     };
-    TenantSupportAddEditPage.prototype.createSubmitParams = function () {
-        var params = _super.prototype.createSubmitParams.call(this);
+    TenantSupportAddEditPage.prototype.beforeValidate = function () {
         var subSysOrTenant = this.state.formModel.subSysOrTenant;
         if (!subSysOrTenant || subSysOrTenant.length == 0) {
             element_plus_1.ElMessage.error('请选择子系统/租户！');
             return;
         }
         else {
-            params.subSysDictCode = subSysOrTenant[0];
+            this.state.formModel.subSysDictCode = subSysOrTenant[0];
             if (subSysOrTenant.length > 1) {
-                params.tenantId = subSysOrTenant[1];
+                this.state.formModel.tenantId = subSysOrTenant[1];
             }
         }
-        return params;
     };
     TenantSupportAddEditPage.prototype.fillForm = function (rowObject) {
         _super.prototype.fillForm.call(this, rowObject);

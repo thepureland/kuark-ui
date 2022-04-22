@@ -104,9 +104,13 @@ export abstract class BaseAddEditPage extends BasePage {
         }
     }
 
+    protected beforeValidate() {
+    }
+
     public submit: () => void
 
     protected doSubmit() {
+        this.beforeValidate()
         this.form.value.validate(async valid => {
             if (!valid) return ElMessage.error('验证未通过')
             const params = this.createSubmitParams()

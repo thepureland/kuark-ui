@@ -61,6 +61,12 @@
         </el-table-column>
         <el-table-column label="TTL(秒)" prop="ttl" width="100"/>
         <el-table-column label="备注" prop="remark"/>
+        <el-table-column label="启用" width="80">
+          <template #default="scope">
+            <el-switch v-model="scope.row.active" :active-value=true :inactive-value=false
+                       @change="updateActive(scope.row)"/>
+          </template>
+        </el-table-column>
 
         <el-table-column label="操作" align="center">
           <template #default="scope">
@@ -68,7 +74,7 @@
             <delete @click="handleDelete(scope.row)" class="operate-column-icon"/>
             <tickets @click="handleDetail(scope.row)" class="operate-column-icon"/>
             <el-dropdown split-button size="small" type="primary" @command="operateCache">
-              用户
+              管理
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item :command="commandValue(1,scope.row)">重载</el-dropdown-item>
@@ -229,6 +235,10 @@ class ListPage extends BaseListPage {
     this.state.keyDialogVisible = true
   }
 
+  protected async doUpdateActive(row: any): Promise<void> {
+    ElMessage.info("更改启用状态仅在重启应用后才生效！")
+    await super.doUpdateActive(row)
+  }
 
   protected convertThis() {
     super.convertThis()

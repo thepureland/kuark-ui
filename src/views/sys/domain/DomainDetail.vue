@@ -1,17 +1,17 @@
 <!--
- * 组织机构详情
+ * 域名详情
  *
  * @author: K
  * @since 1.0.0
  -->
 
 <template>
-  <el-dialog title="组织机构信息详情" v-model="visible" width="44%" center @close="close">
+  <el-dialog title="域名信息详情" v-model="visible" width="44%" center @close="close">
     <el-row :gutter="10">
-      <el-col :span="3">机构ID：</el-col>
+      <el-col :span="3">域名ID：</el-col>
       <el-col :span="9">{{detail.id}}</el-col>
-      <el-col :span="3">机构名称：</el-col>
-      <el-col :span="9">{{detail.name}}</el-col>
+      <el-col :span="3">域名：</el-col>
+      <el-col :span="9">{{detail.domain}}</el-col>
     </el-row>
     <el-row :gutter="10">
       <el-col :span="3">子系统：</el-col>
@@ -61,13 +61,13 @@ class DetailPage extends BaseDetailPage {
   }
 
   protected getRootActionPath(): String {
-    return "user/organization"
+    return "sys/domain"
   }
 
 }
 
 export default defineComponent({
-  name: "~OrganizationDetail",
+  name: "~DomainDetail",
   props: {
     modelValue: Boolean,
     rid: String
