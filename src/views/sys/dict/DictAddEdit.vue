@@ -11,7 +11,7 @@
         <el-input v-model="formModel.name"/>
       </el-form-item>
       <el-form-item label="排序" prop="seqNo">
-        <el-input-number v-model="formModel.seqNo" :min="1" :max="999999999"/>
+        <el-input-number v-model="formModel.seqNo" :max="999999999"/>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="formModel.remark"/>
@@ -49,7 +49,7 @@ class AddEditPage extends BaseAddEditPage {
         parent: null,
         code: null,
         name: null,
-        seqNo: 0,
+        seqNo: undefined,
         remark: null
       },
       cascaderProps: {

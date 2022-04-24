@@ -116,6 +116,13 @@ const routes = [
                 },
                 component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/param/ParamList.vue")
             }, {
+                path: "/sys/datasource",
+                name: "datasource",
+                meta: {
+                    title: '数据源管理'
+                },
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/sys/datasource/DatasourceList.vue")
+            }, {
                 path: "/sys/tenant",
                 name: "tenant",
                 meta: {

@@ -41,8 +41,8 @@ class AddEditPage extends OrgSupportAddEditPage {
   protected initState(): any {
     return {
       formModel: {
-        roleCode: null,
-        roleName: null,
+        username: null,
+        userTypeDictCode: null,
         remark: null,
       },
     }
