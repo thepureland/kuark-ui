@@ -66,7 +66,7 @@ class Page extends BaseDetailPage {
     const url = this.getRootActionPath() + "/getMenuPermissions"
     // @ts-ignore
     const result = await ajax({url: url, params})
-    if (result.data) {
+    if (result.code == 200) {
       this.state.menuData = result.data.first
       this.state.defaultCheckedKeys = result.data.second
       this.render()
@@ -85,7 +85,7 @@ class Page extends BaseDetailPage {
     const url = this.getRootActionPath() + "/setRolePermissions"
     // @ts-ignore
     const result = await ajax({url: url, method: 'post', params})
-    if (result.data) {
+    if (result.code == 200) {
       ElMessage.info('授权成功！')
       this.close()
     } else {

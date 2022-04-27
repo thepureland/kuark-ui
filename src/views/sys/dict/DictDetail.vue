@@ -104,7 +104,7 @@ class DetailPage extends BaseDetailPage {
     }
     // @ts-ignore
     const result = await ajax({url: "sys/dictItem/getDictItemsByDictId", params});
-    if (result.data) {
+    if (result.code == 200) {
       this.state.tableData = result.data
     } else {
       ElMessage.error('数据加载失败！')

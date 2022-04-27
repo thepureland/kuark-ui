@@ -314,7 +314,7 @@ class ListPage extends BaseListPage {
     }
     // @ts-ignore
     const result = await ajax({url: "sys/dict/loadTreeNodes", method: "post", params});
-    if (result.data) {
+    if (result.code == 200) {
       resolve(result.data)
     } else {
       ElMessage.error('字典树加载失败！')
@@ -346,7 +346,7 @@ class ListPage extends BaseListPage {
     }
     // @ts-ignore
     const result = await ajax({url: "sys/dict/getDict", params});
-    if (result.data) {
+    if (result.code == 200) {
       this.state.tableData = [result.data]
       this.state.pagination.total = 1
     } else {
@@ -378,7 +378,7 @@ class ListPage extends BaseListPage {
     }
     // @ts-ignore
     const result = await ajax({url: "sys/dict/searchByTree", method: "post", params});
-    if (result.data) {
+    if (result.code == 200) {
       this.state.tableData = result.data.first
       this.state.pagination.total = result.data.second
     } else {
@@ -402,7 +402,7 @@ class ListPage extends BaseListPage {
   private async loadDictTypes() {
     // @ts-ignore
     const result = await ajax({url: "sys/dict/loadDictTypes"})
-    if (result.data) {
+    if (result.code == 200) {
       result.data.forEach((val) => {
         this.state.dictTypes.push({"value": val}) // el-autocomplete要求数据项一定要有value属性, 否则下拉列表出不来
       })

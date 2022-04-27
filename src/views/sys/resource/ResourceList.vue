@@ -181,7 +181,7 @@ class ListPage extends BaseListPage {
     const params = this.createSearchParams()
     // @ts-ignore
     const result = await ajax({url: "sys/resource/loadTreeNodes", method: "post", params});
-    if (result.data) {
+    if (result.code == 200) {
       resolve(result.data)
     } else {
       ElMessage.error('资源树加载失败！')
@@ -210,7 +210,7 @@ class ListPage extends BaseListPage {
     }
     // @ts-ignore
     const result = await ajax({url: "sys/resource/get", params});
-    if (result.data) {
+    if (result.code == 200) {
       this.state.tableData = [result.data]
       this.state.pagination.total = 1
     } else {
@@ -269,7 +269,7 @@ class ListPage extends BaseListPage {
     }
     // @ts-ignore
     const result = await ajax({url: "sys/resource/searchByTree", method: "post", params})
-    if (result.data) {
+    if (result.code == 200) {
       this.state.tableData = result.data.first
       this.state.pagination.total = result.data.second
     } else {
@@ -280,7 +280,7 @@ class ListPage extends BaseListPage {
   private async loadResourceTypes() {
     // @ts-ignore
     const result = await ajax({url: "sys/resource/loadResourceTypes"})
-    if (result.data) {
+    if (result.code == 200) {
       for (let key in result.data) {
         this.state.resourceTypes.push({key: key, value: result.data[key]})
       }

@@ -156,7 +156,7 @@ class ListPage extends TenantSupportListPage {
     }
     // @ts-ignore
     const result = await ajax({url: "user/organization/loadTree", params})
-    if (result.data) {
+    if (result.code == 200) {
       this.state.organizations = result.data
     } else {
       ElMessage.error('加载组织机构树失败！')

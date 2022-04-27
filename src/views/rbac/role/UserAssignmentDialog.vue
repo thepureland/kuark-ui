@@ -81,7 +81,7 @@ class UserAssignmentDialog extends BaseDetailPage {
     }
     // @ts-ignore
     const result = await ajax({url: this.getRootActionPath() + "/assignUser", method: "post", params})
-    if (result.data) {
+    if (result.code == 200) {
       ElMessage.success('保存成功！')
       this.context.emit('update:modelValue', false)
     } else {

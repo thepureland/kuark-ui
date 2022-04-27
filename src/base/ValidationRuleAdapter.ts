@@ -243,7 +243,7 @@ export class ValidationRuleAdapter {
 
                 // @ts-ignore
                 const result = await ajax({url: ruleDetails[0].requestUrl, params})
-                if (result.data) {
+                if (result.code == 200) {
                     // @ts-ignore
                     resolve()
                 } else {

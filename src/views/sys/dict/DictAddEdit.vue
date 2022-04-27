@@ -126,7 +126,7 @@ class AddEditPage extends BaseAddEditPage {
     }
     // @ts-ignore
     const result = await ajax({url: "sys/dict/loadTreeNodes", method: "post", params})
-    if (result.data) {
+    if (result.code == 200) {
       for (let item of result.data) {
         this.state.parentCache[item["id"]] = item["code"]
       }

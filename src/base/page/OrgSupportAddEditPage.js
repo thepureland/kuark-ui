@@ -133,7 +133,7 @@ var OrgSupportAddEditPage = /** @class */ (function (_super) {
                         return [4 /*yield*/, ajax({ url: "user/organization/lazyLoadTree", method: "post", params: params })];
                     case 2:
                         result = _a.sent();
-                        if (result.data) {
+                        if (result.code == 200) {
                             resolve(result.data);
                         }
                         else {

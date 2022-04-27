@@ -61,7 +61,7 @@ export abstract class BaseDetailPage extends BasePage {
         const params = this.createDetailLoadParams()
         // @ts-ignore
         const result = await ajax({url: this.getDetailLoadUrl(), params});
-        if (result.data) {
+        if (result.code == 200) {
             this.postLoadDataSuccessfully(result.data)
         } else {
             ElMessage.error('数据加载失败！')

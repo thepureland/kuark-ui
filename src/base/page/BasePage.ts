@@ -80,7 +80,7 @@ export abstract class BasePage {
         }
         // @ts-ignore
         const result = await ajax({url: "sys/dictItem/getDictItemMap", params})
-        if (result.data) {
+        if (result.code == 200) {
             this.dictCache[key] = result.data
         } else {
             ElMessage.error('字典项加载失败！')
@@ -104,7 +104,7 @@ export abstract class BasePage {
 
         // @ts-ignore
         const result = await ajax({url: "sys/dictItem/batchGetDictItemMap", method: "post", params})
-        if (result.data) {
+        if (result.code == 200) {
             for (let key in result.data) {
                 const parts = key.substr(1, key.length - 2).split(", ")
                 this.dictCache[parts[0] + "---" + parts[1]] = result.data[key]

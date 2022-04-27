@@ -157,7 +157,7 @@ var BaseListPage = /** @class */ (function (_super) {
                         return [4 /*yield*/, ajax({ url: this.getSearchUrl(), method: "post", params: params })];
                     case 1:
                         result = _a.sent();
-                        if (result.data) {
+                        if (result.code == 200) {
                             this.postSearchSuccessfully(result.data);
                         }
                         else {

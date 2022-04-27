@@ -79,7 +79,7 @@ export abstract class OrgSupportAddEditPage extends TenantSupportAddEditPage {
             }
             // @ts-ignore
             const result = await ajax({url: "user/organization/lazyLoadTree", method: "post", params})
-            if (result.data) {
+            if (result.code == 200) {
                 resolve(result.data)
             } else {
                 ElMessage.error('组织机构树加载失败！')

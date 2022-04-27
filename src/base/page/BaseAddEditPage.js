@@ -133,7 +133,7 @@ var BaseAddEditPage = /** @class */ (function (_super) {
                         return [4 /*yield*/, ajax({ url: this.getRowObjectLoadUrl(), params: params })];
                     case 1:
                         result = _a.sent();
-                        if (result.data) {
+                        if (result.code == 200) {
                             this.fillForm(result.data);
                             _super.prototype.render.call(this);
                         }
@@ -154,7 +154,7 @@ var BaseAddEditPage = /** @class */ (function (_super) {
                     case 0: return [4 /*yield*/, ajax({ url: this.getValidationRuleUrl() })];
                     case 1:
                         result = _a.sent();
-                        if (result.data) {
+                        if (result.code == 200) {
                             // @ts-ignore
                             this.state.rules = new ValidationRuleAdapter_ts_1.ValidationRuleAdapter(result.data, function () {
                                 return _this.form.value.model;
@@ -185,7 +185,7 @@ var BaseAddEditPage = /** @class */ (function (_super) {
                         return [4 /*yield*/, ajax({ url: this.getSubmitUrl(), method: "post", params: params })];
                     case 1:
                         result = _a.sent();
-                        if (result.data) {
+                        if (result.code == 200) {
                             element_plus_1.ElMessage.success('保存成功！');
                             this.form.value.resetFields();
                             params.id = result.data;

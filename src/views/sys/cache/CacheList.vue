@@ -104,9 +104,9 @@
         </template>
       </el-dialog>
 
-      <Cache-add-edit v-if="addDialogVisible" v-model="addDialogVisible" @response="afterAdd"/>
-      <Cache-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
-      <Cache-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
+      <cache-add-edit v-if="addDialogVisible" v-model="addDialogVisible" @response="afterAdd"/>
+      <cache-add-edit v-if="editDialogVisible" v-model="editDialogVisible" @response="afterEdit" :rid="rid"/>
+      <cache-detail v-if="detailDialogVisible" v-model="detailDialogVisible" :rid="rid"/>
 
     </el-card>
   </div>
@@ -192,7 +192,7 @@ class ListPage extends BaseListPage {
 
     // @ts-ignore
     const result = await ajax({url: url, params})
-    if (result.data) {
+    if (result.code == 200) {
       ElMessage.info(result.data)
     } else {
       ElMessage.error('请求操作失败！')

@@ -83,7 +83,7 @@ export abstract class BaseAddEditPage extends BasePage {
         const params = this.createRowObjectLoadParams()
         // @ts-ignore
         const result = await ajax({url: this.getRowObjectLoadUrl(), params});
-        if (result.data) {
+        if (result.code == 200) {
             this.fillForm(result.data)
             super.render()
         } else {
@@ -94,7 +94,7 @@ export abstract class BaseAddEditPage extends BasePage {
     protected async initValidationRule(): Promise<any> {
         // @ts-ignore
         const result = await ajax({url: this.getValidationRuleUrl()});
-        if (result.data) {
+        if (result.code == 200) {
             // @ts-ignore
             this.state.rules = new ValidationRuleAdapter(result.data, () => {
                 return this.form.value.model
@@ -117,7 +117,7 @@ export abstract class BaseAddEditPage extends BasePage {
             if (params) {
                 // @ts-ignore
                 const result = await ajax({url: this.getSubmitUrl(), method: "post", params})
-                if (result.data) {
+                if (result.code == 200) {
                     ElMessage.success('保存成功！')
                     this.form.value.resetFields()
                     params.id = result.data

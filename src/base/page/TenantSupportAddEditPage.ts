@@ -64,7 +64,7 @@ export abstract class TenantSupportAddEditPage extends BaseAddEditPage {
     protected async loadTenants() {
         // @ts-ignore
         const result = await ajax({url: "sys/tenant/getAllActiveTenants", method: "post"})
-        if (result.data) {
+        if (result.code == 200) {
             const options = []
             const subSyses = this.getDictItems("kuark:sys", "sub_sys")
             for (let subSys of subSyses) {

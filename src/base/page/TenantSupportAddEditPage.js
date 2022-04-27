@@ -118,7 +118,7 @@ var TenantSupportAddEditPage = /** @class */ (function (_super) {
                     case 0: return [4 /*yield*/, ajax({ url: "sys/tenant/getAllActiveTenants", method: "post" })];
                     case 1:
                         result = _a.sent();
-                        if (result.data) {
+                        if (result.code == 200) {
                             options = [];
                             subSyses = this.getDictItems("kuark:sys", "sub_sys");
                             for (_i = 0, subSyses_1 = subSyses; _i < subSyses_1.length; _i++) {

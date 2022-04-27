@@ -114,7 +114,7 @@ export abstract class BaseListPage extends BasePage {
 
         // @ts-ignore
         const result = await ajax({url: this.getSearchUrl(), method: "post", params})
-        if (result.data) {
+        if (result.code == 200) {
             this.postSearchSuccessfully(result.data)
         } else {
             ElMessage.error('查询失败！')

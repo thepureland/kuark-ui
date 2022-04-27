@@ -130,7 +130,7 @@ var BasePage = /** @class */ (function () {
                         return [4 /*yield*/, ajax({ url: "sys/dictItem/getDictItemMap", params: params })];
                     case 1:
                         result = _a.sent();
-                        if (result.data) {
+                        if (result.code == 200) {
                             this.dictCache[key] = result.data;
                         }
                         else {
@@ -165,7 +165,7 @@ var BasePage = /** @class */ (function () {
                         return [4 /*yield*/, ajax({ url: "sys/dictItem/batchGetDictItemMap", method: "post", params: params })];
                     case 1:
                         result = _a.sent();
-                        if (result.data) {
+                        if (result.code == 200) {
                             for (key in result.data) {
                                 parts = key.substr(1, key.length - 2).split(", ");
                                 this.dictCache[parts[0] + "---" + parts[1]] = result.data[key];

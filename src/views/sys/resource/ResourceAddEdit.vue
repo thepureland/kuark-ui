@@ -113,7 +113,7 @@ class AddEditPage extends BaseAddEditPage {
     }
     // @ts-ignore
     const result = await ajax({url: "sys/resource/loadTreeNodes", method: "post", params})
-    if (result.data) {
+    if (result.code == 200) {
       resolve(result.data)
     } else {
       ElMessage.error('资源树加载失败！')

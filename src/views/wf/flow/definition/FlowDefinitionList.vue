@@ -127,7 +127,7 @@ class ListPage extends BaseListPage {
   public async loadCategories() {
     // @ts-ignore
     const result = await ajax({url: "flow/definition/loadCategories"})
-    if (result.data) {
+    if (result.code == 200) {
       for (let key in result.data) {
         this.state.categories.push({key: key, value: result.data[key]})
       }
