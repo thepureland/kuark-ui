@@ -60,7 +60,11 @@
                 {{ transDict("kuark:sys", "sub_sys", scope.row.subSysDictCode) }}
               </template>
             </el-table-column>
-            <el-table-column label="资源类型" prop="resourceTypeName" sortable="custom"/>
+            <el-table-column label="资源类型" prop="resourceTypeDictCode">
+              <template #default="scope">
+                {{ transDict("kuark:sys", "resource_type", scope.row.resourceTypeDictCode) }}
+              </template>
+            </el-table-column>
             <el-table-column label="资源名称" prop="name" sortable="custom"/>
             <el-table-column label="URL" prop="url" sortable="custom"/>
             <el-table-column label="图标" prop="icon" sortable="custom"/>
@@ -113,6 +117,7 @@ class ListPage extends BaseListPage {
     this.tree = tree
     this.loadDicts([
       new Pair("kuark:sys", "sub_sys"),
+      new Pair("kuark:sys", "resource_type"),
     ])
     this.loadResourceTypes()
   }
