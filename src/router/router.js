@@ -278,7 +278,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     document.title = `${to.meta.title} | kuark-ui`;
-    const role = localStorage.getItem('ms_username');
+    const role = localStorage.getItem('current_username');
     if (!role && to.path !== '/login') {
         next('/login');
     } else if (to.meta.permission) {

@@ -47,7 +47,7 @@ import {useRoute} from "vue-router";
 
 async function loadMenuData(state) {
   //@ts-ignore
-  const result = await ajax({url: "sys/resource/getMenus"});
+  const result = await ajax({url: "user/account/getAuthorisedMenus"});
   state.menuData = result.data
 }
 

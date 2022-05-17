@@ -121,7 +121,7 @@ export default {
     name: "dashboard",
     components: { Schart },
     setup() {
-        const name = localStorage.getItem("ms_username");
+        const name = localStorage.getItem("current_username");
         const role = name === "admin" ? "超级管理员" : "普通用户";
 
         const data = reactive([

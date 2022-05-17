@@ -1,69 +1,68 @@
 import vue from '@vitejs/plugin-vue'
+import {defineConfig, loadEnv} from 'vite'
 
-export default {
-    base: './',
-    plugins: [vue()],
-    optimizeDeps: {
-        include: ['schart.js']
-    },
-}
+export default defineConfig(({mode}) => {
+    // 获取当前环境的配置
+    const config = loadEnv(mode, './')
+    return {
+        base: './',
+        plugins: [vue()],
+        optimizeDeps: {
+            include: ['schart.js']
+        },
+        server: {
+            open: true, // 是否自动弹出浏览器页面
+            host: "localhost",
+            port: '3000',
+            proxy: {
+                '/api': {
+                    target: 'http://localhost:8080',
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/api/, '')
+                }
+            }
+        },
+    }
+})
 
 
-// const path = require('path')
-//
 // export default {
-//     // hostname: '0.0.0.0',
-//     proxy: {
-//         '/api': {
-//             target: 'http://localhost:8080',
-//             // ws: true,
-//             changeOrigin: true,
-//             // rewrite: path => path.replace(/^\/api/, ''),
-//             secure: false,
-//             pathRewrite: {
-//                 '^/api': ''
-//             }
-//         },
-//         changeOrigin: true
-//     },
-//     // proxy: 'http://localhost:8080/',
-//     // changeOrigin: true,
 //     base: './',
 //     plugins: [vue()],
 //     optimizeDeps: {
 //         include: ['schart.js']
 //     },
-//     // server: {
-//     //     port: 3000,
-//     //     proxy: 'http://localhost:8080/',
-//     //     changeOrigin: true
-//     //     // proxy: {
-//     //     //     '/api': {
-//     //     //         target: 'https://www.baidu.com/',
-//     //     //         ws: true,
-//     //     //         changeOrigin: true,
-//     //     //         pathRewrite: {
-//     //     //             '^/api': ''
-//     //     //         }
-//     //     //     }
-//     //     // }
-//     // },
-//     devServer: {
-//         // proxy: 'http://localhost:8080/',
-//         changeOrigin: true,
+//     outputDir: 'dist',   //build输出目录
+//     assetsDir: 'assets', //静态资源目录（js, css, img）
+//     lintOnSave: false, //是否开启eslint
+//     // devServer: {
+//     //     open: true, //是否自动弹出浏览器页面
+//     //     host: "localhost",
+//     //     port: '3000',
+//     //     proxy: {
+//     //         '/api': {
+//     //             target: 'http://localhost:8080', //API服务器的地址
+//     //             changeOrigin: true,
+//     //             ws: true,
+//     //             pathRewrite: {
+//     //                 '^/api': '/'
+//     //             }
+//     //         }
+//     //     },
+//     // }
+//
+//     server: {
+//         open: true,//启动项目自动弹出浏览器
+//         port: 3000,//启动端口
 //         proxy: {
 //             '/api': {
-//                 target: 'http://localhost:8080',
-//                 // ws: true,
+//                 target: config.,	//实际请求地址
 //                 changeOrigin: true,
-//                 // rewrite: path => path.replace(/^\/api/, ''),
-//                 secure: false,
-//                 pathRewrite: {
-//                     '^/api': ''
-//                 }
+//                 rewrite: (path) => path.replace(/^\/api/, '')
 //             },
-//             changeOrigin: true
-//         },
-//     },
+//         }
+//     }
 //
 // }
+
+
