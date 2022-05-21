@@ -76,6 +76,12 @@ var BasePage = /** @class */ (function () {
             }
             return '';
         };
+        this.sleep = function (delay) {
+            var start = (new Date()).getTime();
+            while ((new Date()).getTime() - start < delay) {
+                continue;
+            }
+        };
         this.props = props;
         this.context = context;
         if (!window["dictCache"]) {
@@ -95,6 +101,9 @@ var BasePage = /** @class */ (function () {
     }
     BasePage.prototype.render = function () {
         this.visible.value = true;
+    };
+    BasePage.prototype.initBaseState = function () {
+        return {};
     };
     BasePage.prototype.showAfterLoadData = function () {
         return false;

@@ -102,7 +102,9 @@ var TenantSupportListPage = /** @class */ (function (_super) {
         else {
             var params = _super.prototype.createSearchParams.call(this);
             params.subSysDictCode = pair.first;
+            this.state.subSysDictCode = pair.first;
             params.tenantId = pair.second;
+            this.state.tenantId = pair.second;
             return params;
         }
     };

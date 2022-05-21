@@ -44,7 +44,9 @@ export abstract class BasePage {
 
     protected abstract initState(): any
 
-    protected abstract initBaseState(): any
+    protected initBaseState(): any {
+        return {}
+    }
 
     protected abstract getRootActionPath(): String
 
@@ -138,6 +140,13 @@ export abstract class BasePage {
             return moment(date).format(formatStr)
         }
         return ''
+    }
+
+    public sleep = (delay) => {
+        let start = (new Date()).getTime();
+        while((new Date()).getTime() - start < delay) {
+            continue;
+        }
     }
 
     public close: () => void

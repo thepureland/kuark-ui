@@ -169,8 +169,13 @@ var BaseListPage = /** @class */ (function (_super) {
         });
     };
     BaseListPage.prototype.postSearchSuccessfully = function (data) {
-        this.state.tableData = data.first;
-        this.state.pagination.total = data.second;
+        if (data.first && data.second) {
+            this.state.tableData = data.first;
+            this.state.pagination.total = data.second;
+        }
+        else {
+            this.state.tableData = data;
+        }
     };
     BaseListPage.prototype.doHandleSizeChange = function (newSize) {
         this.state.pagination.pageSize = newSize;

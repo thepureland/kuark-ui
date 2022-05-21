@@ -51,7 +51,9 @@ export abstract class TenantSupportListPage extends BaseListPage {
         } else {
             const params = super.createSearchParams()
             params.subSysDictCode = pair.first
+            this.state.subSysDictCode = pair.first
             params.tenantId = pair.second
+            this.state.tenantId = pair.second
             return params
         }
     }

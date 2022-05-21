@@ -94,7 +94,6 @@ class ListPage extends TenantSupportListPage {
   protected initState(): any {
     return {
       searchParams: {
-        name: null,
         active: true,
       },
     }
@@ -130,10 +129,6 @@ class ListPage extends TenantSupportListPage {
 
   protected isRequireSubSysOrTenantForSearch(): boolean {
     return true
-  }
-
-  protected postSearchSuccessfully(data) {
-    this.state.tableData = data
   }
 
 }

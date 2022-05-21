@@ -88,6 +88,13 @@ const routes = [
                 },
                 component: () => import ( /* webpackChunkName: "dashboard" */ "../views/rbac/group/UserGroupList.vue")
             }, {
+                path: "/rbac/menuPermission",
+                name: "menuPermission",
+                meta: {
+                    title: '菜单权限'
+                },
+                component: () => import ( /* webpackChunkName: "dashboard" */ "../views/rbac/menuPermission/MenuPermissionList.vue")
+            }, {
                 path: "/user/account",
                 name: "user",
                 meta: {

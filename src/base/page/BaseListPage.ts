@@ -122,8 +122,12 @@ export abstract class BaseListPage extends BasePage {
     }
 
     protected postSearchSuccessfully(data) {
-        this.state.tableData = data.first
-        this.state.pagination.total = data.second
+        if (data.first && data.second) {
+            this.state.tableData = data.first
+            this.state.pagination.total = data.second
+        } else {
+            this.state.tableData = data
+        }
     }
 
     public handleSizeChange: (newSize: number) => void
