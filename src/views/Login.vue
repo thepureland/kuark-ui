@@ -70,7 +70,7 @@ export default {
 
           //@ts-ignore
           const result = await ajax({url: "doLogin", method: "post", params: params})
-          if (result.status == 500) {
+          if (result.status === 500) {
             ElMessage.error(result.msg)
           } else {
             localStorage.setItem("current_username", param.username)

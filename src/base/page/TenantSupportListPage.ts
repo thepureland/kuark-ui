@@ -41,7 +41,7 @@ export abstract class TenantSupportListPage extends BaseListPage {
     }
 
     protected isRequireSubSysOrTenantForSearch() {
-        return false
+        return true
     }
 
     protected createSearchParams() {

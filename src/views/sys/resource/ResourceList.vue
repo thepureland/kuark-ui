@@ -25,7 +25,8 @@
           <el-row :gutter="20" class="toolbar">
             <el-col :span="2">
               <el-select v-model="searchParams.resourceTypeDictCode" placeholder="资源类型" clearable>
-                <el-option v-for="item in resourceTypes" :key="item.key" :label="item.value" :value="item.key"/>
+                <el-option v-for="item in getDictItems('kuark:sys', 'resource_type')"
+                           :key="item.first" :value="item.first" :label="item.second"/>
               </el-select>
             </el-col>
             <el-col :span="2">
@@ -119,7 +120,6 @@ class ListPage extends BaseListPage {
       new Pair("kuark:sys", "sub_sys"),
       new Pair("kuark:sys", "resource_type"),
     ])
-    this.loadResourceTypes()
   }
 
   protected initState(): any {
@@ -210,14 +210,18 @@ class ListPage extends BaseListPage {
     }
     this.resetSearchFields()
     this.setParamsForTree(node, false)
-    const params = {
-      id: nodeData.id,
-    }
+    // const params = {
+    //   id: nodeData.id,
+    //   resourceTypeDictCode: this.getResourceTypeByNode(node),
+    // }
+    const params = this.createSearchParams()
+    params.id = nodeData.id
+    params.resourceTypeDictCode = this.getResourceTypeByNode(node)
     // @ts-ignore
-    const result = await ajax({url: "sys/resource/get", params});
+    const result = await ajax({url: "sys/resource/searchOnClick", method: "post", params});
     if (result.code == 200) {
-      this.state.tableData = [result.data]
-      this.state.pagination.total = 1
+      this.state.tableData = result.data.first
+      this.state.pagination.total = result.data.second
     } else {
       ElMessage.error('数据加载失败！')
     }
@@ -279,18 +283,6 @@ class ListPage extends BaseListPage {
       this.state.pagination.total = result.data.second
     } else {
       ElMessage.error('数据加载失败！')
-    }
-  }
-
-  private async loadResourceTypes() {
-    // @ts-ignore
-    const result = await ajax({url: "sys/resource/loadResourceTypes"})
-    if (result.code == 200) {
-      for (let key in result.data) {
-        this.state.resourceTypes.push({key: key, value: result.data[key]})
-      }
-    } else {
-      ElMessage.error('资源类型列表加载失败！')
     }
   }
 

@@ -7,6 +7,7 @@ import './assets/css/main.css'
 import axios from "axios"
 import NProgress from 'nprogress'
 import * as ElIconModules from '@element-plus/icons'
+import {ElMessage} from "element-plus";
 
 axios.interceptors.request.use(config => {
     config.url = "/api"+config.url
@@ -19,33 +20,19 @@ axios.interceptors.response.use(config => {
     NProgress.done();
     return config;
 }, res => {
-    let {data} = res
-    // this.destroy(url)
-    // if (this.shade) {
-        // Spin.hide()
-        // Modal.success({
-        //     title: '操作成功'
-        // })
-    // }
-    const code = res.response.data.status
+    const code = res.response.status ? res.response.status : res.response.data.status
     if (code === 401) {
         if (res.response.data.error == "Unauthorized") {
-            // Cookies.remove("token")
             window.location.href = '/#/login'
-            // Message.error('未登录，或登录失效，请登录')
         }
+    } else if (code === 403) {
+        ElMessage.error("权限不足！")
+    } else if (code === 500) {
+        ElMessage.error("服务器内部出错！")
     }
-
-    console.log(res)
     return res.response
 }, error => {
     console.log(error)
-    const code = error.response.status
-    if (code === 401) {
-        // Cookies.remove("token")
-        window.location.href = '/login'
-        // Message.error('未登录，或登录失效，请登录')
-    }
 })
 
 

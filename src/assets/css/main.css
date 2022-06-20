@@ -200,3 +200,8 @@ a {
     cursor:pointer;
 }
 
+
+/* 输入框内边框标红 */
+.border_red .el-input__inner {
+    border: 1px solid #de6f6f;
+}

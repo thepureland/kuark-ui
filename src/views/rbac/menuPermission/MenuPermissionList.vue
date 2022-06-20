@@ -66,7 +66,7 @@ class ListPage extends TenantSupportListPage {
   }
 
   protected getRootActionPath(): String {
-    return "rbac/menuPermission"
+    return "rbac/resourcepermission"
   }
 
   protected getSearchUrl(): String {
@@ -75,10 +75,6 @@ class ListPage extends TenantSupportListPage {
 
   protected isCheckStrictly(): boolean {
     return false
-  }
-
-  protected isRequireSubSysOrTenantForSearch(): boolean {
-    return true
   }
 
 }

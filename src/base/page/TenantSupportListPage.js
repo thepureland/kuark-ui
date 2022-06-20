@@ -92,7 +92,7 @@ var TenantSupportListPage = /** @class */ (function (_super) {
         return true;
     };
     TenantSupportListPage.prototype.isRequireSubSysOrTenantForSearch = function () {
-        return false;
+        return true;
     };
     TenantSupportListPage.prototype.createSearchParams = function () {
         var pair = this.parseSubSysOrTenant();
